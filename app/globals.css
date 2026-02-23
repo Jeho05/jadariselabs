@@ -1,10 +1,12 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ============================================
    JadaRiseLabs — Design System
    ============================================ */
 
-@theme inline {
+:root {
   /* Couleurs JadaRiseLabs */
   --color-earth: #7B4F2E;
   --color-earth-light: #A0714D;
