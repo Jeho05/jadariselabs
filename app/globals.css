@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+
+/* ============================================
+   JadaRiseLabs — Design System
+   ============================================ */
+
+@theme inline {
+  /* Couleurs JadaRiseLabs */
+  --color-earth: #7B4F2E;
+  --color-earth-light: #A0714D;
+  --color-earth-dark: #5C3A1F;
+  --color-gold: #C9A84C;
+  --color-gold-light: #D4BA6E;
+  --color-gold-dark: #A88A3A;
+  --color-savanna: #2D6A4F;
+  --color-savanna-light: #48856A;
+  --color-savanna-dark: #1F4E39;
+  --color-terracotta: #E76F51;
+  --color-terracotta-light: #EC8D75;
+  --color-terracotta-dark: #D4533A;
+
+  /* Couleurs neutres */
+  --color-cream: #FDF6E3;
+  --color-cream-dark: #F5ECD0;
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #555555;
+  --color-text-muted: #888888;
+  --color-white: #FFFFFF;
+  --color-border: #E5E5E5;
+
+  /* Background & Foreground */
+  --color-background: var(--color-cream);
+  --color-foreground: var(--color-text-primary);
+
+  /* Polices */
+  --font-heading: var(--font-plus-jakarta-sans);
+  --font-body: var(--font-inter);
+  --font-sans: var(--font-inter);
+
+  /* Ombres */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+/* Reset & Base */
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), system-ui, sans-serif;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+/* Utilities */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-earth) 0%, var(--color-gold) 50%, var(--color-terracotta) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Bouton primaire */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-earth) 0%, var(--color-earth-dark) 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-earth-light) 0%, var(--color-earth) 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Bouton secondaire */
+.btn-secondary {
+  background: transparent;
+  color: var(--color-earth);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid var(--color-earth);
+  cursor: pointer;
+  transition: all 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.btn-secondary:hover {
+  background: var(--color-earth);
+  color: white;
+}
+
+/* Card */
+.card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  transition: all 200ms ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Skeleton loading */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-cream-dark) 0%, var(--color-cream) 50%, var(--color-cream-dark) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
