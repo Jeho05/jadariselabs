@@ -2,13 +2,14 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useState, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 
 // ============================================
-// Auth Shared Components
+// Auth Shared Components — Modern Design
 // ============================================
 
 /**
- * Google OAuth button
+ * Google OAuth button with modern styling
  */
 export function OAuthButtons({ loading }: { loading?: boolean }) {
     const [oauthLoading, setOauthLoading] = useState(false);
@@ -41,16 +42,13 @@ export function OAuthButtons({ loading }: { loading?: boolean }) {
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading || oauthLoading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 
-                 bg-white border-2 border-border rounded-xl font-medium text-text-primary
-                 hover:bg-cream-dark hover:border-earth/20 transition-all duration-200
-                 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]"
+            className="btn-oauth"
         >
             {oauthLoading ? (
                 <Spinner size={20} />
             ) : (
                 <>
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
                         <path
                             fill="#4285F4"
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -68,7 +66,7 @@ export function OAuthButtons({ loading }: { loading?: boolean }) {
                             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                         />
                     </svg>
-                    Continuer avec Google
+                    <span>Continuer avec Google</span>
                 </>
             )}
         </button>
@@ -76,20 +74,18 @@ export function OAuthButtons({ loading }: { loading?: boolean }) {
 }
 
 /**
- * Visual divider "ou"
+ * Visual divider "ou" with modern styling
  */
 export function AuthDivider() {
     return (
-        <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-sm text-text-muted font-medium">ou</span>
-            <div className="flex-1 h-px bg-border" />
+        <div className="auth-divider">
+            <span>ou</span>
         </div>
     );
 }
 
 /**
- * Password input with visibility toggle
+ * Password input with visibility toggle and icon
  */
 export function PasswordInput({
     id,
@@ -101,6 +97,7 @@ export function PasswordInput({
     required = true,
     minLength,
     disabled,
+    isValid,
 }: {
     id: string;
     name: string;
@@ -111,11 +108,26 @@ export function PasswordInput({
     required?: boolean;
     minLength?: number;
     disabled?: boolean;
+    isValid?: boolean | null;
 }) {
     const [visible, setVisible] = useState(false);
 
+    const getStateClass = () => {
+        if (isValid === true) return 'valid';
+        if (isValid === false) return 'invalid';
+        return '';
+    };
+
     return (
-        <div className="relative">
+        <div className="input-wrapper">
+            <svg className="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+            </svg>
             <input
                 id={id}
                 name={name}
@@ -127,18 +139,13 @@ export function PasswordInput({
                 required={required}
                 minLength={minLength}
                 disabled={disabled}
-                className="w-full px-4 py-3 border-2 border-border rounded-xl bg-white
-                   text-text-primary placeholder:text-text-muted
-                   focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth/20
-                   transition-all duration-200 pr-12 min-h-[48px]
-                   disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`input-field pr-12 ${getStateClass()}`}
             />
             <button
                 type="button"
                 onClick={() => setVisible(!visible)}
                 tabIndex={-1}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted 
-                   hover:text-text-primary transition-colors"
+                className="password-toggle"
                 aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
             >
                 {visible ? (
@@ -206,38 +213,44 @@ export function usePasswordStrength(password: string) {
 }
 
 /**
- * Password strength meter component
+ * Password strength meter component with animated styling
  */
 export function PasswordStrengthMeter({ password }: { password: string }) {
     const { checks, strength } = usePasswordStrength(password);
 
     if (!password) return null;
 
+    const getStrengthClass = () => {
+        if (strength.width === '25%') return 'weak';
+        if (strength.width === '50%') return 'medium';
+        if (strength.width === '75%') return 'good';
+        if (strength.width === '100%') return 'strong';
+        return '';
+    };
+
     return (
-        <div className="mt-2 space-y-2">
+        <div className="password-strength">
             {/* Progress bar */}
             <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
+                <div className="strength-bar">
                     <div
-                        className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
-                        style={{ width: strength.width }}
+                        className={`strength-bar-fill ${getStrengthClass()}`}
                     />
                 </div>
-                <span className="text-xs font-medium text-text-secondary min-w-[40px]">
+                <span className="strength-label text-text-secondary">
                     {strength.label}
                 </span>
             </div>
 
             {/* Checklist */}
-            <ul className="grid grid-cols-2 gap-1">
+            <ul className="strength-checks">
                 {checks.map((check) => (
                     <li
                         key={check.label}
-                        className={`text-xs flex items-center gap-1.5 ${check.met ? 'text-savanna' : 'text-text-muted'
-                            }`}
+                        className={`strength-check ${check.met ? 'met' : ''}`}
                     >
                         {check.met ? (
-                            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                     fillRule="evenodd"
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -245,7 +258,7 @@ export function PasswordStrengthMeter({ password }: { password: string }) {
                                 />
                             </svg>
                         ) : (
-                            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
                                 <circle cx="10" cy="10" r="4" opacity="0.3" />
                             </svg>
                         )}
@@ -287,14 +300,14 @@ export function Spinner({ size = 20 }: { size?: number }) {
 }
 
 /**
- * Auth error message display
+ * Auth error message display with animation
  */
 export function AuthError({ message }: { message: string | null }) {
     if (!message) return null;
 
     return (
-        <div className="bg-terracotta/10 border border-terracotta/30 text-terracotta-dark rounded-xl px-4 py-3 text-sm flex items-start gap-2">
-            <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <div className="auth-error">
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path
                     fillRule="evenodd"
                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"

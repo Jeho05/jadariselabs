@@ -31,7 +31,7 @@ export default function SignupPage() {
 
     const { isValid: passwordIsStrong } = usePasswordStrength(password);
 
-    const passwordsMatch = password === confirmPassword;
+    const passwordsMatch = password === confirmPassword && confirmPassword !== '';
     const usernameValid = username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
 
     const canSubmit =
@@ -97,264 +97,276 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-screen bg-cream flex flex-col">
-            {/* Header minimal */}
-            <div className="p-4 sm:p-6">
-                <Link href="/" className="inline-flex items-center gap-2 group">
-                    <span className="text-2xl">🧪</span>
-                    <span
-                        className="font-bold text-earth text-lg group-hover:text-earth-light transition-colors"
-                        style={{ fontFamily: 'var(--font-heading)' }}
-                    >
-                        JadaRiseLabs
-                    </span>
-                </Link>
+        <div className="auth-container">
+            {/* Left Panel — Visual */}
+            <div className="auth-visual">
+                {/* African Pattern Background */}
+                <div className="african-pattern" />
+                
+                {/* Floating shapes */}
+                <div className="auth-shapes">
+                    <div className="auth-shape" />
+                    <div className="auth-shape" />
+                    <div className="auth-shape" />
+                    <div className="auth-shape" />
+                </div>
+
+                {/* Content */}
+                <div className="auth-visual-content">
+                    {/* Logo */}
+                    <div className="auth-visual-logo">
+                        <div className="auth-visual-logo-icon">🧪</div>
+                        <span style={{ fontFamily: 'var(--font-heading)' }}>JadaRiseLabs</span>
+                    </div>
+
+                    {/* Title */}
+                    <h2 className="auth-visual-title">
+                        Rejoignez la<br />
+                        Révolution IA Africaine
+                    </h2>
+
+                    <p className="auth-visual-subtitle">
+                        Créez votre compte gratuit et accédez à des outils IA puissants 
+                        conçus pour les créateurs africains.
+                    </p>
+
+                    {/* Features */}
+                    <div className="auth-visual-features">
+                        <div className="auth-feature">
+                            <div className="auth-feature-icon">✨</div>
+                            <span className="auth-feature-text">50 crédits gratuits à l&apos;inscription</span>
+                        </div>
+                        <div className="auth-feature">
+                            <div className="auth-feature-icon">🚀</div>
+                            <span className="auth-feature-text">Accès immédiat à tous les modules</span>
+                        </div>
+                        <div className="auth-feature">
+                            <div className="auth-feature-icon">🌍</div>
+                            <span className="auth-feature-text">Support en français et anglais</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Form container */}
-            <div className="flex-1 flex items-center justify-center px-4 pb-12">
-                <div className="w-full max-w-[420px]">
-                    {/* Title */}
-                    <div className="text-center mb-8">
-                        <h1
-                            className="text-3xl font-bold mb-2"
+            {/* Right Panel — Form */}
+            <div className="auth-form-panel">
+                {/* Mobile Header */}
+                <div className="auth-form-header lg:hidden">
+                    <Link href="/" className="inline-flex items-center gap-2 group">
+                        <span className="text-2xl">🧪</span>
+                        <span
+                            className="font-bold text-earth text-lg group-hover:text-earth-light transition-colors"
                             style={{ fontFamily: 'var(--font-heading)' }}
                         >
-                            Créer un compte 🚀
-                        </h1>
-                        <p className="text-text-secondary">
-                            Rejoignez JadaRiseLabs et accédez à l&apos;IA gratuitement
-                        </p>
-                    </div>
+                            JadaRiseLabs
+                        </span>
+                    </Link>
+                </div>
 
-                    {/* Card */}
-                    <div className="card p-6 sm:p-8">
-                        {/* Error messages */}
-                        <AuthError message={error} />
-                        {error && <div className="h-4" />}
+                {/* Form Container */}
+                <div className="auth-form-container">
+                    <div className="auth-form-wrapper">
+                        {/* Title */}
+                        <div className="auth-title">
+                            <h1 style={{ fontFamily: 'var(--font-heading)' }}>
+                                Créer un compte 🚀
+                            </h1>
+                            <p>Rejoignez JadaRiseLabs et accédez à l&apos;IA gratuitement</p>
+                        </div>
 
-                        {/* Google OAuth */}
-                        <OAuthButtons loading={loading} />
+                        {/* Card */}
+                        <div className="glass-card stagger-children">
+                            {/* Error messages */}
+                            <AuthError message={error} />
+                            {error && <div className="h-4" />}
 
-                        <AuthDivider />
+                            {/* Google OAuth */}
+                            <OAuthButtons loading={loading} />
 
-                        {/* Signup Form */}
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Username */}
-                            <div>
-                                <label
-                                    htmlFor="username"
-                                    className="block text-sm font-medium text-text-primary mb-1.5"
-                                >
-                                    Pseudo
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
-                                        @
-                                    </span>
-                                    <input
-                                        id="username"
-                                        name="username"
-                                        type="text"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
-                                        placeholder="votre_pseudo"
-                                        autoComplete="username"
-                                        required
-                                        minLength={3}
-                                        maxLength={30}
+                            <AuthDivider />
+
+                            {/* Signup Form */}
+                            <form onSubmit={handleSubmit}>
+                                {/* Username */}
+                                <div className="input-group">
+                                    <label htmlFor="username">Pseudo</label>
+                                    <div className="input-wrapper">
+                                        <svg className="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                            />
+                                        </svg>
+                                        <span className="absolute left-10 top-1/2 -translate-y-1/2 text-text-muted text-sm">@</span>
+                                        <input
+                                            id="username"
+                                            name="username"
+                                            type="text"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
+                                            placeholder="votre_pseudo"
+                                            autoComplete="username"
+                                            required
+                                            minLength={3}
+                                            maxLength={30}
+                                            disabled={loading}
+                                            className={`input-field pl-14 ${username && !usernameValid ? 'invalid' : username && usernameValid ? 'valid' : ''}`}
+                                        />
+                                    </div>
+                                    {username && !usernameValid && (
+                                        <p className="text-xs text-terracotta mt-1">
+                                            Min. 3 caractères : lettres, chiffres, underscore uniquement
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Email */}
+                                <div className="input-group">
+                                    <label htmlFor="email">Email</label>
+                                    <div className="input-wrapper">
+                                        <svg className="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                        <input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="vous@example.com"
+                                            autoComplete="email"
+                                            required
+                                            disabled={loading}
+                                            className="input-field"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Password */}
+                                <div className="input-group">
+                                    <label htmlFor="password">Mot de passe</label>
+                                    <PasswordInput
+                                        id="password"
+                                        name="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Créer un mot de passe fort"
+                                        autoComplete="new-password"
+                                        minLength={8}
                                         disabled={loading}
-                                        className={`w-full pl-9 pr-4 py-3 border-2 rounded-xl bg-white
-                               text-text-primary placeholder:text-text-muted
-                               focus:outline-none focus:ring-1 transition-all duration-200 min-h-[48px]
-                               disabled:opacity-50 disabled:cursor-not-allowed
-                               ${username && !usernameValid
-                                                ? 'border-terracotta focus:border-terracotta focus:ring-terracotta/20'
-                                                : username && usernameValid
-                                                    ? 'border-savanna focus:border-savanna focus:ring-savanna/20'
-                                                    : 'border-border focus:border-earth focus:ring-earth/20'
-                                            }`}
+                                        isValid={password ? passwordIsStrong : null}
                                     />
+                                    <PasswordStrengthMeter password={password} />
                                 </div>
-                                {username && !usernameValid && (
-                                    <p className="text-xs text-terracotta mt-1">
-                                        Min. 3 caractères : lettres, chiffres, underscore uniquement
-                                    </p>
-                                )}
-                            </div>
 
-                            {/* Email */}
-                            <div>
-                                <label
-                                    htmlFor="email"
-                                    className="block text-sm font-medium text-text-primary mb-1.5"
-                                >
-                                    Email
-                                </label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="vous@example.com"
-                                    autoComplete="email"
-                                    required
-                                    disabled={loading}
-                                    className="w-full px-4 py-3 border-2 border-border rounded-xl bg-white
-                             text-text-primary placeholder:text-text-muted
-                             focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth/20
-                             transition-all duration-200 min-h-[48px]
-                             disabled:opacity-50 disabled:cursor-not-allowed"
-                                />
-                            </div>
-
-                            {/* Password */}
-                            <div>
-                                <label
-                                    htmlFor="password"
-                                    className="block text-sm font-medium text-text-primary mb-1.5"
-                                >
-                                    Mot de passe
-                                </label>
-                                <PasswordInput
-                                    id="password"
-                                    name="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Créer un mot de passe fort"
-                                    autoComplete="new-password"
-                                    minLength={8}
-                                    disabled={loading}
-                                />
-                                <PasswordStrengthMeter password={password} />
-                            </div>
-
-                            {/* Confirm password */}
-                            <div>
-                                <label
-                                    htmlFor="confirmPassword"
-                                    className="block text-sm font-medium text-text-primary mb-1.5"
-                                >
-                                    Confirmer le mot de passe
-                                </label>
-                                <PasswordInput
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="Retapez votre mot de passe"
-                                    autoComplete="new-password"
-                                    disabled={loading}
-                                />
-                                {confirmPassword && !passwordsMatch && (
-                                    <p className="text-xs text-terracotta mt-1">
-                                        Les mots de passe ne correspondent pas
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Language */}
-                            <div>
-                                <label
-                                    htmlFor="lang"
-                                    className="block text-sm font-medium text-text-primary mb-1.5"
-                                >
-                                    Langue préférée
-                                </label>
-                                <div className="flex gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setPreferredLang('fr')}
+                                {/* Confirm password */}
+                                <div className="input-group">
+                                    <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+                                    <PasswordInput
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="Retapez votre mot de passe"
+                                        autoComplete="new-password"
                                         disabled={loading}
-                                        className={`flex-1 py-2.5 rounded-xl border-2 font-medium text-sm transition-all duration-200
-                               ${preferredLang === 'fr'
-                                                ? 'border-earth bg-earth/5 text-earth'
-                                                : 'border-border text-text-secondary hover:border-earth/30'
-                                            } disabled:opacity-50`}
-                                    >
-                                        🇫🇷 Français
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setPreferredLang('en')}
-                                        disabled={loading}
-                                        className={`flex-1 py-2.5 rounded-xl border-2 font-medium text-sm transition-all duration-200
-                               ${preferredLang === 'en'
-                                                ? 'border-earth bg-earth/5 text-earth'
-                                                : 'border-border text-text-secondary hover:border-earth/30'
-                                            } disabled:opacity-50`}
-                                    >
-                                        🇬🇧 English
-                                    </button>
+                                        isValid={confirmPassword ? passwordsMatch : null}
+                                    />
+                                    {confirmPassword && !passwordsMatch && (
+                                        <p className="text-xs text-terracotta mt-1">
+                                            Les mots de passe ne correspondent pas
+                                        </p>
+                                    )}
                                 </div>
-                            </div>
 
-                            {/* Terms */}
-                            <div className="flex items-start gap-3">
-                                <input
-                                    id="terms"
-                                    type="checkbox"
-                                    checked={acceptTerms}
-                                    onChange={(e) => setAcceptTerms(e.target.checked)}
-                                    disabled={loading}
-                                    className="mt-1 w-4 h-4 rounded border-border text-earth focus:ring-earth/20
-                             cursor-pointer disabled:opacity-50"
-                                />
-                                <label htmlFor="terms" className="text-xs text-text-secondary leading-relaxed cursor-pointer">
-                                    J&apos;accepte les{' '}
-                                    <Link
-                                        href="/legal/terms"
-                                        className="text-earth underline hover:text-earth-light"
-                                        target="_blank"
-                                    >
-                                        conditions d&apos;utilisation
-                                    </Link>{' '}
-                                    et la{' '}
-                                    <Link
-                                        href="/legal/privacy"
-                                        className="text-earth underline hover:text-earth-light"
-                                        target="_blank"
-                                    >
-                                        politique de confidentialité
-                                    </Link>
-                                </label>
-                            </div>
+                                {/* Language */}
+                                <div className="input-group">
+                                    <label>Langue préférée</label>
+                                    <div className="lang-selector">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPreferredLang('fr')}
+                                            disabled={loading}
+                                            className={`lang-btn ${preferredLang === 'fr' ? 'active' : ''}`}
+                                        >
+                                            🇫🇷 Français
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPreferredLang('en')}
+                                            disabled={loading}
+                                            className={`lang-btn ${preferredLang === 'en' ? 'active' : ''}`}
+                                        >
+                                            🇬🇧 English
+                                        </button>
+                                    </div>
+                                </div>
 
-                            {/* Submit */}
-                            <button
-                                type="submit"
-                                disabled={!canSubmit}
-                                className="btn-primary w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed
-                           disabled:transform-none disabled:shadow-none"
-                            >
-                                {loading ? (
-                                    <>
-                                        <Spinner size={18} />
-                                        Création en cours...
-                                    </>
-                                ) : (
-                                    'Créer mon compte gratuit'
-                                )}
-                            </button>
+                                {/* Terms */}
+                                <div className="checkbox-wrapper mt-2">
+                                    <input
+                                        id="terms"
+                                        type="checkbox"
+                                        checked={acceptTerms}
+                                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                                        disabled={loading}
+                                    />
+                                    <label htmlFor="terms">
+                                        J&apos;accepte les{' '}
+                                        <Link
+                                            href="/legal/terms"
+                                            className="text-earth underline hover:text-earth-light"
+                                            target="_blank"
+                                        >
+                                            conditions d&apos;utilisation
+                                        </Link>{' '}
+                                        et la{' '}
+                                        <Link
+                                            href="/legal/privacy"
+                                            className="text-earth underline hover:text-earth-light"
+                                            target="_blank"
+                                        >
+                                            politique de confidentialité
+                                        </Link>
+                                    </label>
+                                </div>
 
-                            {/* Free plan info */}
-                            <p className="text-center text-xs text-text-muted">
-                                ✨ 50 crédits offerts • Aucune carte bancaire requise
-                            </p>
-                        </form>
+                                {/* Submit */}
+                                <button
+                                    type="submit"
+                                    disabled={!canSubmit}
+                                    className="btn-auth mt-4"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Spinner size={18} />
+                                            Création en cours...
+                                        </>
+                                    ) : (
+                                        'Créer mon compte gratuit'
+                                    )}
+                                </button>
+
+                                {/* Free plan info */}
+                                <p className="text-center text-xs text-text-muted mt-3">
+                                    ✨ 50 crédits offerts • Aucune carte bancaire requise
+                                </p>
+                            </form>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="auth-footer">
+                            Déjà un compte ?{' '}
+                            <Link href="/login">Se connecter</Link>
+                        </div>
                     </div>
-
-                    {/* Login link */}
-                    <p className="text-center mt-6 text-sm text-text-secondary">
-                        Déjà un compte ?{' '}
-                        <Link
-                            href="/login"
-                            className="text-earth font-semibold hover:text-earth-light transition-colors"
-                        >
-                            Se connecter
-                        </Link>
-                    </p>
                 </div>
             </div>
         </div>
