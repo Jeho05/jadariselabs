@@ -111,7 +111,26 @@ export const PLANS: Record<PlanType, PlanDetails> = {
 };
 
 // ---- SECTION : Dev 1 — Auth, Dashboard, Chat, Vidéo, Crédits ----
-// (Ajouter ici les types spécifiques au Dev 1)
+
+export interface LoginFormData {
+    email: string;
+    password: string;
+}
+
+export interface SignupFormData {
+    username: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    preferredLang: SupportedLang;
+}
+
+export interface PasswordStrength {
+    label: string;
+    score: number; // 0-4
+    color: string;
+    isValid: boolean;
+}
 
 // ---- SECTION : Dev 2 — Image, Galerie, Paiement ----
 // (Ajouter ici les types spécifiques au Dev 2)

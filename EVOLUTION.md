@@ -63,11 +63,68 @@
 - Next.js version 16.1.6 (dernière version)
 - Le fichier SQL de migration doit être exécuté manuellement dans Supabase SQL Editor
 
-🔜 Prochaines étapes (Jour 2 — Dev 1) :
-- [ ] Configurer le projet Supabase (créer projet, exécuter migration SQL)
-- [ ] Auth : UI signup/login avec Supabase Auth
-- [ ] Auth : page de profil utilisateur
-- [ ] Auth : gestion de session (redirect si non connecté)
+---
+
+### Jour 2 — 2026-02-24
+
+**Dev 1 — Système d'authentification complet**
+
+✅ Tâches complétées :
+- Page de connexion (`app/login/page.tsx`) :
+  - Formulaire email/mot de passe avec Supabase `signInWithPassword`
+  - Google OAuth (`signInWithOAuth`)
+  - Toggle visibilité mot de passe
+  - Mapping erreurs Supabase → messages français
+  - Loading states & anti double-soumission
+  - Redirection vers `/dashboard` après succès
+- Page d'inscription (`app/signup/page.tsx`) :
+  - Champs : pseudo, email, mot de passe, confirmation, langue
+  - Indicateur de force mot de passe (4 critères : longueur, majuscule, chiffre, spécial)
+  - Validation regex pseudo (lettres, chiffres, underscore, min 3 chars)
+  - Vérification match mots de passe
+  - Sélecteur de langue (FR/EN)
+  - Checkbox CGU obligatoire
+  - Google OAuth
+  - Redirection vers page de vérification email
+- Page de vérification email (`app/auth/verify/page.tsx`)
+- Route callback OAuth (`app/auth/callback/route.ts`)
+- Composants auth réutilisables (`components/auth-form.tsx`) :
+  - `OAuthButtons`, `PasswordInput`, `PasswordStrengthMeter`
+  - `AuthError`, `AuthDivider`, `Spinner`
+  - `getAuthErrorMessage` — mapping erreurs Supabase
+  - `usePasswordStrength` — hook d'analyse force mot de passe
+- Header/Navbar dynamique (`components/header.tsx`) :
+  - État authentifié : nav links, badge crédits, dropdown profil, logout
+  - État non-authentifié : boutons Connexion/Inscription
+  - Menu hamburger mobile responsive
+  - Listener `onAuthStateChange` pour réactivité
+- Middleware protection des routes (`middleware.ts`) :
+  - Routes protégées → redirect `/login` si non connecté
+  - Routes auth → redirect `/dashboard` si déjà connecté
+  - Paramètre `next` pour retour après login
+- Layout protégé (`app/(protected)/layout.tsx`) avec Header automatique
+- Dashboard amélioré (`app/(protected)/dashboard/page.tsx`) :
+  - Section bienvenue avec nom utilisateur
+  - Cards stats : crédits, générations, plan
+  - Cartes modules IA (Image, Chat, Vidéo)
+  - Liste générations récentes
+  - État vide avec CTA
+- API Auth (`app/api/auth/route.ts`) :
+  - GET : session + profil
+  - POST : déconnexion serveur
+- Types Dev 1 ajoutés dans `lib/types.ts` : `LoginFormData`, `SignupFormData`, `PasswordStrength`
+
+📝 Notes :
+- Pages protégées (dashboard, gallery, studio) déplacées dans `app/(protected)/`
+- Le route group `(protected)` ne modifie pas les URLs (invisible dans l'URL)
+- Build réussi : 18 routes compilées, 0 erreurs TypeScript
+- Warning lockfile SWC ignorable (n'affecte pas le fonctionnement)
+
+🔜 Prochaines étapes (Jour 3 — Dev 1) :
+- [ ] Auth : profil utilisateur (page + édition)
+- [ ] Auth : gestion de session avancée
+- [ ] Module Chat : UI chat interface
+- [ ] Module Chat : API route + Groq LLaMA
 
 ---
 
@@ -75,28 +132,50 @@
 
 ```
 /app
-  /page.tsx                    # Landing page
-  /layout.tsx                  # Layout racine (polices, metadata)
-  /globals.css                 # Design system JadaRiseLabs
-  /favicon.ico
+  /page.tsx                        # Landing page
+  /layout.tsx                      # Layout racine (polices, metadata)
+  /globals.css                     # Design system JadaRiseLabs
+  /login/page.tsx                  # Page connexion (Supabase Auth)
+  /signup/page.tsx                 # Page inscription (validation avancée)
+  /auth/
+    /callback/route.ts             # Callback OAuth & email confirm
+    /verify/page.tsx               # Page vérification email
+  /(protected)/
+    /layout.tsx                    # Layout avec Header (toutes pages auth)
+    /dashboard/page.tsx            # Dashboard utilisateur (stats, modules)
+    /gallery/page.tsx              # Galerie personnelle (placeholder)
+    /studio/[module]/page.tsx      # Studio IA dynamique (placeholder)
+  /api/
+    /auth/route.ts                 # GET session, POST logout
+    /generate/image/route.ts       # API image (placeholder)
+    /generate/chat/route.ts        # API chat (placeholder)
+    /generate/video/route.ts       # API vidéo (placeholder)
+    /payment/route.ts              # Webhook CinetPay (placeholder)
+  /legal/
+    /terms/page.tsx                # CGU
+    /privacy/page.tsx              # Politique confidentialité
+
+/components
+  /auth-form.tsx                   # Composants auth réutilisables
+  /header.tsx                      # Header/Navbar dynamique
 
 /lib
-  /types.ts                    # Types TypeScript partagés
+  /types.ts                        # Types TypeScript partagés
   /supabase/
-    /client.ts                 # Client Supabase (browser)
-    /server.ts                 # Client Supabase (server)
-    /middleware.ts             # Helper middleware Supabase
+    /client.ts                     # Client Supabase (browser)
+    /server.ts                     # Client Supabase (server)
+    /middleware.ts                 # Helper middleware Supabase
 
 /supabase
   /migrations/
-    /001_initial_schema.sql    # Schéma DB complet
+    /001_initial_schema.sql        # Schéma DB complet
 
-/public                        # Assets statiques
+/public                            # Assets statiques
 
-middleware.ts                  # Middleware Next.js (session refresh)
-.prettierrc                    # Config Prettier
-.env.example                   # Template variables d'environnement
-next.config.ts                 # Config Next.js (images, etc.)
+middleware.ts                      # Middleware Next.js (session + protection routes)
+.prettierrc                        # Config Prettier
+.env.example                       # Template variables d'environnement
+next.config.js                     # Config Next.js (images, etc.)
 ```
 
 ---
@@ -125,3 +204,5 @@ NEXT_PUBLIC_APP_URL
 3. **Convention nommage** : fichiers kebab-case, composants PascalCase, variables camelCase
 4. **Commits** : messages clairs format `feat:`, `fix:`, `refactor:`, etc.
 5. **PR obligatoire** pour merger dans develop — l'autre dev review
+6. **Route protection** : Middleware redirige automatiquement — ne pas dupliquer la logique côté composant
+7. **Pages protégées** dans `app/(protected)/` — le route group est invisible dans l'URL
