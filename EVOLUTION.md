@@ -112,6 +112,9 @@
 - API Auth (`app/api/auth/route.ts`) :
   - GET : session + profil
   - POST : déconnexion serveur
+- Configuration Google Auth complétée :
+  - URIs Google Cloud (`jadariselabs.vercel.app` et `jadariselabs-git-develop-jada.vercel.app`)
+  - Redirections Supabase (`/auth/v1/callback` et `/**`)
 - Types Dev 1 ajoutés dans `lib/types.ts` : `LoginFormData`, `SignupFormData`, `PasswordStrength`
 
 📝 Notes :
