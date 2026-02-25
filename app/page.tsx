@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import {
   IconPalette,
   IconChat,
@@ -22,6 +23,7 @@ export default function Home() {
       description: 'Transformez vos idées en images époustouflantes. Portraits, logos, art digital et plus encore.',
       tag: 'FLUX / SDXL',
       color: 'terracotta',
+      image: '/module-image-gen.jpg',
     },
     {
       icon: IconChat,
@@ -29,6 +31,7 @@ export default function Home() {
       description: 'Assistant intelligent pour le copywriting, la traduction, l\'aide à la rédaction et bien plus.',
       tag: 'LLaMA 3.3 70B',
       color: 'savanna',
+      image: null,
     },
     {
       icon: IconVideo,
@@ -36,6 +39,7 @@ export default function Home() {
       description: 'Créez des courtes vidéos à partir de texte. Idéal pour le contenu social et marketing.',
       tag: 'Wan 2.1',
       color: 'gold',
+      image: '/module-video.jpg',
     },
     {
       icon: IconEnhance,
@@ -43,6 +47,7 @@ export default function Home() {
       description: 'Augmentez la résolution, supprimez les arrière-plans. Rendez vos images parfaites.',
       tag: 'Upscale AI',
       color: 'earth',
+      image: null,
     },
     {
       icon: IconMusic,
@@ -50,6 +55,7 @@ export default function Home() {
       description: 'Musique, voix off, jingles. Créez du contenu audio professionnel avec l\'IA.',
       tag: 'Suno AI / Bark',
       color: 'terracotta',
+      image: null,
     },
     {
       icon: IconCode,
@@ -57,6 +63,7 @@ export default function Home() {
       description: 'Aide au développement, débogage, refactoring. Votre copilote code IA.',
       tag: 'CodeLlama',
       color: 'savanna',
+      image: null,
     },
   ];
 
@@ -218,12 +225,28 @@ export default function Home() {
             {/* Right Visual */}
             <div className="hidden lg:block relative">
               <div className="relative w-full max-w-lg mx-auto">
-                {/* Hero Illustration */}
-                <img 
-                  src="/illustration-hero.svg" 
-                  alt="JadaRiseLabs - Plateforme IA" 
-                  className="w-full h-auto drop-shadow-2xl"
-                />
+                {/* Hero Image - Real Photo */}
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-[var(--color-earth)]/20">
+                  <Image
+                    src="/hero-ai-tech.jpg"
+                    alt="JadaRiseLabs - Intelligence Artificielle pour l'Afrique"
+                    width={600}
+                    height={400}
+                    className="w-full h-auto object-cover"
+                    priority
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-earth)]/60 via-transparent to-transparent" />
+                  {/* Text overlay */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <p className="text-white text-lg font-semibold drop-shadow-lg">
+                      L&apos;IA au service de la créativité africaine
+                    </p>
+                    <p className="text-white/80 text-sm drop-shadow">
+                      Génère. Crée. Innove.
+                    </p>
+                  </div>
+                </div>
                 
                 {/* Floating Elements */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/80 backdrop-blur rounded-2xl shadow-lg flex items-center justify-center animate-float">
@@ -254,24 +277,38 @@ export default function Home() {
             {modules.map((module, index) => (
               <div
                 key={module.title}
-                className="module-card-premium group"
+                className="module-card-premium group flex-col"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`module-icon-premium ${module.color}`}>
-                  <module.icon size={28} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors">
-                      {module.title}
-                    </h3>
+                {/* Module Image (if exists) */}
+                {module.image && (
+                  <div className="relative w-full h-32 mb-4 rounded-xl overflow-hidden -mx-6 -mt-6 px-6 pt-6">
+                    <Image
+                      src={module.image}
+                      alt={module.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
                   </div>
-                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed mb-3">
-                    {module.description}
-                  </p>
-                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full tag-${module.color}`}>
-                    {module.tag}
-                  </span>
+                )}
+                <div className="flex items-start gap-4">
+                  <div className={`module-icon-premium ${module.color}`}>
+                    <module.icon size={28} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors">
+                        {module.title}
+                      </h3>
+                    </div>
+                    <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed mb-3">
+                      {module.description}
+                    </p>
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full tag-${module.color}`}>
+                      {module.tag}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
