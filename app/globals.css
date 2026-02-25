@@ -2757,3 +2757,127 @@ h6 {
   color: var(--color-text-muted);
   margin-top: 0.5rem;
 }
+
+/* ============================================
+   AVATAR DROPZONE STYLES
+   ============================================ */
+
+.avatar-dropzone {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 9999px;
+  border: 2px dashed var(--color-border);
+  background: linear-gradient(135deg, rgba(123, 79, 46, 0.05) 0%, rgba(160, 113, 77, 0.08) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-dropzone:hover {
+  border-color: var(--color-earth);
+  background: linear-gradient(135deg, rgba(123, 79, 46, 0.1) 0%, rgba(160, 113, 77, 0.15) 100%);
+}
+
+.avatar-dropzone.active {
+  border-color: var(--color-savanna);
+  border-style: solid;
+  background: rgba(45, 106, 79, 0.1);
+  transform: scale(1.05);
+}
+
+.avatar-dropzone.has-preview {
+  border: none;
+  background: transparent;
+}
+
+.avatar-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  color: var(--color-text-muted);
+}
+
+.avatar-dropzone-content svg {
+  margin-bottom: 0.25rem;
+  opacity: 0.6;
+}
+
+.avatar-dropzone-text {
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.avatar-dropzone-subtext {
+  font-size: 0.55rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.avatar-preview-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9999px;
+}
+
+.avatar-preview-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-preview-container:hover .avatar-preview-actions {
+  opacity: 1;
+}
+
+.avatar-action-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-earth);
+  transition: all 0.2s ease;
+}
+
+.avatar-action-btn:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.avatar-action-btn.remove {
+  color: var(--color-terracotta);
+}
+
+.avatar-action-btn.remove:hover {
+  background: rgba(231, 111, 81, 0.1);
+}

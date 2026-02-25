@@ -516,3 +516,29 @@ export function IconNewChat({ className = '', size = 24 }: IconProps) {
         </svg>
     );
 }
+
+// Upload (Cloud Arrow Up)
+export function IconUpload({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <path
+                d="M17 8l-5-5-5 5"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <line x1="12" y1="3" x2="12" y2="15" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}

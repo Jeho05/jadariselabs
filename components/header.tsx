@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
+import { useTranslation } from '@/lib/i18n';
 import {
     IconFlask,
     IconChart,
@@ -26,6 +27,7 @@ import {
  * - Mobile: hamburger menu with glassmorphism
  */
 export default function Header() {
+    const { t } = useTranslation();
     const router = useRouter();
     const pathname = usePathname();
     const supabase = createClient();
@@ -106,9 +108,9 @@ export default function Header() {
     };
 
     const navLinks = [
-        { href: '/dashboard', label: 'Dashboard', icon: IconChart },
-        { href: '/studio/image', label: 'Studio IA', icon: IconPalette },
-        { href: '/gallery', label: 'Galerie', icon: ImageIcon },
+        { href: '/dashboard', label: t('nav.dashboard'), icon: IconChart },
+        { href: '/studio/image', label: t('nav.studio'), icon: IconPalette },
+        { href: '/gallery', label: t('nav.gallery'), icon: ImageIcon },
     ];
 
     const isActive = (href: string) => pathname.startsWith(href);
@@ -120,7 +122,7 @@ export default function Header() {
                 <Link href={isAuthenticated ? '/dashboard' : '/'} className="header-logo">
                     <IconFlask className="header-logo-icon" size={28} />
                     <span className="header-logo-text" style={{ fontFamily: 'var(--font-heading)' }}>
-                        JadaRiseLabs
+                        {t('header.logo')}
                     </span>
                 </Link>
 
@@ -154,7 +156,7 @@ export default function Header() {
                                         ) : (
                                             profile.credits
                                         )}{' '}
-                                        crédits
+                                        {t('nav.credits')}
                                     </span>
                                 </div>
                             )}
@@ -186,14 +188,14 @@ export default function Header() {
                                         {/* Profile info */}
                                         <div className="header-dropdown-header">
                                             <p className="header-dropdown-username">
-                                                @{profile?.username || 'utilisateur'}
+                                                @{profile?.username || 'user'}
                                             </p>
                                             <p className="header-dropdown-plan">
-                                                Plan {profile?.plan === 'free' ? 'Gratuit' : profile?.plan === 'starter' ? 'Starter' : 'Pro'}
+                                                {profile?.plan === 'free' ? t('plan.free') : profile?.plan === 'starter' ? t('plan.starter') : t('plan.pro')}
                                             </p>
                                             <div className="header-dropdown-credits">
                                                 <IconZap size={14} />
-                                                <span>{profile?.credits === -1 ? 'Illimité' : `${profile?.credits} crédits`}</span>
+                                                <span>{profile?.credits === -1 ? t('nav.unlimited') : `${profile?.credits} ${t('nav.credits')}`}</span>
                                             </div>
                                         </div>
 
@@ -205,7 +207,7 @@ export default function Header() {
                                                 onClick={() => setProfileDropdownOpen(false)}
                                             >
                                                 <IconChart size={18} />
-                                                Dashboard
+                                                {t('nav.dashboard')}
                                             </Link>
                                             <Link
                                                 href="/dashboard/profile"
@@ -213,7 +215,7 @@ export default function Header() {
                                                 onClick={() => setProfileDropdownOpen(false)}
                                             >
                                                 <IconUser size={18} />
-                                                Mon profil
+                                                {t('nav.profile')}
                                             </Link>
                                         </div>
 
@@ -225,7 +227,7 @@ export default function Header() {
                                             className="header-dropdown-item logout"
                                         >
                                             <IconLogout size={18} />
-                                            {loggingOut ? 'Déconnexion...' : 'Se déconnecter'}
+                                            {loggingOut ? `${t('nav.logout')}...` : t('nav.logout')}
                                         </button>
                                     </div>
                                 )}
@@ -248,10 +250,10 @@ export default function Header() {
                         /* Not authenticated — Login/Signup buttons */
                         <div className="header-auth-buttons">
                             <Link href="/login" className="btn-secondary">
-                                Connexion
+                                {t('nav.login')}
                             </Link>
                             <Link href="/signup" className="btn-primary">
-                                S&apos;inscrire
+                                {t('nav.signup')}
                             </Link>
                         </div>
                     )}
@@ -268,15 +270,15 @@ export default function Header() {
                                 {profile?.username?.[0]?.toUpperCase() || '?'}
                             </div>
                             <div className="header-mobile-info">
-                                <p className="header-mobile-username">@{profile?.username || 'utilisateur'}</p>
+                                <p className="header-mobile-username">@{profile?.username || 'user'}</p>
                                 <p className="header-mobile-meta">
                                     {profile?.credits === -1 ? (
                                         <IconInfinity size={12} />
                                     ) : (
                                         profile?.credits
                                     )}{' '}
-                                    crédits •{' '}
-                                    {profile?.plan === 'free' ? 'Gratuit' : profile?.plan === 'starter' ? 'Starter' : 'Pro'}
+                                    {t('nav.credits')} •{' '}
+                                    {profile?.plan === 'free' ? t('plan.free') : profile?.plan === 'starter' ? t('plan.starter') : t('plan.pro')}
                                 </p>
                             </div>
                         </div>
@@ -298,7 +300,7 @@ export default function Header() {
                             className="header-mobile-link"
                         >
                             <IconUser size={20} />
-                            Mon profil
+                            {t('nav.profile')}
                         </Link>
 
                         {/* Logout */}
@@ -309,7 +311,7 @@ export default function Header() {
                                 className="header-mobile-link logout"
                             >
                                 <IconLogout size={20} />
-                                {loggingOut ? 'Déconnexion...' : 'Se déconnecter'}
+                                {loggingOut ? `${t('nav.logout')}...` : t('nav.logout')}
                             </button>
                         </div>
                     </div>
