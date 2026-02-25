@@ -132,5 +132,28 @@ export interface PasswordStrength {
     isValid: boolean;
 }
 
+// ---- SECTION : Dev 1 — Chat IA ----
+
+export interface ChatMessage {
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    timestamp: string;
+}
+
+export interface ChatConversation {
+    id: string;
+    user_id: string;
+    title: string;
+    messages: ChatMessage[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ProfileUpdateData {
+    username?: string;
+    preferred_lang?: SupportedLang;
+    avatar_url?: string;
+}
+
 // ---- SECTION : Dev 2 — Image, Galerie, Paiement ----
 // (Ajouter ici les types spécifiques au Dev 2)

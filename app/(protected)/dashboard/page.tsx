@@ -4,10 +4,22 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile, Generation } from '@/lib/types';
+import {
+    IconZap,
+    IconPalette,
+    IconChart,
+    ImageIcon,
+    IconChat,
+    IconVideo,
+    IconRocket,
+    IconWave,
+    IconInfinity,
+    IconCrown,
+    IconArrowRight,
+} from '@/components/icons';
 
 /**
- * Dashboard Page (Day 2 placeholder with basic auth integration)
- * Full dashboard UI will be built on Day 4-5
+ * Dashboard Page - Modern Design with African Identity
  */
 export default function DashboardPage() {
     const supabase = createClient();
@@ -50,121 +62,132 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <div className="dashboard-container">
                 {/* Skeleton loading */}
-                <div className="skeleton h-8 w-64 mb-2 rounded-lg" />
-                <div className="skeleton h-5 w-48 mb-8 rounded-lg" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="dashboard-header">
+                    <div className="skeleton h-8 w-64 mb-2 rounded-lg" />
+                    <div className="skeleton h-5 w-48 rounded-lg" />
+                </div>
+                <div className="stats-grid">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="skeleton h-32 rounded-xl" />
+                        <div key={i} className="skeleton h-24 rounded-xl" />
+                    ))}
+                </div>
+                <div className="modules-grid">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="skeleton h-28 rounded-xl" />
                     ))}
                 </div>
             </div>
         );
     }
 
+    const getPlanDisplay = (plan: string) => {
+        if (plan === 'free') return 'Gratuit';
+        if (plan === 'starter') return 'Starter';
+        return 'Pro';
+    };
+
     return (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="dashboard-container">
             {/* Welcome section */}
-            <div className="mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-                    Bienvenue, {profile?.username || 'Utilisateur'} 👋
+            <div className="dashboard-header">
+                <h1 style={{ fontFamily: 'var(--font-heading)' }}>
+                    Bienvenue, {profile?.username || 'Utilisateur'}
                 </h1>
-                <p className="text-text-secondary mt-1">
-                    Votre espace créatif IA est prêt
-                </p>
+                <p>Votre espace créatif IA est prêt</p>
             </div>
 
             {/* Stats cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="card p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-xl">
-                        ⚡
+            <div className="stats-grid">
+                <div className="stat-card">
+                    <div className="stat-icon gold">
+                        <IconZap size={24} />
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-text-primary">
-                            {profile?.credits === -1 ? '∞' : profile?.credits ?? 0}
+                        <p className="stat-value">
+                            {profile?.credits === -1 ? (
+                                <IconInfinity size={28} />
+                            ) : (
+                                profile?.credits ?? 0
+                            )}
                         </p>
-                        <p className="text-sm text-text-secondary">Crédits restants</p>
+                        <p className="stat-label">Crédits restants</p>
                     </div>
                 </div>
 
-                <div className="card p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-savanna/10 flex items-center justify-center text-xl">
-                        🎨
+                <div className="stat-card">
+                    <div className="stat-icon savanna">
+                        <IconPalette size={24} />
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-text-primary">
-                            {recentGenerations.length}
-                        </p>
-                        <p className="text-sm text-text-secondary">Générations récentes</p>
+                        <p className="stat-value">{recentGenerations.length}</p>
+                        <p className="stat-label">Générations récentes</p>
                     </div>
                 </div>
 
-                <div className="card p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-earth/10 flex items-center justify-center text-xl">
-                        📊
+                <div className="stat-card">
+                    <div className="stat-icon earth">
+                        {profile?.plan === 'pro' ? (
+                            <IconCrown size={24} />
+                        ) : (
+                            <IconChart size={24} />
+                        )}
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-text-primary capitalize">
-                            {profile?.plan === 'free' ? 'Gratuit' : profile?.plan === 'starter' ? 'Starter' : 'Pro'}
+                        <p className="stat-value capitalize">
+                            {getPlanDisplay(profile?.plan || 'free')}
                         </p>
-                        <p className="text-sm text-text-secondary">Votre plan</p>
+                        <p className="stat-label">Votre plan</p>
                     </div>
                 </div>
             </div>
 
             {/* Module Cards */}
-            <h2 className="text-xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
+            <h2 className="section-title" style={{ fontFamily: 'var(--font-heading)' }}>
                 Modules IA
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <div className="modules-grid">
                 {[
                     {
-                        icon: '🖼️',
+                        icon: ImageIcon,
                         title: 'Génération d\'images',
                         description: 'Créez des images à partir de texte avec FLUX & SDXL',
                         href: '/studio/image',
-                        color: 'bg-terracotta/10',
+                        color: 'terracotta',
                         tag: 'P1',
                     },
                     {
-                        icon: '💬',
+                        icon: IconChat,
                         title: 'Chat IA',
                         description: 'Assistant intelligent propulsé par LLaMA 3.3',
                         href: '/studio/chat',
-                        color: 'bg-savanna/10',
+                        color: 'savanna',
                         tag: 'P1',
                     },
                     {
-                        icon: '🎬',
+                        icon: IconVideo,
                         title: 'Génération vidéo',
                         description: 'Créez des courtes vidéos à partir de prompts',
                         href: '/studio/video',
-                        color: 'bg-gold/10',
+                        color: 'gold',
                         tag: 'P2',
                     },
                 ].map((module) => (
                     <Link
                         key={module.href}
                         href={module.href}
-                        className="card p-5 hover:scale-[1.02] transition-all duration-200 group"
+                        className="module-card"
                     >
-                        <div className="flex items-start gap-4">
-                            <div className={`w-12 h-12 rounded-xl ${module.color} flex items-center justify-center text-xl flex-shrink-0`}>
-                                {module.icon}
+                        <div className={`module-icon ${module.color}`}>
+                            <module.icon size={24} />
+                        </div>
+                        <div className="module-content">
+                            <div className="module-header">
+                                <h3 className="module-title">{module.title}</h3>
+                                <span className="module-tag">{module.tag}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="font-semibold text-text-primary group-hover:text-earth transition-colors">
-                                        {module.title}
-                                    </h3>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-earth/10 text-earth font-semibold">
-                                        {module.tag}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-text-secondary">{module.description}</p>
-                            </div>
+                            <p className="module-description">{module.description}</p>
                         </div>
                     </Link>
                 ))}
@@ -173,16 +196,24 @@ export default function DashboardPage() {
             {/* Recent generations */}
             {recentGenerations.length > 0 && (
                 <>
-                    <h2 className="text-xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
+                    <h2 className="section-title" style={{ fontFamily: 'var(--font-heading)' }}>
                         Dernières créations
                     </h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                        {recentGenerations.map((gen) => (
-                            <div key={gen.id} className="card p-3 text-center">
-                                <div className="w-full aspect-square rounded-lg bg-cream-dark flex items-center justify-center text-2xl mb-2">
-                                    {gen.type === 'image' ? '🖼️' : gen.type === 'chat' ? '💬' : gen.type === 'video' ? '🎬' : '🎵'}
+                    <div className="generations-grid">
+                        {recentGenerations.map((gen, index) => (
+                            <div key={gen.id} className="generation-card" style={{ animationDelay: `${0.45 + index * 0.05}s` }}>
+                                <div className="generation-preview">
+                                    {gen.type === 'image' ? (
+                                        <ImageIcon size={24} className="text-terracotta" />
+                                    ) : gen.type === 'chat' ? (
+                                        <IconChat size={24} className="text-savanna" />
+                                    ) : gen.type === 'video' ? (
+                                        <IconVideo size={24} className="text-gold" />
+                                    ) : (
+                                        <IconPalette size={24} className="text-earth" />
+                                    )}
                                 </div>
-                                <p className="text-xs text-text-secondary truncate">{gen.prompt}</p>
+                                <p className="generation-prompt">{gen.prompt}</p>
                             </div>
                         ))}
                     </div>
@@ -190,14 +221,17 @@ export default function DashboardPage() {
             )}
 
             {recentGenerations.length === 0 && (
-                <div className="card p-8 text-center">
-                    <p className="text-4xl mb-3">🚀</p>
-                    <p className="font-semibold mb-1">Aucune création pour le moment</p>
-                    <p className="text-sm text-text-secondary mb-4">
+                <div className="empty-state">
+                    <div className="empty-icon">
+                        <IconRocket size={48} />
+                    </div>
+                    <p className="empty-title">Aucune création pour le moment</p>
+                    <p className="empty-description">
                         Commencez par générer votre première image IA !
                     </p>
-                    <Link href="/studio/image" className="btn-primary inline-flex">
+                    <Link href="/studio/image" className="btn-auth">
                         Créer ma première image
+                        <IconArrowRight size={16} className="ml-2" />
                     </Link>
                 </div>
             )}
