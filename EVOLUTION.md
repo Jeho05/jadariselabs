@@ -123,13 +123,73 @@
 - Build réussi : 18 routes compilées, 0 erreurs TypeScript
 - Warning lockfile SWC ignorable (n'affecte pas le fonctionnement)
 
-🔜 Prochaines étapes (Jour 3 — Dev 1) :
-- [ ] Auth : profil utilisateur (page + édition)
-- [ ] Auth : gestion de session avancée
-- [ ] Module Chat : UI chat interface
-- [ ] Module Chat : API route + Groq LLaMA
+🔜 Prochaines étapes (Jour 4 — Dev 1) :
+- [ ] Module Chat : historique conversations (restauration complète)
+- [ ] Dashboard : fetch générations + affichage amélioré
+- [ ] Dashboard : statistiques personnelles (outils utilisés, évolution)
 
 ---
+
+### Jour 3 — 2026-02-25
+
+**Dev 1 — Profil utilisateur + Module Chat IA complet**
+
+✅ Tâches complétées :
+- Page profil utilisateur (`app/(protected)/dashboard/profile/page.tsx`) :
+  - Affichage : avatar, pseudo, email, plan, crédits, date inscription
+  - Édition inline : pseudo (validation 3-20 chars alphanumeric), langue (FR/EN), avatar URL
+  - Détails du plan : crédits/mois, HD, vidéo, watermark, comparatif
+  - Zone dangereuse : suppression de compte avec double confirmation
+  - Design glassmorphism + animations slide-up
+- API profil (`app/api/profile/route.ts`) :
+  - GET : profil + email du user authentifié
+  - PATCH : mise à jour username, preferred_lang, avatar_url
+  - Validation serveur : format username, unicité username, langue supportée
+- Module Chat IA — Interface (`app/(protected)/studio/chat/page.tsx`) :
+  - Interface modern style ChatGPT
+  - Sidebar conversations avec historique (CRUD complet)
+  - Bulles de messages user/assistant avec timestamps
+  - Streaming SSE en temps réel (caractère par caractère)
+  - Indicateur de typing animé (3 dots)
+  - Auto-scroll vers le dernier message
+  - 4 suggestions de prompts pour démarrer
+  - Input auto-resize (textarea dynamique)
+  - Raccourci Enter pour envoyer
+  - Compteur de crédits en temps réel
+  - Responsive mobile : sidebar toggle avec overlay
+- Module Chat IA — Backend (`app/api/generate/chat/route.ts`) :
+  - Intégration Groq API pour LLaMA 3.3 70B (Versatile)
+  - System prompt JadaBot (assistant IA culturellement sensible)
+  - Streaming SSE via ReadableStream
+  - Historique de contexte (20 derniers messages)
+  - Déduction 1 crédit par message
+  - Validation : message non vide, max 4000 chars, crédits suffisants
+  - Gestion erreurs : API key manquante, rate limiting, erreur Groq
+  - Enregistrement dans table `generations` pour statistiques
+- API Conversations (`app/api/chat/conversations/route.ts`) :
+  - GET : liste conversations (max 50, tri updated_at DESC)
+  - POST : créer conversation
+  - PATCH : mettre à jour messages/titre
+  - DELETE : supprimer conversation
+- Migration SQL (`supabase/migrations/002_chat_conversations.sql`) :
+  - Table `chat_conversations` (id, user_id, title, messages JSONB)
+  - RLS policies (SELECT, INSERT, UPDATE, DELETE)
+  - Index sur user_id et created_at
+  - Trigger auto-update updated_at
+- Types ajoutés dans `lib/types.ts` : `ChatMessage`, `ChatConversation`, `ProfileUpdateData`
+- 7 nouvelles icônes dans `components/icons.tsx` : Send, Trash, Edit, Globe, Camera, Refresh, NewChat
+- CSS : ~830 lignes ajoutées (profil + chat module complet)
+
+📝 Notes :
+- GROQ_API_KEY doit être ajouté dans `.env.local` pour activer le Chat IA
+- Migration `002_chat_conversations.sql` doit être exécutée dans Supabase SQL Editor
+- Le chat fonctionne en mode dégradé sans clé Groq (message d'erreur clair)
+- Build réussi : 22 routes compilées, 0 erreurs TypeScript
+
+🔜 Prochaines étapes (Jour 4 — Dev 1) :
+- [ ] Module Chat : historique conversations (restauration complète)
+- [ ] Dashboard : fetch générations + affichage amélioré
+- [ ] Dashboard : statistiques personnelles (outils utilisés, évolution)
 
 ## 📁 Structure Actuelle du Projet
 
@@ -146,13 +206,17 @@
   /(protected)/
     /layout.tsx                    # Layout avec Header (toutes pages auth)
     /dashboard/page.tsx            # Dashboard utilisateur (stats, modules)
+    /dashboard/profile/page.tsx    # ★ Profil utilisateur (édition inline)
     /gallery/page.tsx              # Galerie personnelle (placeholder)
     /studio/[module]/page.tsx      # Studio IA dynamique (placeholder)
+    /studio/chat/page.tsx          # ★ Module Chat IA (streaming)
   /api/
     /auth/route.ts                 # GET session, POST logout
+    /profile/route.ts              # ★ GET/PATCH profil utilisateur
     /generate/image/route.ts       # API image (placeholder)
-    /generate/chat/route.ts        # API chat (placeholder)
+    /generate/chat/route.ts        # ★ API chat Groq LLaMA (streaming SSE)
     /generate/video/route.ts       # API vidéo (placeholder)
+    /chat/conversations/route.ts   # ★ CRUD conversations chat
     /payment/route.ts              # Webhook CinetPay (placeholder)
   /legal/
     /terms/page.tsx                # CGU
@@ -161,6 +225,7 @@
 /components
   /auth-form.tsx                   # Composants auth réutilisables
   /header.tsx                      # Header/Navbar dynamique
+  /icons.tsx                       # ★ Icônes SVG custom (22 icônes)
 
 /lib
   /types.ts                        # Types TypeScript partagés
@@ -172,6 +237,7 @@
 /supabase
   /migrations/
     /001_initial_schema.sql        # Schéma DB complet
+    /002_chat_conversations.sql    # ★ Table conversations chat
 
 /public                            # Assets statiques
 
