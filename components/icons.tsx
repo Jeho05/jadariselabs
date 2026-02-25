@@ -542,3 +542,207 @@ export function IconUpload({ className = '', size = 24 }: IconProps) {
         </svg>
     );
 }
+
+// ============================================
+// PREMIUM ICONS - Elegant Design
+// ============================================
+
+// Music/Audio (Audio Generation)
+export function IconMusic({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M9 18V5l12-2v13"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <circle cx="6" cy="18" r="3" fill="url(#gradient-savanna)" />
+            <circle cx="18" cy="16" r="3" fill="url(#gradient-gold)" />
+            <path d="M9 9l12-2" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+        </svg>
+    );
+}
+
+// Code (Code Assistant)
+export function IconCode({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <polyline
+                points="16 18 22 12 16 6"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <polyline
+                points="8 6 2 12 8 18"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <line x1="12" y1="4" x2="12" y2="20" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+        </svg>
+    );
+}
+
+// Enhance/Magic Wand (Image Enhancement)
+export function IconEnhance({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8 5.6 21.2 8 14 2 9.2h7.6L12 2z"
+                fill="url(#gradient-gold)"
+            />
+            <circle cx="12" cy="12" r="3" fill="white" opacity="0.9" />
+            <circle cx="12" cy="12" r="1.5" fill="url(#gradient-terracotta)" />
+        </svg>
+    );
+}
+
+// Check (Validation/Success)
+export function IconCheck({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <circle cx="12" cy="12" r="10" fill="url(#gradient-savanna)" opacity="0.15" />
+            <path
+                d="M8 12l3 3 5-6"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+        </svg>
+    );
+}
+
+// Star (Premium/Popular)
+export function IconStar({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8 5.6 21.2 8 14 2 9.2h7.6L12 2z"
+                fill="url(#gradient-gold)"
+                stroke="url(#gradient-gold-dark)"
+                strokeWidth="1"
+            />
+        </svg>
+    );
+}
+
+// Sparkle (AI Magic)
+export function IconSparkle({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"
+                fill="url(#gradient-gold)"
+            />
+            <path
+                d="M5 16l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"
+                fill="url(#gradient-terracotta)"
+                opacity="0.6"
+            />
+            <path
+                d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75L19 14z"
+                fill="url(#gradient-savanna)"
+                opacity="0.6"
+            />
+        </svg>
+    );
+}
+
+// Download
+export function IconDownload({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <polyline
+                points="7 10 12 15 17 10"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <line x1="12" y1="15" x2="12" y2="3" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Wand (Magic Tool)
+export function IconWand({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M15 4V2"
+                stroke="url(#gradient-gold)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M15 16v-2"
+                stroke="url(#gradient-gold)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M8 9h2"
+                stroke="url(#gradient-terracotta)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M20 9h2"
+                stroke="url(#gradient-terracotta)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M17.8 11.8l1.4 1.4"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M10.8 11.8l-1.4 1.4"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M3 21l9-9"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M12 9l-1-1"
+                stroke="url(#gradient-gold)"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+        </svg>
+    );
+}
