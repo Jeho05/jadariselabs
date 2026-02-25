@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
-import { cookies } from 'next/headers';
 import './globals.css';
 import { LanguageProviderWrapper } from '@/components/language-provider-wrapper';
-import { getLangFromCookie } from '@/lib/i18n';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta-sans',
@@ -35,19 +33,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const cookieString = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join('; ');
-  const lang = getLangFromCookie(cookieString);
-
   return (
-    <html lang={lang}>
+    <html lang="fr">
       <body className={`${plusJakartaSans.variable} ${inter.variable} antialiased`}>
-        <LanguageProviderWrapper initialLang={lang}>
+        <LanguageProviderWrapper>
           {children}
         </LanguageProviderWrapper>
       </body>
