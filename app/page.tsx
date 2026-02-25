@@ -131,6 +131,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-hidden">
+      {/* African Pattern Background */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-30"
+        style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
+      />
+      
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-gold)]/5 rounded-full blur-3xl" />
@@ -211,46 +217,13 @@ export default function Home() {
             
             {/* Right Visual */}
             <div className="hidden lg:block relative">
-              <div className="relative w-full aspect-square max-w-lg mx-auto">
-                {/* Main Card */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-xl rounded-3xl shadow-2xl shadow-[var(--color-earth)]/10 border border-white/50 overflow-hidden">
-                  {/* Decorative top bar */}
-                  <div className="h-2 bg-gradient-to-r from-[var(--color-gold)] via-[var(--color-terracotta)] to-[var(--color-savanna)]" />
-                  
-                  <div className="p-8">
-                    {/* Mock UI Elements */}
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)]" />
-                      <div className="flex-1">
-                        <div className="h-3 w-24 bg-[var(--color-text-primary)]/20 rounded-full mb-1" />
-                        <div className="h-2 w-16 bg-[var(--color-text-muted)]/20 rounded-full" />
-                      </div>
-                    </div>
-                    
-                    {/* Mock Chat */}
-                    <div className="space-y-3">
-                      <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[var(--color-savanna)]/20 flex-shrink-0" />
-                        <div className="flex-1 bg-[var(--color-cream)]/50 rounded-2xl rounded-tl-sm p-3">
-                          <div className="h-2 w-full bg-[var(--color-text-secondary)]/20 rounded-full mb-2" />
-                          <div className="h-2 w-3/4 bg-[var(--color-text-secondary)]/20 rounded-full" />
-                        </div>
-                      </div>
-                      <div className="flex gap-3 justify-end">
-                        <div className="flex-1 bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-light)] rounded-2xl rounded-tr-sm p-3 max-w-[80%]">
-                          <div className="h-2 w-full bg-white/30 rounded-full mb-2" />
-                          <div className="h-2 w-2/3 bg-white/30 rounded-full" />
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-[var(--color-gold)]/20 flex-shrink-0" />
-                      </div>
-                    </div>
-                    
-                    {/* Mock Generated Image */}
-                    <div className="mt-6 rounded-xl overflow-hidden bg-gradient-to-br from-[var(--color-terracotta)]/20 via-[var(--color-gold)]/20 to-[var(--color-savanna)]/20 aspect-video flex items-center justify-center">
-                      <IconPalette size={48} className="text-[var(--color-earth)]/40" />
-                    </div>
-                  </div>
-                </div>
+              <div className="relative w-full max-w-lg mx-auto">
+                {/* Hero Illustration */}
+                <img 
+                  src="/illustration-hero.svg" 
+                  alt="JadaRiseLabs - Plateforme IA" 
+                  className="w-full h-auto drop-shadow-2xl"
+                />
                 
                 {/* Floating Elements */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/80 backdrop-blur rounded-2xl shadow-lg flex items-center justify-center animate-float">
