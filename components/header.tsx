@@ -267,7 +267,12 @@ export default function Header() {
                         {/* Profile info mobile */}
                         <div className="header-mobile-profile">
                             <div className="header-mobile-avatar">
-                                {profile?.username?.[0]?.toUpperCase() || '?'}
+                                {profile?.avatar_url ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={profile.avatar_url} alt="" />
+                                ) : (
+                                    profile?.username?.[0]?.toUpperCase() || '?'
+                                )}
                             </div>
                             <div className="header-mobile-info">
                                 <p className="header-mobile-username">@{profile?.username || 'user'}</p>
