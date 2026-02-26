@@ -10,12 +10,8 @@ import { translations, TranslationKey, Language } from './translations';
  */
 export function useTranslation() {
     const context = useContext(LanguageContext);
-
-    if (!context) {
-        throw new Error('useTranslation must be used within a LanguageProvider');
-    }
-
-    const { lang, setLang } = context;
+    const lang = context?.lang ?? 'fr';
+    const setLang = context?.setLang ?? (() => {});
 
     const t = (key: TranslationKey): string => {
         const translation = translations[lang][key];

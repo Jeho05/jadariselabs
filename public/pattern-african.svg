@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <defs>
+    <pattern id="african-pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <!-- Kente-inspired geometric pattern -->
+      <rect width="60" height="60" fill="transparent"/>
+      
+      <!-- Diamond shapes -->
+      <path d="M30 5 L35 15 L30 25 L25 15 Z" fill="#D4AF37" opacity="0.08"/>
+      <path d="M30 35 L35 45 L30 55 L25 45 Z" fill="#E76F51" opacity="0.06"/>
+      
+      <!-- Small triangles -->
+      <path d="M5 30 L10 25 L10 35 Z" fill="#38B000" opacity="0.05"/>
+      <path d="M55 30 L50 25 L50 35 Z" fill="#7B4F2B" opacity="0.05"/>
+      
+      <!-- Accent dots -->
+      <circle cx="15" cy="15" r="2" fill="#D4AF37" opacity="0.04"/>
+      <circle cx="45" cy="45" r="2" fill="#E76F51" opacity="0.04"/>
+      <circle cx="15" cy="45" r="1.5" fill="#38B000" opacity="0.03"/>
+      <circle cx="45" cy="15" r="1.5" fill="#7B4F2B" opacity="0.03"/>
+      
+      <!-- Subtle lines -->
+      <line x1="0" y1="30" x2="10" y2="30" stroke="#D4AF37" stroke-width="0.5" opacity="0.03"/>
+      <line x1="50" y1="30" x2="60" y2="30" stroke="#D4AF37" stroke-width="0.5" opacity="0.03"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#african-pattern)"/>
+</svg>

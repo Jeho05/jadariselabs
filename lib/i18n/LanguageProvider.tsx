@@ -9,10 +9,9 @@ const LANGUAGE_STORAGE_KEY = 'jadariselabs_lang';
 interface LanguageContextValue {
     lang: Language;
     setLang: (lang: Language) => void;
-    isLoading: boolean;
 }
 
-export const LanguageContext = createContext<LanguageContextValue | null>(null);
+export const LanguageContext = createContext<LanguageContextValue>({ lang: 'fr', setLang: () => {} });
 
 interface LanguageProviderProps {
     children: ReactNode;
@@ -27,34 +26,33 @@ interface LanguageProviderProps {
  */
 export function LanguageProvider({ children, initialLang = 'fr' }: LanguageProviderProps) {
     const [lang, setLangState] = useState<Language>(initialLang);
-    const [isLoading, setIsLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
 
-    // Initialize language from localStorage or cookie
+    // Initialize language from localStorage after mount
     useEffect(() => {
+        setMounted(true);
         const storedLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language | null;
         if (storedLang && ['fr', 'en'].includes(storedLang)) {
             setLangState(storedLang);
-        } else if (initialLang) {
-            setLangState(initialLang);
         }
-        setIsLoading(false);
-    }, [initialLang]);
+    }, []);
 
     // Update HTML lang attribute
     useEffect(() => {
-        if (typeof document !== 'undefined') {
+        if (mounted && typeof document !== 'undefined') {
             document.documentElement.lang = lang;
         }
-    }, [lang]);
+    }, [lang, mounted]);
 
     const setLang = useCallback(async (newLang: Language) => {
         setLangState(newLang);
 
         // Save to localStorage
-        localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
-
-        // Save to cookie for server-side access
-        document.cookie = `${LANGUAGE_COOKIE_NAME}=${newLang};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
+            // Save to cookie for server-side access
+            document.cookie = `${LANGUAGE_COOKIE_NAME}=${newLang};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+        }
 
         // Sync with profile in database
         try {
@@ -69,7 +67,7 @@ export function LanguageProvider({ children, initialLang = 'fr' }: LanguageProvi
     }, []);
 
     return (
-        <LanguageContext.Provider value={{ lang, setLang, isLoading }}>
+        <LanguageContext.Provider value={{ lang, setLang }}>
             {children}
         </LanguageContext.Provider>
     );
