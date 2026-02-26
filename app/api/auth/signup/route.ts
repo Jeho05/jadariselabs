@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (authError) {
-            console.error('Auth signup error:', authError);
+            console.error('Auth signup error:', authError.message, authError.status, authError.code);
             
             // Map common errors
             const errorMessage = authError.message.toLowerCase();
@@ -83,6 +83,15 @@ export async function POST(request: NextRequest) {
                     { error: 'Le mot de passe ne respecte pas les critères de sécurité.' },
                     { status: 400 }
                 );
+            }
+            if (errorMessage.includes('error sending confirmation email')) {
+                // User was created but email failed - return partial success
+                console.warn('User created but confirmation email failed:', email);
+                return NextResponse.json({
+                    success: true,
+                    warning: 'Compte créé mais l\'email de confirmation n\'a pas pu être envoyé. Contactez le support.',
+                    user: { email: email.trim().toLowerCase() },
+                });
             }
             
             return NextResponse.json(
