@@ -327,6 +327,9 @@ export function getAuthErrorMessage(error: string): string {
         'Invalid login credentials': 'Email ou mot de passe incorrect.',
         'Email not confirmed': 'Veuillez confirmer votre email avant de vous connecter.',
         'User already registered': 'Un compte existe déjà avec cet email.',
+        'duplicate key value violates unique constraint "profiles_username_key"':
+            'Ce pseudo est déjà utilisé. Veuillez en choisir un autre.',
+        'duplicate key value': 'Cette valeur est déjà utilisée.',
         'Password should be at least 6 characters':
             'Le mot de passe doit contenir au moins 6 caractères.',
         'Signup requires a valid password': 'Veuillez entrer un mot de passe valide.',
@@ -334,6 +337,8 @@ export function getAuthErrorMessage(error: string): string {
             'Trop de tentatives. Veuillez réessayer dans quelques minutes.',
         'For security purposes, you can only request this after 60 seconds.':
             'Pour des raisons de sécurité, veuillez attendre 60 secondes.',
+        'Unable to create user': 'Impossible de créer le compte. Veuillez réessayer.',
+        'User creation failed': 'La création du compte a échoué. Veuillez réessayer.',
         auth_callback_failed:
             "Erreur lors de l'authentification. Veuillez réessayer.",
     };

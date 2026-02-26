@@ -35,9 +35,11 @@ export default function SignupPage() {
 
     const passwordsMatch = password === confirmPassword && confirmPassword !== '';
     const usernameValid = username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailValid = emailRegex.test(email.trim());
 
     const canSubmit =
-        email &&
+        emailValid &&
         passwordIsStrong &&
         passwordsMatch &&
         usernameValid &&
@@ -363,9 +365,14 @@ export default function SignupPage() {
                                         autoComplete="email"
                                         required
                                         disabled={loading}
-                                        className="input-field"
+                                        className={`input-field ${email && !emailValid ? '!border-[var(--color-terracotta)]' : email && emailValid ? '!border-[var(--color-savanna)]' : ''}`}
                                     />
                                 </div>
+                                {email && !emailValid && (
+                                    <p className="text-xs text-[var(--color-terracotta)] mt-1.5 flex items-center gap-1">
+                                        <span>⚠</span> Format d&apos;email invalide
+                                    </p>
+                                )}
                             </div>
 
                             {/* Password */}
