@@ -83,20 +83,22 @@ export default function SignupPage() {
         setLoading(true);
 
         try {
-            const { error: authError } = await supabase.auth.signUp({
-                email: email.trim().toLowerCase(),
-                password,
-                options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
-                    data: {
-                        username: username.trim(),
-                        preferred_lang: preferredLang,
-                    },
-                },
+            // Use our server-side API for signup (handles profile creation)
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email.trim().toLowerCase(),
+                    password,
+                    username: username.trim(),
+                    preferredLang,
+                }),
             });
 
-            if (authError) {
-                setError(getAuthErrorMessage(authError.message));
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.error || 'Une erreur est survenue lors de la création du compte.');
                 setLoading(false);
                 return;
             }
