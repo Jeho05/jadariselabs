@@ -4,4 +4,5 @@
 
 export { translations, type TranslationKey, type Language, type Translations } from './translations';
 export { useTranslation, getTranslation, getTranslationsForLang } from './useTranslation';
-export { LanguageProvider, LanguageContext, getLangFromCookie } from './LanguageProvider';
+export { LanguageProvider, LanguageContext } from './LanguageProvider';
+export { getLangFromCookie } from './getLangFromCookie';

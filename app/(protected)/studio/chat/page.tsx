@@ -61,7 +61,22 @@ export default function ChatStudioPage() {
                 const res = await fetch('/api/chat/conversations');
                 if (res.ok) {
                     const data = await res.json();
-                    setConversations(data.conversations || []);
+                    const fetchedConversations = data.conversations || [];
+                    setConversations(fetchedConversations);
+
+                    if (fetchedConversations.length > 0 && user) {
+                        setActiveConversationId(fetchedConversations[0].id);
+                        const { data: convData } = await supabase
+                            .from('chat_conversations')
+                            .select('*')
+                            .eq('id', fetchedConversations[0].id)
+                            .eq('user_id', user.id)
+                            .single();
+
+                        if (convData) {
+                            setMessages(convData.messages || []);
+                        }
+                    }
                 }
             } catch {
                 // Silent fail — conversations list not critical
