@@ -13,6 +13,7 @@ import {
     IconClose,
     IconSparkles,
 } from '@/components/icons';
+import ChatMessageContent from '@/components/chat-message-content';
 
 /**
  * Chat IA Studio — Interface ChatGPT-like
@@ -473,16 +474,10 @@ export default function ChatStudioPage() {
                                 )}
                                 <div className="chat-bubble-content">
                                     {msg.content ? (
-                                        <div className="chat-bubble-text">
-                                            {msg.content.split('\n').map((line, j) => (
-                                                <span key={j}>
-                                                    {line}
-                                                    {j <
-                                                        msg.content.split('\n').length -
-                                                        1 && <br />}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        <ChatMessageContent
+                                            content={msg.content}
+                                            isUser={msg.role === 'user'}
+                                        />
                                     ) : (
                                         <div className="chat-typing-indicator">
                                             <span />
