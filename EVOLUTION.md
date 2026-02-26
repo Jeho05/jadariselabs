@@ -186,10 +186,24 @@
 - Le chat fonctionne en mode dégradé sans clé Groq (message d'erreur clair)
 - Build réussi : 22 routes compilées, 0 erreurs TypeScript
 
-🔜 Prochaines étapes (Jour 4 — Dev 1) :
-- [ ] Module Chat : historique conversations (restauration complète)
-- [ ] Dashboard : fetch générations + affichage amélioré
-- [ ] Dashboard : statistiques personnelles (outils utilisés, évolution)
+### Jour 4 — 2026-02-26
+
+**Dev 1 — Améliorations UX Chat & Statistiques Dashboard**
+
+✅ Tâches complétées :
+- Module Chat (`app/(protected)/studio/chat/page.tsx`) :
+  - Restauration automatique de l'historique : la dernière conversation active est dorénavant chargée immédiatement à l'ouverture du chat.
+- Dashboard (`app/(protected)/dashboard/page.tsx`) :
+  - Fetch de toutes les générations de l'utilisateur.
+  - Remplacement de l'indicateur "Générations récentes" (capé à 5) par le vrai compteur "Générations au total".
+  - Ajout d'une nouvelle section `Outils favoris` (Statistiques personnelles) :
+    - Calcul du pourcentage d'utilisation pour chaque outil (Image, Chat, Vidéo, etc.)
+    - Barres de progression stylisées avec les couleurs globales de la plateforme (`terracotta`, `savanna`, `gold`).
+
+🔜 Prochaines étapes (Jour 5 — Dev 1) :
+- [ ] Module Vidéo : interface UI (prompt, durée).
+- [ ] Système de crédits : affichage dashboard + warnings.
+- [ ] Partage social : boutons WhatsApp/FB/Twitter.
 
 ## 📁 Structure Actuelle du Projet
 
