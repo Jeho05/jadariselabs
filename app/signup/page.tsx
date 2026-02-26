@@ -462,7 +462,10 @@ export default function SignupPage() {
                                         disabled={loading}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-5 h-5 rounded border-2 border-[var(--color-border)] peer-checked:bg-[var(--color-savanna)] peer-checked:border-[var(--color-savanna)] transition-all flex items-center justify-center cursor-pointer">
+                                    <div 
+                                        onClick={() => !loading && setAcceptTerms(!acceptTerms)}
+                                        className="w-5 h-5 rounded border-2 border-[var(--color-border)] peer-checked:bg-[var(--color-savanna)] peer-checked:border-[var(--color-savanna)] transition-all flex items-center justify-center cursor-pointer"
+                                    >
                                         {acceptTerms && <IconCheck size={14} className="text-white" />}
                                     </div>
                                 </div>
