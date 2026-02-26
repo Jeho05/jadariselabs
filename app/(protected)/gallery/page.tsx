@@ -67,7 +67,7 @@ export default function GalleryPage() {
                                 </div>
                             </div>
                             {/* Info */}
-                            <div className="p-3">
+                            <div className="p-3 sm:p-4">
                                 <p className="font-medium text-sm truncate">{item.title}</p>
                                 <p className="text-xs text-[var(--color-text-muted)]">{item.date}</p>
                             </div>
