@@ -823,3 +823,88 @@ export function IconImage({ className = '', size = 24 }: IconProps) {
         </svg>
     );
 }
+
+// Lock (Security/Password)
+export function IconLock({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <rect x="5" y="11" width="14" height="10" rx="2" fill="url(#gradient-earth)" opacity="0.15" />
+            <rect x="5" y="11" width="14" height="10" rx="2" stroke="url(#gradient-earth)" strokeWidth="2" fill="none" />
+            <path d="M8 11V7a4 4 0 118 0v4" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="12" cy="16" r="1.5" fill="url(#gradient-gold)" />
+        </svg>
+    );
+}
+
+// Mail (Email)
+export function IconMail({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <rect x="3" y="5" width="18" height="14" rx="2" fill="url(#gradient-savanna)" opacity="0.1" />
+            <rect x="3" y="5" width="18" height="14" rx="2" stroke="url(#gradient-savanna)" strokeWidth="2" fill="none" />
+            <path d="M3 7l9 6 9-6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Users (Community/Team)
+export function IconUsers({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <circle cx="9" cy="7" r="3" stroke="url(#gradient-earth)" strokeWidth="2" fill="none" />
+            <circle cx="17" cy="7" r="2.5" stroke="url(#gradient-gold)" strokeWidth="2" fill="none" />
+            <path d="M3 21v-1a5 5 0 015-5h2a5 5 0 015 5v1" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" fill="none" />
+            <path d="M21 21v-1a3 3 0 00-3-3h-1" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" fill="none" />
+        </svg>
+    );
+}
+
+// Play (Video/Start)
+export function IconPlay({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <circle cx="12" cy="12" r="10" fill="url(#gradient-gold)" opacity="0.15" />
+            <circle cx="12" cy="12" r="10" stroke="url(#gradient-gold)" strokeWidth="2" fill="none" />
+            <path d="M10 8l6 4-6 4V8z" fill="url(#gradient-gold)" />
+        </svg>
+    );
+}
+
+// TrendingUp (Stats/Growth)
+export function IconTrendingUp({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M23 6l-9.5 9.5-5-5L1 18" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M17 6h6v6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// Message (Chat/Support)
+export function IconMessage({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"
+                fill="url(#gradient-savanna)"
+                opacity="0.15"
+            />
+            <path
+                d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <line x1="8" y1="9" x2="16" y2="9" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <line x1="8" y1="13" x2="14" y2="13" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}

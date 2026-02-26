@@ -207,7 +207,7 @@ export default function SignupPage() {
                     <div className="mt-12 pt-8 border-t border-white/10 space-y-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                         {testimonials.map((testimonial, index) => (
                             <div key={index} className="glass-card-premium !rounded-xl !p-4 !bg-white/5">
-                                <p className="text-white/80 text-sm italic mb-2">"{testimonial.text}"</p>
+                                <p className="text-white/80 text-sm italic mb-2">&ldquo;{testimonial.text}&rdquo;</p>
                                 <div className="flex items-center gap-2">
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] flex items-center justify-center text-white text-xs font-bold">
                                         {testimonial.author[0]}

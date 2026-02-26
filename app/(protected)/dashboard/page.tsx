@@ -395,7 +395,7 @@ export default function DashboardPage() {
                                                 />
                                             </div>
                                             <div className="flex justify-between items-center mt-1">
-                                                <span className="text-xs text-[var(--color-text-muted)]">{percentage}% d'utilisation</span>
+                                                <span className="text-xs text-[var(--color-text-muted)]">{percentage}% d&apos;utilisation</span>
                                             </div>
                                         </div>
                                     );
