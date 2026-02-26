@@ -3,6 +3,7 @@
 import { useState, FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import {
     OAuthButtons,
@@ -12,6 +13,7 @@ import {
     Spinner,
     getAuthErrorMessage,
 } from '@/components/auth-form';
+import { IconFlask, IconPalette, IconChat, IconVideo, IconSparkle } from '@/components/icons';
 
 function LoginForm() {
     const router = useRouter();
@@ -67,11 +69,25 @@ function LoginForm() {
                     <div className="auth-shape" />
                 </div>
 
+                {/* Hero Image */}
+                <div className="absolute inset-0">
+                    <Image
+                        src="/hero-ai-tech.jpg"
+                        alt="JadaRiseLabs - Intelligence Artificielle"
+                        fill
+                        className="object-cover"
+                        priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-earth)]/90 via-[var(--color-earth)]/70 to-[var(--color-gold)]/30" />
+                </div>
+
                 {/* Content */}
-                <div className="auth-visual-content">
+                <div className="auth-visual-content relative z-10">
                     {/* Logo */}
                     <div className="auth-visual-logo">
-                        <div className="auth-visual-logo-icon">🧪</div>
+                        <div className="auth-visual-logo-icon">
+                            <IconFlask size={28} className="text-white" />
+                        </div>
                         <span style={{ fontFamily: 'var(--font-heading)' }}>JadaRiseLabs</span>
                     </div>
 
@@ -89,15 +105,21 @@ function LoginForm() {
                     {/* Features */}
                     <div className="auth-visual-features">
                         <div className="auth-feature">
-                            <div className="auth-feature-icon">🎨</div>
+                            <div className="auth-feature-icon">
+                                <IconPalette size={20} className="text-[var(--color-terracotta)]" />
+                            </div>
                             <span className="auth-feature-text">Génération d&apos;images IA</span>
                         </div>
                         <div className="auth-feature">
-                            <div className="auth-feature-icon">💬</div>
+                            <div className="auth-feature-icon">
+                                <IconChat size={20} className="text-[var(--color-savanna)]" />
+                            </div>
                             <span className="auth-feature-text">Assistant conversationnel</span>
                         </div>
                         <div className="auth-feature">
-                            <div className="auth-feature-icon">🎬</div>
+                            <div className="auth-feature-icon">
+                                <IconVideo size={20} className="text-[var(--color-gold)]" />
+                            </div>
                             <span className="auth-feature-text">Création de vidéos</span>
                         </div>
                     </div>
@@ -109,7 +131,9 @@ function LoginForm() {
                 {/* Mobile Header */}
                 <div className="auth-form-header lg:hidden">
                     <Link href="/" className="inline-flex items-center gap-2 group">
-                        <span className="text-2xl">🧪</span>
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center">
+                            <IconFlask size={20} className="text-white" />
+                        </div>
                         <span
                             className="font-bold text-earth text-lg group-hover:text-earth-light transition-colors"
                             style={{ fontFamily: 'var(--font-heading)' }}
@@ -124,8 +148,8 @@ function LoginForm() {
                     <div className="auth-form-wrapper">
                         {/* Title */}
                         <div className="auth-title">
-                            <h1 style={{ fontFamily: 'var(--font-heading)' }}>
-                                Bon retour ! 👋
+                            <h1 style={{ fontFamily: 'var(--font-heading)' }} className="flex items-center gap-2">
+                                Bon retour ! <IconSparkle size={24} className="text-[var(--color-gold)]" />
                             </h1>
                             <p>Connectez-vous pour accéder à votre espace IA</p>
                         </div>

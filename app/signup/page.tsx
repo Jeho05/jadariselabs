@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import {
     OAuthButtons,
@@ -15,6 +16,7 @@ import {
     usePasswordStrength,
 } from '@/components/auth-form';
 import type { SupportedLang } from '@/lib/types';
+import { IconFlask, IconSparkle, IconRocket, IconGlobe, IconCheck } from '@/components/icons';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -111,11 +113,25 @@ export default function SignupPage() {
                     <div className="auth-shape" />
                 </div>
 
+                {/* Hero Image */}
+                <div className="absolute inset-0">
+                    <Image
+                        src="/african-tech.jpg"
+                        alt="JadaRiseLabs - Créateurs Africains"
+                        fill
+                        className="object-cover"
+                        priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-terracotta)]/90 via-[var(--color-earth)]/70 to-[var(--color-gold)]/30" />
+                </div>
+
                 {/* Content */}
-                <div className="auth-visual-content">
+                <div className="auth-visual-content relative z-10">
                     {/* Logo */}
                     <div className="auth-visual-logo">
-                        <div className="auth-visual-logo-icon">🧪</div>
+                        <div className="auth-visual-logo-icon">
+                            <IconFlask size={28} className="text-white" />
+                        </div>
                         <span style={{ fontFamily: 'var(--font-heading)' }}>JadaRiseLabs</span>
                     </div>
 
@@ -133,15 +149,21 @@ export default function SignupPage() {
                     {/* Features */}
                     <div className="auth-visual-features">
                         <div className="auth-feature">
-                            <div className="auth-feature-icon">✨</div>
+                            <div className="auth-feature-icon">
+                                <IconSparkle size={20} className="text-[var(--color-gold)]" />
+                            </div>
                             <span className="auth-feature-text">50 crédits gratuits à l&apos;inscription</span>
                         </div>
                         <div className="auth-feature">
-                            <div className="auth-feature-icon">🚀</div>
+                            <div className="auth-feature-icon">
+                                <IconRocket size={20} className="text-[var(--color-terracotta)]" />
+                            </div>
                             <span className="auth-feature-text">Accès immédiat à tous les modules</span>
                         </div>
                         <div className="auth-feature">
-                            <div className="auth-feature-icon">🌍</div>
+                            <div className="auth-feature-icon">
+                                <IconGlobe size={20} className="text-[var(--color-savanna)]" />
+                            </div>
                             <span className="auth-feature-text">Support en français et anglais</span>
                         </div>
                     </div>
@@ -153,7 +175,9 @@ export default function SignupPage() {
                 {/* Mobile Header */}
                 <div className="auth-form-header lg:hidden">
                     <Link href="/" className="inline-flex items-center gap-2 group">
-                        <span className="text-2xl">🧪</span>
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center">
+                            <IconFlask size={20} className="text-white" />
+                        </div>
                         <span
                             className="font-bold text-earth text-lg group-hover:text-earth-light transition-colors"
                             style={{ fontFamily: 'var(--font-heading)' }}
@@ -168,8 +192,8 @@ export default function SignupPage() {
                     <div className="auth-form-wrapper">
                         {/* Title */}
                         <div className="auth-title">
-                            <h1 style={{ fontFamily: 'var(--font-heading)' }}>
-                                Créer un compte 🚀
+                            <h1 style={{ fontFamily: 'var(--font-heading)' }} className="flex items-center gap-2">
+                                Créer un compte <IconRocket size={24} className="text-[var(--color-terracotta)]" />
                             </h1>
                             <p>Rejoignez JadaRiseLabs et accédez à l&apos;IA gratuitement</p>
                         </div>
@@ -355,8 +379,9 @@ export default function SignupPage() {
                                 </button>
 
                                 {/* Free plan info */}
-                                <p className="text-center text-xs text-text-muted mt-3">
-                                    ✨ 50 crédits offerts • Aucune carte bancaire requise
+                                <p className="text-center text-xs text-text-muted mt-3 flex items-center justify-center gap-1">
+                                    <IconSparkle size={14} className="text-[var(--color-gold)]" />
+                                    50 crédits offerts • Aucune carte bancaire requise
                                 </p>
                             </form>
                         </div>

@@ -746,3 +746,80 @@ export function IconWand({ className = '', size = 24 }: IconProps) {
         </svg>
     );
 }
+
+// Shield (Security/Privacy)
+export function IconShield({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                fill="url(#gradient-earth)"
+                opacity="0.15"
+            />
+            <path
+                d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <path
+                d="M9 12l2 2 4-4"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
+
+// Clock (Time/Expiration)
+export function IconClock({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <circle cx="12" cy="12" r="10" stroke="url(#gradient-terracotta)" strokeWidth="2" fill="none" />
+            <path d="M12 6v6l4 2" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// File (Document/Terms)
+export function IconFile({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                fill="url(#gradient-savanna)"
+                opacity="0.15"
+            />
+            <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                stroke="url(#gradient-savanna)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+            <path d="M14 2v6h6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M16 13H8" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M16 17H8" stroke="url(--gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Image (Gallery)
+export function IconImage({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="url(#gradient-earth)" strokeWidth="2" fill="none" />
+            <circle cx="8.5" cy="8.5" r="1.5" fill="url(#gradient-gold)" />
+            <path d="M21 15l-5-5L5 21" stroke="url(#gradient-terracotta)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}

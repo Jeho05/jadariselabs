@@ -8,7 +8,7 @@ import {
     IconZap,
     IconPalette,
     IconChart,
-    ImageIcon,
+    IconImage,
     IconChat,
     IconVideo,
     IconRocket,
@@ -16,6 +16,7 @@ import {
     IconInfinity,
     IconCrown,
     IconArrowRight,
+    IconSparkle,
 } from '@/components/icons';
 
 /**
@@ -89,17 +90,32 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="dashboard-container">
-            {/* Welcome section */}
-            <div className="dashboard-header">
-                <h1 style={{ fontFamily: 'var(--font-heading)' }}>
-                    Bienvenue, {profile?.username || 'Utilisateur'}
-                </h1>
-                <p>Votre espace créatif IA est prêt</p>
+        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
+            {/* Background Pattern */}
+            <div 
+                className="fixed inset-0 pointer-events-none opacity-20"
+                style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
+            />
+            
+            {/* Decorative Elements */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-gold)]/5 rounded-full blur-3xl" />
+                <div className="absolute top-1/3 -left-20 w-60 h-60 bg-[var(--color-terracotta)]/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-[var(--color-savanna)]/5 rounded-full blur-3xl" />
             </div>
 
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                {/* Welcome section */}
+                <div className="dashboard-header animate-fade-in-up">
+                    <h1 style={{ fontFamily: 'var(--font-heading)' }} className="flex items-center gap-2">
+                        Bienvenue, {profile?.username || 'Utilisateur'}
+                        <IconSparkle size={24} className="text-[var(--color-gold)]" />
+                    </h1>
+                    <p>Votre espace créatif IA est prêt</p>
+                </div>
+
             {/* Stats cards */}
-            <div className="stats-grid">
+            <div className="stats-grid animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                 <div className="stat-card">
                     <div className="stat-icon gold">
                         <IconZap size={24} />
@@ -144,13 +160,13 @@ export default function DashboardPage() {
             </div>
 
             {/* Module Cards */}
-            <h2 className="section-title" style={{ fontFamily: 'var(--font-heading)' }}>
+            <h2 className="section-title animate-fade-in-up" style={{ fontFamily: 'var(--font-heading)', animationDelay: '0.2s' }}>
                 Modules IA
             </h2>
-            <div className="modules-grid">
+            <div className="modules-grid animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
                 {[
                     {
-                        icon: ImageIcon,
+                        icon: IconImage,
                         title: 'Génération d\'images',
                         description: 'Créez des images à partir de texte avec FLUX & SDXL',
                         href: '/studio/image',
@@ -177,17 +193,21 @@ export default function DashboardPage() {
                     <Link
                         key={module.href}
                         href={module.href}
-                        className="module-card"
+                        className="module-card-premium"
                     >
-                        <div className={`module-icon ${module.color}`}>
+                        <div className={`module-icon-premium ${module.color}`}>
                             <module.icon size={24} />
                         </div>
-                        <div className="module-content">
-                            <div className="module-header">
-                                <h3 className="module-title">{module.title}</h3>
-                                <span className="module-tag">{module.tag}</span>
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className="text-lg font-bold text-[var(--color-text-primary)]">{module.title}</h3>
+                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full tag-${module.color}`}>
+                                    {module.tag}
+                                </span>
                             </div>
-                            <p className="module-description">{module.description}</p>
+                            <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">
+                                {module.description}
+                            </p>
                         </div>
                     </Link>
                 ))}
@@ -196,24 +216,25 @@ export default function DashboardPage() {
             {/* Recent generations */}
             {recentGenerations.length > 0 && (
                 <>
-                    <h2 className="section-title" style={{ fontFamily: 'var(--font-heading)' }}>
+                    <h2 className="section-title animate-fade-in-up" style={{ fontFamily: 'var(--font-heading)', animationDelay: '0.3s' }}>
                         Dernières créations
                     </h2>
-                    <div className="generations-grid">
+                    <div className="generations-grid animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
                         {recentGenerations.map((gen, index) => (
-                            <div key={gen.id} className="generation-card" style={{ animationDelay: `${0.45 + index * 0.05}s` }}>
-                                <div className="generation-preview">
+                            <div key={gen.id} className="module-card-premium flex-col" style={{ animationDelay: `${0.4 + index * 0.05}s` }}>
+                                <div className="flex items-center gap-3 mb-2">
                                     {gen.type === 'image' ? (
-                                        <ImageIcon size={24} className="text-terracotta" />
+                                        <IconImage size={20} className="text-[var(--color-terracotta)]" />
                                     ) : gen.type === 'chat' ? (
-                                        <IconChat size={24} className="text-savanna" />
+                                        <IconChat size={20} className="text-[var(--color-savanna)]" />
                                     ) : gen.type === 'video' ? (
-                                        <IconVideo size={24} className="text-gold" />
+                                        <IconVideo size={20} className="text-[var(--color-gold)]" />
                                     ) : (
-                                        <IconPalette size={24} className="text-earth" />
+                                        <IconPalette size={20} className="text-[var(--color-earth)]" />
                                     )}
+                                    <span className="text-xs text-[var(--color-text-muted)] capitalize">{gen.type}</span>
                                 </div>
-                                <p className="generation-prompt">{gen.prompt}</p>
+                                <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2">{gen.prompt}</p>
                             </div>
                         ))}
                     </div>
@@ -221,20 +242,23 @@ export default function DashboardPage() {
             )}
 
             {recentGenerations.length === 0 && (
-                <div className="empty-state">
-                    <div className="empty-icon">
+                <div className="module-card-premium flex-col items-center justify-center text-center p-12 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                    <div className="module-icon-premium terracotta mb-6 animate-float">
                         <IconRocket size={48} />
                     </div>
-                    <p className="empty-title">Aucune création pour le moment</p>
-                    <p className="empty-description">
+                    <p className="text-xl font-bold mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+                        Aucune création pour le moment
+                    </p>
+                    <p className="text-[var(--color-text-secondary)] mb-6 max-w-md">
                         Commencez par générer votre première image IA !
                     </p>
-                    <Link href="/studio/image" className="btn-auth">
+                    <Link href="/studio/image" className="btn-primary">
                         Créer ma première image
                         <IconArrowRight size={16} className="ml-2" />
                     </Link>
                 </div>
             )}
+            </div>
         </div>
     );
 }
