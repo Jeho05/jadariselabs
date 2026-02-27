@@ -124,7 +124,10 @@ export async function POST(request: NextRequest) {
 
             // 3. Send confirmation email via SendGrid
             const confirmationToken = generateConfirmationToken();
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+            // Use production URL or Vercel URL
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                           (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                           'https://jadariselabs.vercel.app');
             const confirmationUrl = `${appUrl}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
             
             try {
