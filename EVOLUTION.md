@@ -201,9 +201,35 @@
     - Barres de progression stylisées avec les couleurs globales de la plateforme (`terracotta`, `savanna`, `gold`).
 
 🔜 Prochaines étapes (Jour 5 — Dev 1) :
-- [ ] Module Vidéo : interface UI (prompt, durée).
-- [ ] Système de crédits : affichage dashboard + warnings.
-- [ ] Partage social : boutons WhatsApp/FB/Twitter.
+- [x] Module Vidéo : interface UI (prompt, durée).
+- [x] Système de crédits : affichage dashboard + warnings.
+- [x] Partage social : boutons WhatsApp/FB/Twitter.
+
+### Jour 5 — 2026-02-27
+
+**Dev 1 — Module Vidéo, Partage Social et Alertes Crédits**
+
+✅ Tâches complétées :
+- Module Vidéo (`app/(protected)/studio/video/page.tsx`) :
+  - Interface Premium dédiée avec fond animé.
+  - Saisie de prompt vidéo avec options de durée (3s, 5s, 15s).
+  - Validation du plan de l'utilisateur (le plan Free est bloqué, le plan Starter est limité à 5s).
+  - État de chargement ("Magie en cours") avec lecteur vidéo final.
+- API Vidéo (`app/api/generate/video/route.ts`) :
+  - Simulation de la génération avec facturation de 5 crédits.
+  - Vérification de la validité du plan et des crédits restants.
+  - Enregistrement du résultat mocké dans la base `generations`.
+- Partage Social (`components/share-buttons.tsx`) :
+  - Composant réutilisable de boutons de partage.
+  - Options pour WhatsApp, Facebook, X (Twitter) et "Copier le lien".
+  - Intégration dans le résultat du Studio Vidéo.
+- Alertes Crédits :
+  - Dashboard (`app/(protected)/dashboard/page.tsx`) : Bannière d'alerte rouge si l'utilisateur possède moins de 5 crédits (et n'est pas pro).
+  - Header (`components/header.tsx`) : Le badge de crédits devient clignotant rouge lorsque les crédits passent en dessous de 5 pour inciter à recharger.
+
+🔜 Prochaines étapes (Jour 6 — Dev 1/Dev 2) :
+- [ ] Refactoring / Optimisation des composants UI.
+- [ ] Connecter le module vidéo à une vraie API (ex: Replicate/Runway).
 
 ## 📁 Structure Actuelle du Projet
 
