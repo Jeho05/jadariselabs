@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import sgMail from '@sendgrid/mail';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_gT1UMeFt_NFcu59ojTmtnY1byZ1kPVJ7n');
+// Configure SendGrid
+if (process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 // Admin client with service role key for profile creation
 function getAdminClient() {
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
         const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
             email: email.trim().toLowerCase(),
             password,
-            email_confirm: false, // We send our own confirmation email
+            email_confirm: false, // We send our own confirmation email via SendGrid
             user_metadata: {
                 username: username.trim(),
                 preferred_lang: preferredLang || 'fr',
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest) {
                 }
             }
 
-            // 3. Send confirmation email via Resend
+            // 3. Send confirmation email via SendGrid
             const confirmationToken = generateConfirmationToken();
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
             const confirmationUrl = `${appUrl}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
@@ -134,10 +137,10 @@ export async function POST(request: NextRequest) {
                     },
                 });
 
-                // Send email via Resend
-                await resend.emails.send({
-                    from: 'JadaRiseLabs <onboarding@resend.dev>',
+                // Send email via SendGrid
+                const msg = {
                     to: email.trim().toLowerCase(),
+                    from: 'jadariselabs@gmail.com', // Use your verified sender email
                     subject: 'Confirmez votre compte JadaRiseLabs',
                     html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -155,8 +158,9 @@ export async function POST(request: NextRequest) {
                             <p style="font-size: 12px; color: #999; text-align: center;">© 2026 JadaRiseLabs - La Révolution IA Africaine</p>
                         </div>
                     `,
-                });
+                };
                 
+                await sgMail.send(msg);
                 console.log('Confirmation email sent to:', email);
             } catch (emailError) {
                 console.error('Failed to send confirmation email:', emailError);
