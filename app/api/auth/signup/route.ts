@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY || 're_gT1UMeFt_NFcu59ojTmtnY1byZ1kPVJ7n');
 
 // Admin client with service role key for profile creation
 function getAdminClient() {
@@ -13,6 +16,13 @@ function getAdminClient() {
             },
         }
     );
+}
+
+// Generate a random token for email confirmation
+function generateConfirmationToken(): string {
+    return Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
 }
 
 /**
@@ -54,16 +64,15 @@ export async function POST(request: NextRequest) {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
-        // 1. Create auth user
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        // 1. Create auth user (without email confirmation - we handle it ourselves)
+        const adminClient = getAdminClient();
+        const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
             email: email.trim().toLowerCase(),
             password,
-            options: {
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
-                data: {
-                    username: username.trim(),
-                    preferred_lang: preferredLang || 'fr',
-                },
+            email_confirm: false, // We send our own confirmation email
+            user_metadata: {
+                username: username.trim(),
+                preferred_lang: preferredLang || 'fr',
             },
         });
 
@@ -72,7 +81,7 @@ export async function POST(request: NextRequest) {
             
             // Map common errors
             const errorMessage = authError.message.toLowerCase();
-            if (errorMessage.includes('user already registered')) {
+            if (errorMessage.includes('user already registered') || errorMessage.includes('already been registered')) {
                 return NextResponse.json(
                     { error: 'Un compte existe déjà avec cet email.' },
                     { status: 400 }
@@ -84,15 +93,6 @@ export async function POST(request: NextRequest) {
                     { status: 400 }
                 );
             }
-            if (errorMessage.includes('error sending confirmation email')) {
-                // User was created but email failed - return partial success
-                console.warn('User created but confirmation email failed:', email);
-                return NextResponse.json({
-                    success: true,
-                    warning: 'Compte créé mais l\'email de confirmation n\'a pas pu être envoyé. Contactez le support.',
-                    user: { email: email.trim().toLowerCase() },
-                });
-            }
             
             return NextResponse.json(
                 { error: authError.message || 'Erreur lors de la création du compte.' },
@@ -102,7 +102,6 @@ export async function POST(request: NextRequest) {
 
         // 2. Create profile using admin client (bypass RLS)
         if (authData.user) {
-            const adminClient = getAdminClient();
             const { error: profileError } = await adminClient
                 .from('profiles')
                 .insert({
@@ -115,13 +114,58 @@ export async function POST(request: NextRequest) {
 
             if (profileError) {
                 console.error('Profile creation error:', profileError);
-                
-                // If profile creation fails, we should still return success
-                // The trigger might have already created it, or user can retry
                 if (!profileError.message.includes('duplicate key')) {
-                    // Log but don't fail - user can still verify email
                     console.warn('Profile creation failed, but auth user created:', profileError.message);
                 }
+            }
+
+            // 3. Send confirmation email via Resend
+            const confirmationToken = generateConfirmationToken();
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+            const confirmationUrl = `${appUrl}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
+            
+            try {
+                // Store token in user metadata for verification
+                await adminClient.auth.admin.updateUserById(authData.user.id, {
+                    user_metadata: {
+                        ...authData.user.user_metadata,
+                        confirmation_token: confirmationToken,
+                        confirmation_token_expires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+                    },
+                });
+
+                // Send email via Resend
+                await resend.emails.send({
+                    from: 'JadaRiseLabs <onboarding@resend.dev>',
+                    to: email.trim().toLowerCase(),
+                    subject: 'Confirmez votre compte JadaRiseLabs',
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h1 style="color: #D97706; text-align: center;">Bienvenue sur JadaRiseLabs ! 🎉</h1>
+                            <p style="font-size: 16px; color: #333;">Bonjour <strong>${username}</strong>,</p>
+                            <p style="font-size: 16px; color: #333;">Merci de créer votre compte. Pour l'activer, cliquez sur le bouton ci-dessous :</p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${confirmationUrl}" style="background: linear-gradient(135deg, #D97706, #B45309); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    Confirmer mon compte
+                                </a>
+                            </div>
+                            <p style="font-size: 14px; color: #666;">Ce lien expire dans 24 heures.</p>
+                            <p style="font-size: 14px; color: #666;">Si vous n'avez pas créé ce compte, ignorez cet email.</p>
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                            <p style="font-size: 12px; color: #999; text-align: center;">© 2026 JadaRiseLabs - La Révolution IA Africaine</p>
+                        </div>
+                    `,
+                });
+                
+                console.log('Confirmation email sent to:', email);
+            } catch (emailError) {
+                console.error('Failed to send confirmation email:', emailError);
+                // Don't fail the signup, but warn the user
+                return NextResponse.json({
+                    success: true,
+                    warning: 'Compte créé mais l\'email de confirmation n\'a pas pu être envoyé. Contactez le support.',
+                    user: { email: email.trim().toLowerCase() },
+                });
             }
         }
 
