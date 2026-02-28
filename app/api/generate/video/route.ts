@@ -125,9 +125,6 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id);
     }
 
-    // Build webhook URL for long-running predictions
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/replicate`;
-
     // Call Replicate API
     let prediction;
     try {
@@ -137,7 +134,6 @@ export async function POST(request: NextRequest) {
         duration,
         style: body.style,
         quality: body.quality,
-        webhook: webhookUrl,
       });
     } catch (replicateError) {
       // Refund credits on failure

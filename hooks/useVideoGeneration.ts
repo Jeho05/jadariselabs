@@ -1,12 +1,11 @@
 /**
- * Video Generation Hook with Supabase Realtime
- * Replaces WebSocket for real-time updates
+ * Video Generation Hook - Polling Only (No Realtime)
+ * Simple polling-based status updates
  */
 
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { VIDEO_MODELS } from '@/lib/types/video';
 import type { VideoModel } from '@/lib/types/video';
 
@@ -50,69 +49,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
     estimatedTime: 0,
   });
 
-  const supabase = createClient();
-
-  // Subscribe to generation updates via Supabase Realtime
-  useEffect(() => {
-    if (!state.generationId) return;
-
-    const channel = supabase
-      .channel(`generation:${state.generationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'generations',
-          filter: `id=eq.${state.generationId}`,
-        },
-        (payload) => {
-          const generation = payload.new as Generation;
-          
-          if (generation.status === 'completed') {
-            setState(prev => ({
-              ...prev,
-              isGenerating: false,
-              status: 'completed',
-              progress: 100,
-              videoUrl: generation.result_url,
-            }));
-            options.onCompleted?.(generation.result_url || '');
-            
-          } else if (generation.status === 'failed') {
-            setState(prev => ({
-              ...prev,
-              isGenerating: false,
-              status: 'failed',
-              error: generation.error || 'Generation failed',
-            }));
-            options.onFailed?.(generation.error || 'Generation failed');
-            
-          } else if (generation.status === 'cancelled') {
-            setState(prev => ({
-              ...prev,
-              isGenerating: false,
-              status: 'cancelled',
-            }));
-            options.onCancelled?.();
-            
-          } else if (generation.status === 'processing') {
-            setState(prev => ({
-              ...prev,
-              status: 'processing',
-              progress: Math.min(prev.progress + 10, 90),
-            }));
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [state.generationId, supabase, options]);
-
-  // Poll for updates as fallback (in case Realtime misses an update)
+  // Poll for updates
   useEffect(() => {
     if (!state.generationId || !state.isGenerating) return;
 
@@ -124,6 +61,11 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
         if (data.success && data.generation) {
           const generation = data.generation as Generation;
           
+          // Update progress based on time elapsed
+          const elapsed = Date.now() - new Date(generation.created_at).getTime();
+          const estimatedMs = state.estimatedTime * 1000;
+          const progressPercent = Math.min(Math.floor((elapsed / estimatedMs) * 100), 90);
+          
           if (generation.status === 'completed') {
             setState(prev => ({
               ...prev,
@@ -153,15 +95,22 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
             }));
             options.onCancelled?.();
             clearInterval(pollInterval);
+            
+          } else if (generation.status === 'processing') {
+            setState(prev => ({
+              ...prev,
+              status: 'processing',
+              progress: progressPercent,
+            }));
           }
         }
       } catch (error) {
         console.error('[VideoHook] Poll error:', error);
       }
-    }, 3000); // Poll every 3 seconds
+    }, 2000); // Poll every 2 seconds
 
     return () => clearInterval(pollInterval);
-  }, [state.generationId, state.isGenerating, options]);
+  }, [state.generationId, state.isGenerating, state.estimatedTime, options]);
 
   // Start generation
   const generate = useCallback(async (
@@ -212,7 +161,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
         return data.video_url;
       }
 
-      // Set generation ID for polling/realtime
+      // Set generation ID for polling
       setState(prev => ({
         ...prev,
         generationId: data.generation_id,
