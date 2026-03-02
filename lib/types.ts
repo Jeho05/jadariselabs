@@ -156,4 +156,22 @@ export interface ProfileUpdateData {
 }
 
 // ---- SECTION : Dev 2 — Image, Galerie, Paiement ----
-// (Ajouter ici les types spécifiques au Dev 2)
+
+export type ImageModel = 'flux-schnell' | 'sdxl';
+
+export type ImageSize = '512x512' | '768x768' | '1024x1024';
+
+export interface ImageGenerationRequest {
+    prompt: string;
+    model?: ImageModel;
+    size?: ImageSize;
+    negative_prompt?: string;
+    hd?: boolean;
+}
+
+export type GalleryFilterType = 'all' | 'image' | 'chat' | 'video';
+
+export interface GalleryItem extends Generation {
+    // Extended with computed UI fields
+    preview_type: 'image' | 'text' | 'video';
+}

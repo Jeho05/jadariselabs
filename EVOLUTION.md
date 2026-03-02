@@ -201,11 +201,101 @@
     - Barres de progression stylisées avec les couleurs globales de la plateforme (`terracotta`, `savanna`, `gold`).
 
 🔜 Prochaines étapes (Jour 5 — Dev 1) :
-- [ ] Module Vidéo : interface UI (prompt, durée).
-- [ ] Système de crédits : affichage dashboard + warnings.
-- [ ] Partage social : boutons WhatsApp/FB/Twitter.
+- [x] Module Vidéo : interface UI (prompt, durée).
+- [x] Système de crédits : affichage dashboard + warnings.
+- [x] Partage social : boutons WhatsApp/FB/Twitter.
 
-## 📁 Structure Actuelle du Projet
+### Jour 5 — 2026-02-27
+
+**Dev 1 — Module Vidéo, Partage Social et Alertes Crédits**
+
+✅ Tâches complétées :
+- Module Vidéo (`app/(protected)/studio/video/page.tsx`) :
+  - Interface Premium dédiée avec fond animé.
+  - Saisie de prompt vidéo avec options de durée (3s, 5s, 15s).
+  - Validation du plan de l'utilisateur (le plan Free est bloqué, le plan Starter est limité à 5s).
+  - État de chargement ("Magie en cours") avec lecteur vidéo final.
+- API Vidéo (`app/api/generate/video/route.ts`) :
+  - Simulation de la génération avec facturation de 5 crédits.
+  - Vérification de la validité du plan et des crédits restants.
+  - Enregistrement du résultat mocké dans la base `generations`.
+- Partage Social (`components/share-buttons.tsx`) :
+  - Composant réutilisable de boutons de partage.
+  - Options pour WhatsApp, Facebook, X (Twitter) et "Copier le lien".
+  - Intégration dans le résultat du Studio Vidéo.
+- Alertes Crédits :
+  - Dashboard (`app/(protected)/dashboard/page.tsx`) : Bannière d'alerte rouge si l'utilisateur possède moins de 5 crédits (et n'est pas pro).
+  - Header (`components/header.tsx`) : Le badge de crédits devient clignotant rouge lorsque les crédits passent en dessous de 5 pour inciter à recharger.
+
+🔜 Prochaines étapes (Jour 6 — Dev 1/Dev 2) :
+- [ ] Refactoring / Optimisation des composants UI.
+- [ ] Connecter le module vidéo à une vraie API (ex: Replicate/Runway).
+
+### Jour 8 — 2026-03-02
+
+**Dev 1 — Vérification Chat + Refactoring**
+
+✅ Tâches complétées :
+- Vérification intégration Chat front↔back (fonctionnel depuis J3-4)
+- Refactoring/optimisation : structure CSS unifiée (Image Studio + Gallery)
+
+**Dev 2 — Module Image IA + Galerie complète**
+
+✅ Tâches complétées :
+- Client Hugging Face (`lib/huggingface.ts`) :
+  - Support 2 modèles : FLUX.1-schnell (rapide) et SDXL (haute qualité)
+  - Gestion erreurs : modèle en chargement, rate limiting, clé invalide
+  - Calcul crédits automatique (SD/HD par modèle)
+- API Image (`app/api/generate/image/route.ts`) :
+  - Auth check, vérification crédits et plan
+  - Appel Hugging Face Inference API
+  - Watermark automatique (plan Free) via Sharp
+  - Upload Supabase Storage + fallback base64
+  - Déduction crédits + enregistrement `generations`
+  - Coûts : 1-2 cr. FLUX (SD/HD), 2-3 cr. SDXL (SD/HD)
+- Studio Image (`app/(protected)/studio/image/page.tsx`) :
+  - Interface premium avec fond animé (orbs)
+  - Textarea prompt avec compteur caractères (max 2000)
+  - 6 suggestions de prompts pré-remplis
+  - Sélection modèle (FLUX.1 / SDXL) avec descriptions
+  - Sélection taille (512, 768, 1024 HD) avec badge PRO
+  - Prompt négatif (collapsible)
+  - Animation de génération ("Magie en cours ✨")
+  - Résultat : aperçu + téléchargement + partage social + régénérer
+  - Métadonnées : modèle, taille, crédits utilisés
+  - Compteur crédits en temps réel
+- Galerie complète (`app/(protected)/gallery/page.tsx`) :
+  - Données réelles depuis `generations` (Supabase)
+  - Filtres par type : Tout, Images, Chat, Vidéos
+  - Barre de recherche par prompt (filtrage local)
+  - Grille responsive : 2 cols → 3 cols → 4 cols
+  - Cards avec preview, badge type, date, crédits
+  - Actions : télécharger, partager, supprimer
+  - Modal confirmation suppression
+  - État vide avec CTAs vers studio
+  - Statistiques : total, images, chats, vidéos
+  - Skeleton loading pendant chargement
+- API Galerie (`app/api/gallery/route.ts`) :
+  - DELETE : suppression génération + fichier Storage
+  - Vérification propriétaire via RLS
+- Types Dev 2 ajoutés dans `lib/types.ts` :
+  - `ImageModel`, `ImageSize`, `ImageGenerationRequest`
+  - `GalleryFilterType`, `GalleryItem`
+- Icône `IconSearch` ajoutée dans `components/icons.tsx`
+- CSS : ~1200 lignes ajoutées (Image Studio + Gallery complet)
+- Build réussi : 29 routes compilées, 0 erreurs TypeScript
+
+📝 Notes :
+- `HUGGINGFACE_API_KEY` doit être ajouté dans `.env.local` pour activer la génération d'images
+- Le bucket `generations` doit être créé dans Supabase Storage avec policies RLS
+- Sans clé HF, le Studio Image fonctionne UI-only (erreur claire au clic)
+- Le watermark utilise Sharp (déjà installé dans le projet)
+
+🔜 Prochaines étapes (Jour 9-10) :
+- [ ] Galerie : téléchargement HD/SD selon plan
+- [ ] Galerie : watermark automatique sur créations gratuites
+- [ ] Module Vidéo : intégration front ↔ back
+- [ ] Système crédits : logique déduction avancée
 
 ```
 /app

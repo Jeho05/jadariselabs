@@ -10,11 +10,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
-    "next": "^14.2.0",
+    "dompurify": "^3.3.1",
+    "next": "^14.2.35",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "resend": "^6.9.2",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/node": "^20",

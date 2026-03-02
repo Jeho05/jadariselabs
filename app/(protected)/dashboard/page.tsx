@@ -97,8 +97,8 @@ export default function DashboardPage() {
                 {/* Background Pattern */}
                 <div
                     className="fixed inset-0 pointer-events-none opacity-[0.03]"
-                    style={{ 
-                        backgroundImage: 'url(/pattern-african.svg)', 
+                    style={{
+                        backgroundImage: 'url(/pattern-african.svg)',
                         backgroundRepeat: 'repeat',
                         animation: 'parallax-float 20s linear infinite'
                     }}
@@ -164,8 +164,8 @@ export default function DashboardPage() {
             {/* Animated Background Pattern */}
             <div
                 className="fixed inset-0 pointer-events-none opacity-[0.03]"
-                style={{ 
-                    backgroundImage: 'url(/pattern-african.svg)', 
+                style={{
+                    backgroundImage: 'url(/pattern-african.svg)',
                     backgroundRepeat: 'repeat',
                     animation: 'parallax-float 20s linear infinite'
                 }}
@@ -181,6 +181,24 @@ export default function DashboardPage() {
             <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12">
                 {/* Welcome Section */}
                 <div className="mb-10 animate-fade-in-up">
+                    {profile && profile.plan !== 'pro' && profile.credits !== -1 && profile.credits < 5 && (
+                        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-red-500 animate-pulse flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-sm">
+                                    <IconZap size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="text-red-600 font-bold">Attention : Crédits faibles</h3>
+                                    <p className="text-sm text-red-500">
+                                        Il ne vous reste que {profile.credits} crédit{profile.credits > 1 ? 's' : ''}. Passez à un plan supérieur pour continuer à générer sans interruption.
+                                    </p>
+                                </div>
+                            </div>
+                            <Link href="/pricing" className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm whitespace-nowrap hidden sm:block">
+                                Gérer mon plan
+                            </Link>
+                        </div>
+                    )}
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <div className="inline-flex items-center gap-2 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-full px-4 py-2 mb-4">
@@ -197,8 +215,8 @@ export default function DashboardPage() {
                                 Votre laboratoire IA est prêt à créer
                             </p>
                         </div>
-                        <Link 
-                            href="/studio/image" 
+                        <Link
+                            href="/studio/image"
                             className="btn-cta-premium group inline-flex items-center"
                         >
                             <span>Commencer à créer</span>
@@ -255,7 +273,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
                             <div className="w-full bg-[var(--color-cream-dark)] rounded-full h-2 overflow-hidden">
-                                <div 
+                                <div
                                     className="h-2 rounded-full bg-gradient-to-r from-[var(--color-savanna)] to-[var(--color-gold)] transition-all duration-1000"
                                     style={{ width: `${Math.min(totalGenerations / 10 * 100, 100)}%` }}
                                 />
@@ -266,11 +284,10 @@ export default function DashboardPage() {
                     {/* Plan Card */}
                     <div className="stat-card-premium hover-lift" style={{ animationDelay: '0.2s' }}>
                         <div className="flex items-center justify-between mb-4">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
-                                profile?.plan === 'pro' 
-                                    ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-earth-dark)]' 
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${profile?.plan === 'pro'
+                                    ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-earth-dark)]'
                                     : 'bg-gradient-to-br from-[var(--color-terracotta)] to-[var(--color-terracotta-dark)]'
-                            }`}>
+                                }`}>
                                 {profile?.plan === 'pro' ? (
                                     <IconCrown size={28} className="text-white" />
                                 ) : (
@@ -278,8 +295,8 @@ export default function DashboardPage() {
                                 )}
                             </div>
                             {profile?.plan !== 'pro' && (
-                                <Link 
-                                    href="/pricing" 
+                                <Link
+                                    href="/pricing"
                                     className="text-xs font-semibold text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors flex items-center gap-1"
                                 >
                                     Upgrade <IconArrowRight size={14} />
@@ -310,8 +327,8 @@ export default function DashboardPage() {
                         <h2 className="text-2xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
                             Modules IA
                         </h2>
-                        <Link 
-                            href="/studio" 
+                        <Link
+                            href="/studio"
                             className="text-sm font-medium text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors flex items-center gap-1"
                         >
                             Voir tout <IconArrowRight size={16} />
@@ -412,8 +429,8 @@ export default function DashboardPage() {
                             <h2 className="text-2xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
                                 Dernières créations
                             </h2>
-                            <Link 
-                                href="/gallery" 
+                            <Link
+                                href="/gallery"
                                 className="text-sm font-medium text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors flex items-center gap-1"
                             >
                                 Voir la galerie <IconArrowRight size={16} />
@@ -432,8 +449,8 @@ export default function DashboardPage() {
                                 const typeStyle = getTypeStyle(gen.type);
 
                                 return (
-                                    <div 
-                                        key={gen.id} 
+                                    <div
+                                        key={gen.id}
                                         className="glass-card-premium rounded-xl p-4 hover-lift"
                                         style={{ animationDelay: `${0.5 + index * 0.05}s` }}
                                     >

@@ -130,32 +130,29 @@ export default function Header() {
     const isActive = (href: string) => pathname.startsWith(href);
 
     return (
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-            scrolled 
-                ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-black/5' 
+        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+                ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-black/5'
                 : 'bg-transparent'
-        }`}>
+            }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 <div className="flex items-center justify-between h-16 lg:h-20">
                     {/* Logo */}
-                    <Link 
-                        href={isAuthenticated ? '/dashboard' : '/'} 
+                    <Link
+                        href={isAuthenticated ? '/dashboard' : '/'}
                         className="flex items-center gap-3 group"
                     >
                         <div className="relative">
-                            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                                scrolled 
-                                    ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] shadow-lg' 
+                            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${scrolled
+                                    ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] shadow-lg'
                                     : 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)]'
-                            } group-hover:scale-105 group-hover:rotate-3`}>
+                                } group-hover:scale-105 group-hover:rotate-3`}>
                                 <IconFlask size={24} className="text-white" />
                             </div>
                             <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[var(--color-savanna)] animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        <span 
-                            className={`font-bold text-lg lg:text-xl transition-colors ${
-                                scrolled ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-earth)]'
-                            }`}
+                        <span
+                            className={`font-bold text-lg lg:text-xl transition-colors ${scrolled ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-earth)]'
+                                }`}
                             style={{ fontFamily: 'var(--font-heading)' }}
                         >
                             {t('header.logo')}
@@ -169,13 +166,12 @@ export default function Header() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                                        isActive(link.href)
+                                    className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${isActive(link.href)
                                             ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/5'
-                                            : scrolled 
+                                            : scrolled
                                                 ? 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
                                                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-white/50'
-                                    }`}
+                                        }`}
                                 >
                                     <link.icon size={18} />
                                     {link.label}
@@ -193,15 +189,16 @@ export default function Header() {
                             <>
                                 {/* Credits badge */}
                                 {profile && (
-                                    <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                                        scrolled
-                                            ? 'bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-terracotta)]/10 border border-[var(--color-gold)]/20 text-[var(--color-earth)]'
-                                            : 'bg-white/60 backdrop-blur-sm border border-white/20 text-[var(--color-earth)]'
-                                    }`}>
+                                    <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all ${profile.credits !== -1 && profile.credits < 5
+                                            ? 'bg-red-50 border border-red-200 text-red-600 animate-pulse'
+                                            : scrolled
+                                                ? 'bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-terracotta)]/10 border border-[var(--color-gold)]/20 text-[var(--color-earth)]'
+                                                : 'bg-white/60 backdrop-blur-sm border border-white/20 text-[var(--color-earth)]'
+                                        }`}>
                                         <div className="relative">
-                                            <IconZap size={16} className="text-[var(--color-gold)]" />
+                                            <IconZap size={16} className={profile.credits !== -1 && profile.credits < 5 ? "text-red-500" : "text-[var(--color-gold)]"} />
                                             <div className="absolute inset-0 animate-ping opacity-30">
-                                                <IconZap size={16} className="text-[var(--color-gold)]" />
+                                                <IconZap size={16} className={profile.credits !== -1 && profile.credits < 5 ? "text-red-500" : "text-[var(--color-gold)]"} />
                                             </div>
                                         </div>
                                         <span>
@@ -219,18 +216,16 @@ export default function Header() {
                                 <div className="relative" ref={dropdownRef}>
                                     <button
                                         onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                                        className={`flex items-center gap-2 p-1.5 rounded-xl transition-all ${
-                                            scrolled
+                                        className={`flex items-center gap-2 p-1.5 rounded-xl transition-all ${scrolled
                                                 ? 'hover:bg-[var(--color-cream-dark)]'
                                                 : 'hover:bg-white/50'
-                                        }`}
+                                            }`}
                                         aria-expanded={profileDropdownOpen}
                                     >
-                                        <div className={`relative w-9 h-9 lg:w-10 lg:h-10 rounded-xl overflow-hidden transition-all ${
-                                            profile?.plan === 'pro'
+                                        <div className={`relative w-9 h-9 lg:w-10 lg:h-10 rounded-xl overflow-hidden transition-all ${profile?.plan === 'pro'
                                                 ? 'ring-2 ring-[var(--color-gold)] ring-offset-2 ring-offset-white'
                                                 : ''
-                                        }`}>
+                                            }`}>
                                             {profile?.avatar_url ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img
@@ -249,9 +244,9 @@ export default function Header() {
                                                 </div>
                                             )}
                                         </div>
-                                        <IconChevronDown 
-                                            size={16} 
-                                            className={`text-[var(--color-text-muted)] transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} 
+                                        <IconChevronDown
+                                            size={16}
+                                            className={`text-[var(--color-text-muted)] transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`}
                                         />
                                     </button>
 
@@ -261,11 +256,10 @@ export default function Header() {
                                             {/* Profile info */}
                                             <div className="px-4 py-3 border-b border-[var(--color-border)] mb-2">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-12 h-12 rounded-xl overflow-hidden ${
-                                                        profile?.plan === 'pro'
+                                                    <div className={`w-12 h-12 rounded-xl overflow-hidden ${profile?.plan === 'pro'
                                                             ? 'ring-2 ring-[var(--color-gold)]'
                                                             : ''
-                                                    }`}>
+                                                        }`}>
                                                         {profile?.avatar_url ? (
                                                             // eslint-disable-next-line @next/next/no-img-element
                                                             <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -280,13 +274,12 @@ export default function Header() {
                                                             @{profile?.username || 'user'}
                                                         </p>
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                                                                profile?.plan === 'pro' 
-                                                                    ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]' 
+                                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${profile?.plan === 'pro'
+                                                                    ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]'
                                                                     : profile?.plan === 'starter'
                                                                         ? 'bg-[var(--color-savanna)]/10 text-[var(--color-savanna)]'
                                                                         : 'bg-[var(--color-text-muted)]/10 text-[var(--color-text-muted)]'
-                                                            }`}>
+                                                                }`}>
                                                                 {profile?.plan === 'free' ? t('plan.free') : profile?.plan === 'starter' ? t('plan.starter') : t('plan.pro')}
                                                             </span>
                                                         </div>
@@ -336,11 +329,10 @@ export default function Header() {
                                 {/* Mobile menu button */}
                                 <button
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                    className={`lg:hidden p-2 rounded-xl transition-all ${
-                                        scrolled
+                                    className={`lg:hidden p-2 rounded-xl transition-all ${scrolled
                                             ? 'hover:bg-[var(--color-cream-dark)] text-[var(--color-text-primary)]'
                                             : 'hover:bg-white/50 text-[var(--color-earth)]'
-                                    }`}
+                                        }`}
                                     aria-label="Menu"
                                 >
                                     {mobileMenuOpen ? (
@@ -353,18 +345,17 @@ export default function Header() {
                         ) : (
                             /* Not authenticated — Login/Signup buttons */
                             <div className="flex items-center gap-3">
-                                <Link 
-                                    href="/login" 
-                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                                        scrolled
+                                <Link
+                                    href="/login"
+                                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${scrolled
                                             ? 'text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
                                             : 'text-[var(--color-earth)] hover:bg-white/50'
-                                    }`}
+                                        }`}
                                 >
                                     {t('nav.login')}
                                 </Link>
-                                <Link 
-                                    href="/signup" 
+                                <Link
+                                    href="/signup"
                                     className="btn-cta-premium !px-5 !py-2.5 !text-sm group"
                                 >
                                     <span>{t('nav.signup')}</span>
@@ -382,9 +373,8 @@ export default function Header() {
                     <div className="max-w-lg mx-auto p-6">
                         {/* Profile info mobile */}
                         <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[var(--color-border)]">
-                            <div className={`w-14 h-14 rounded-xl overflow-hidden ${
-                                profile?.plan === 'pro' ? 'ring-2 ring-[var(--color-gold)]' : ''
-                            }`}>
+                            <div className={`w-14 h-14 rounded-xl overflow-hidden ${profile?.plan === 'pro' ? 'ring-2 ring-[var(--color-gold)]' : ''
+                                }`}>
                                 {profile?.avatar_url ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -403,9 +393,8 @@ export default function Header() {
                                         <span className="font-semibold">{profile?.credits}</span>
                                     )}{' '}
                                     {t('nav.credits')} •{' '}
-                                    <span className={`font-medium ${
-                                        profile?.plan === 'pro' ? 'text-[var(--color-gold)]' : ''
-                                    }`}>
+                                    <span className={`font-medium ${profile?.plan === 'pro' ? 'text-[var(--color-gold)]' : ''
+                                        }`}>
                                         {profile?.plan === 'free' ? t('plan.free') : profile?.plan === 'starter' ? t('plan.starter') : t('plan.pro')}
                                     </span>
                                 </div>
@@ -418,11 +407,10 @@ export default function Header() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                                        isActive(link.href)
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive(link.href)
                                             ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/5'
                                             : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
-                                    }`}
+                                        }`}
                                 >
                                     <link.icon size={20} />
                                     {link.label}
