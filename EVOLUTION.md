@@ -231,7 +231,71 @@
 - [ ] Refactoring / Optimisation des composants UI.
 - [ ] Connecter le module vidéo à une vraie API (ex: Replicate/Runway).
 
-## 📁 Structure Actuelle du Projet
+### Jour 8 — 2026-03-02
+
+**Dev 1 — Vérification Chat + Refactoring**
+
+✅ Tâches complétées :
+- Vérification intégration Chat front↔back (fonctionnel depuis J3-4)
+- Refactoring/optimisation : structure CSS unifiée (Image Studio + Gallery)
+
+**Dev 2 — Module Image IA + Galerie complète**
+
+✅ Tâches complétées :
+- Client Hugging Face (`lib/huggingface.ts`) :
+  - Support 2 modèles : FLUX.1-schnell (rapide) et SDXL (haute qualité)
+  - Gestion erreurs : modèle en chargement, rate limiting, clé invalide
+  - Calcul crédits automatique (SD/HD par modèle)
+- API Image (`app/api/generate/image/route.ts`) :
+  - Auth check, vérification crédits et plan
+  - Appel Hugging Face Inference API
+  - Watermark automatique (plan Free) via Sharp
+  - Upload Supabase Storage + fallback base64
+  - Déduction crédits + enregistrement `generations`
+  - Coûts : 1-2 cr. FLUX (SD/HD), 2-3 cr. SDXL (SD/HD)
+- Studio Image (`app/(protected)/studio/image/page.tsx`) :
+  - Interface premium avec fond animé (orbs)
+  - Textarea prompt avec compteur caractères (max 2000)
+  - 6 suggestions de prompts pré-remplis
+  - Sélection modèle (FLUX.1 / SDXL) avec descriptions
+  - Sélection taille (512, 768, 1024 HD) avec badge PRO
+  - Prompt négatif (collapsible)
+  - Animation de génération ("Magie en cours ✨")
+  - Résultat : aperçu + téléchargement + partage social + régénérer
+  - Métadonnées : modèle, taille, crédits utilisés
+  - Compteur crédits en temps réel
+- Galerie complète (`app/(protected)/gallery/page.tsx`) :
+  - Données réelles depuis `generations` (Supabase)
+  - Filtres par type : Tout, Images, Chat, Vidéos
+  - Barre de recherche par prompt (filtrage local)
+  - Grille responsive : 2 cols → 3 cols → 4 cols
+  - Cards avec preview, badge type, date, crédits
+  - Actions : télécharger, partager, supprimer
+  - Modal confirmation suppression
+  - État vide avec CTAs vers studio
+  - Statistiques : total, images, chats, vidéos
+  - Skeleton loading pendant chargement
+- API Galerie (`app/api/gallery/route.ts`) :
+  - DELETE : suppression génération + fichier Storage
+  - Vérification propriétaire via RLS
+- Types Dev 2 ajoutés dans `lib/types.ts` :
+  - `ImageModel`, `ImageSize`, `ImageGenerationRequest`
+  - `GalleryFilterType`, `GalleryItem`
+- Icône `IconSearch` ajoutée dans `components/icons.tsx`
+- CSS : ~1200 lignes ajoutées (Image Studio + Gallery complet)
+- Build réussi : 29 routes compilées, 0 erreurs TypeScript
+
+📝 Notes :
+- `HUGGINGFACE_API_KEY` doit être ajouté dans `.env.local` pour activer la génération d'images
+- Le bucket `generations` doit être créé dans Supabase Storage avec policies RLS
+- Sans clé HF, le Studio Image fonctionne UI-only (erreur claire au clic)
+- Le watermark utilise Sharp (déjà installé dans le projet)
+
+🔜 Prochaines étapes (Jour 9-10) :
+- [ ] Galerie : téléchargement HD/SD selon plan
+- [ ] Galerie : watermark automatique sur créations gratuites
+- [ ] Module Vidéo : intégration front ↔ back
+- [ ] Système crédits : logique déduction avancée
 
 ```
 /app
