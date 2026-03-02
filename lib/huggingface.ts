@@ -73,21 +73,22 @@ export async function generateImage(
         negative_prompt,
     } = options;
 
-    // Build request body
+    // Build request body with better quality defaults if not provided
     const body: Record<string, unknown> = {
         inputs: prompt,
         parameters: {
             width: Math.min(width, IMAGE_MODELS[model].maxResolution),
             height: Math.min(height, IMAGE_MODELS[model].maxResolution),
-            num_inference_steps: num_inference_steps || IMAGE_MODELS[model].defaultSteps,
+            num_inference_steps: num_inference_steps || (model === 'sdxl' ? 40 : 8), // Increased for better quality
+            guidance_scale: guidance_scale || (model === 'sdxl' ? 8.5 : 7.0), // Standard values for better adherence
         },
     };
 
-    if (guidance_scale !== undefined) {
-        (body.parameters as Record<string, unknown>).guidance_scale = guidance_scale;
-    }
     if (negative_prompt) {
         (body.parameters as Record<string, unknown>).negative_prompt = negative_prompt;
+    } else if (model === 'sdxl') {
+        // Default high-quality negative prompt for SDXL
+        (body.parameters as Record<string, unknown>).negative_prompt = "blurry, poor quality, bad anatomy, bad proportions, deformed, lowres, ugly, out of focus";
     }
 
     const response = await fetch(
