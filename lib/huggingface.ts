@@ -3,7 +3,7 @@
  * Génération d'images via FLUX.1-schnell et SDXL
  */
 
-export type ImageModel = 'flux-schnell' | 'sdxl';
+export type ImageModel = 'flux-schnell' | 'sdxl' | 'sd35-medium';
 
 export interface ImageGenerationOptions {
     width?: number;
@@ -17,6 +17,7 @@ export interface ImageGenerationOptions {
 const MODEL_IDS: Record<ImageModel, string> = {
     'flux-schnell': 'black-forest-labs/FLUX.1-schnell',
     'sdxl': 'stabilityai/stable-diffusion-xl-base-1.0',
+    'sd35-medium': 'stabilityai/stable-diffusion-3.5-medium',
 };
 
 export const IMAGE_MODELS: Record<ImageModel, {
@@ -26,6 +27,7 @@ export const IMAGE_MODELS: Record<ImageModel, {
     defaultSteps: number;
     creditsSD: number;
     creditsHD: number;
+    badge?: string;
 }> = {
     'flux-schnell': {
         displayName: 'FLUX.1 Schnell',
@@ -42,6 +44,15 @@ export const IMAGE_MODELS: Record<ImageModel, {
         defaultSteps: 25,
         creditsSD: 2,
         creditsHD: 3,
+    },
+    'sd35-medium': {
+        displayName: 'Stable Diffusion 3.5',
+        description: 'Nouvelle génération — excellente adhérence au prompt',
+        maxResolution: 1024,
+        defaultSteps: 20,
+        creditsSD: 2,
+        creditsHD: 3,
+        badge: 'NOUVEAU',
     },
 };
 

@@ -52,6 +52,12 @@
 }
 
 /* Reset & Base */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -5296,4 +5302,226 @@ html {
 
 .animate-fade-in-up {
   animation: fade-in-up 0.5s ease-out;
+}
+
+/* ============================================
+   GLOBAL RESPONSIVE FIXES
+   Mobile-first responsive design for 320px+
+   ============================================ */
+
+/* --- Max-width 768px (Tablet & Mobile) --- */
+@media (max-width: 768px) {
+
+  /* Landing page hero */
+  .hero-title,
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+    word-break: break-word;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(0.9rem, 3vw, 1.1rem) !important;
+  }
+
+  /* Prevent any fixed-width children from causing overflow */
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl,
+  .max-w-3xl,
+  .max-w-2xl {
+    max-width: 100% !important;
+  }
+
+  /* Grid fixes */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4,
+  .md\:grid-cols-2,
+  .md\:grid-cols-3,
+  .md\:grid-cols-4,
+  .lg\:grid-cols-3,
+  .lg\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Flex wrap for button groups */
+  .flex-row {
+    flex-wrap: wrap;
+  }
+
+  /* Table horizontal scroll */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Image studio controls */
+  .studio-controls {
+    flex-direction: column;
+  }
+
+  /* Card padding reduction */
+  .glass-card,
+  .glass-card-premium {
+    padding: 1rem !important;
+  }
+
+  /* Gallery grid */
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Dashboard stats grid */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Chat sidebar */
+  .chat-sidebar {
+    position: fixed !important;
+    z-index: 50 !important;
+    width: 85% !important;
+    max-width: 320px !important;
+  }
+
+  /* Share buttons */
+  .share-buttons-container {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Pricing table cell padding */
+  .pricing-table td,
+  .pricing-table th {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  /* Fix text overflow in cards */
+  .module-card-premium,
+  .card {
+    overflow: hidden;
+    word-break: break-word;
+  }
+
+  /* Fix absolute positioned elements overflow */
+  .fixed,
+  .absolute {
+    max-width: 100vw;
+  }
+}
+
+/* --- Max-width 480px (Small mobile) --- */
+@media (max-width: 480px) {
+
+  /* Tighter padding */
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .px-8 {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  /* Smaller headings */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Gallery 1 column on very small */
+  .gallery-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Filter buttons scroll horizontally */
+  .gallery-filters {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+
+  .gallery-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Buttons touch-friendly */
+  button,
+  a,
+  .btn-primary,
+  .btn-secondary,
+  .btn-auth {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Dashboard module cards */
+  .module-card-premium {
+    padding: 0.875rem !important;
+  }
+
+  /* Video model grid to 1 col */
+  .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Pricing cards */
+  .pricing-card {
+    padding: 1rem !important;
+  }
+
+  /* Text size adjustments */
+  .text-4xl {
+    font-size: 2rem !important;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* --- Max-width 320px (Smallest screens) --- */
+@media (max-width: 320px) {
+  .px-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  h1 {
+    font-size: 1.25rem !important;
+  }
+
+  .glass-card,
+  .glass-card-premium {
+    padding: 0.75rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  /* Fix image studio preview */
+  .image-result img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Smaller gap */
+  .gap-6 {
+    gap: 1rem !important;
+  }
+
+  .gap-4 {
+    gap: 0.75rem !important;
+  }
 }

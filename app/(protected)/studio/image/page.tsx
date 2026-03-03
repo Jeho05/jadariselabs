@@ -15,12 +15,13 @@ import {
 import ShareButtons from '@/components/share-buttons';
 import Link from 'next/link';
 
-type ImageModel = 'flux-schnell' | 'sdxl';
+type ImageModel = 'flux-schnell' | 'sdxl' | 'sd35-medium';
 type ImageSize = '512x512' | '768x768' | '1024x1024';
 
-const MODELS: { id: ImageModel; name: string; desc: string }[] = [
+const MODELS: { id: ImageModel; name: string; desc: string; badge?: string }[] = [
     { id: 'flux-schnell', name: 'FLUX.1 Schnell', desc: 'Rapide — idéal pour l\'exploration' },
     { id: 'sdxl', name: 'Stable Diffusion XL', desc: 'Haute qualité — détails fins' },
+    { id: 'sd35-medium', name: 'SD 3.5 Medium', desc: 'Nouvelle génération — excellente adhérence', badge: 'NOUVEAU' },
 ];
 
 const SIZES: { id: ImageSize; label: string }[] = [
@@ -219,7 +220,10 @@ export default function ImageStudioPage() {
                                         onClick={() => setModel(m.id)}
                                         disabled={generating}
                                     >
-                                        <span className="image-studio-model-name">{m.name}</span>
+                                        <span className="image-studio-model-name">
+                                            {m.name}
+                                            {m.badge && <span className="image-studio-model-badge">{m.badge}</span>}
+                                        </span>
                                         <span className="image-studio-model-desc">{m.desc}</span>
                                     </button>
                                 ))}
@@ -362,7 +366,7 @@ export default function ImageStudioPage() {
                                 <div className="image-studio-empty-features">
                                     <div className="image-studio-empty-feature">
                                         <div className="dot savanna" />
-                                        <span>Modèles FLUX et SDXL</span>
+                                        <span>FLUX, SDXL et SD 3.5</span>
                                     </div>
                                     <div className="image-studio-empty-feature">
                                         <div className="dot terracotta" />

@@ -366,6 +366,56 @@ CINETPAY_API_KEY
 CINETPAY_SITE_ID
 CINETPAY_SECRET_KEY
 NEXT_PUBLIC_APP_URL
+REMOVEBG_API_KEY (optionnel - fallback vers RMBG gratuit)
+```
+
+---
+
+## 📅 Mise à jour Mars 2026 — Nouveaux modules IA gratuits
+
+### Nouveaux modèles et fonctionnalités
+
+1. **Stable Diffusion 3.5 Medium** — Ajouté au Studio Image
+   - Meilleure adhérence au prompt
+   - Licence communautaire permissive
+   - Fichiers : `lib/huggingface.ts`, `app/(protected)/studio/image/page.tsx`
+
+2. **Module Amélioration d'Images** (`/studio/enhance`)
+   - Upscaling x4 avec Real-ESRGAN (HuggingFace)
+   - Suppression d'arrière-plan avec RMBG-1.4 (gratuit) ou remove.bg
+   - Fichiers : `lib/enhance.ts`, `lib/removebg.ts`, `app/api/enhance/*`
+
+3. **Module Synthèse Vocale** (`/studio/audio`)
+   - Bark (Suno AI) via HuggingFace — 100% gratuit
+   - Support multilingue : FR, EN, DE, ES, IT, PT, ZH
+   - Fichiers : `lib/bark.ts`, `app/api/generate/audio/route.ts`
+
+### Architecture mise à jour
+
+```
+lib/
+├── huggingface.ts      # FLUX, SDXL, SD 3.5 Medium
+├── enhance.ts          # Real-ESRGAN, GFPGAN, CodeFormer
+├── removebg.ts         # RMBG-1.4, remove.bg API
+├── bark.ts             # Synthèse vocale multilingue
+├── replicate.ts        # Vidéo (Wan 2.1)
+└── cinetpay.ts         # Paiement Mobile Money
+
+app/(protected)/studio/
+├── image/              # Génération images (3 modèles)
+├── chat/               # Chat IA (Groq LLaMA 3.3)
+├── video/              # Génération vidéo
+├── enhance/            # Upscaling + Remove BG
+└── audio/              # Synthèse vocale Bark
+
+app/api/
+├── generate/
+│   ├── image/          # POST génération image
+│   ├── video/          # POST/GET/DELETE vidéo
+│   └── audio/          # POST synthèse vocale
+└── enhance/
+    ├── upscale/        # POST upscaling x4
+    └── remove-bg/      # POST suppression fond
 ```
 
 ---
