@@ -131,8 +131,8 @@ export default function Header() {
 
     return (
         <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-black/5'
-                : 'bg-transparent'
+            ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-black/5'
+            : 'bg-transparent'
             }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 <div className="flex items-center justify-between h-16 lg:h-20">
@@ -143,8 +143,8 @@ export default function Header() {
                     >
                         <div className="relative">
                             <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${scrolled
-                                    ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] shadow-lg'
-                                    : 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)]'
+                                ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] shadow-lg'
+                                : 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)]'
                                 } group-hover:scale-105 group-hover:rotate-3`}>
                                 <IconFlask size={24} className="text-white" />
                             </div>
@@ -167,10 +167,10 @@ export default function Header() {
                                     key={link.href}
                                     href={link.href}
                                     className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${isActive(link.href)
-                                            ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/5'
-                                            : scrolled
-                                                ? 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
-                                                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-white/50'
+                                        ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/5'
+                                        : scrolled
+                                            ? 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
+                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-white/50'
                                         }`}
                                 >
                                     <link.icon size={18} />
@@ -189,11 +189,11 @@ export default function Header() {
                             <>
                                 {/* Credits badge */}
                                 {profile && (
-                                    <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all ${profile.credits !== -1 && profile.credits < 5
-                                            ? 'bg-red-50 border border-red-200 text-red-600 animate-pulse'
-                                            : scrolled
-                                                ? 'bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-terracotta)]/10 border border-[var(--color-gold)]/20 text-[var(--color-earth)]'
-                                                : 'bg-white/60 backdrop-blur-sm border border-white/20 text-[var(--color-earth)]'
+                                    <div className={`flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm transition-all ${profile.credits !== -1 && profile.credits < 5
+                                        ? 'bg-red-50 border border-red-200 text-red-600 animate-pulse'
+                                        : scrolled
+                                            ? 'bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-terracotta)]/10 border border-[var(--color-gold)]/20 text-[var(--color-earth)]'
+                                            : 'bg-white/60 backdrop-blur-sm border border-white/20 text-[var(--color-earth)]'
                                         }`}>
                                         <div className="relative">
                                             <IconZap size={16} className={profile.credits !== -1 && profile.credits < 5 ? "text-red-500" : "text-[var(--color-gold)]"} />
@@ -217,14 +217,14 @@ export default function Header() {
                                     <button
                                         onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                                         className={`flex items-center gap-2 p-1.5 rounded-xl transition-all ${scrolled
-                                                ? 'hover:bg-[var(--color-cream-dark)]'
-                                                : 'hover:bg-white/50'
+                                            ? 'hover:bg-[var(--color-cream-dark)]'
+                                            : 'hover:bg-white/50'
                                             }`}
                                         aria-expanded={profileDropdownOpen}
                                     >
                                         <div className={`relative w-9 h-9 lg:w-10 lg:h-10 rounded-xl overflow-hidden transition-all ${profile?.plan === 'pro'
-                                                ? 'ring-2 ring-[var(--color-gold)] ring-offset-2 ring-offset-white'
-                                                : ''
+                                            ? 'ring-2 ring-[var(--color-gold)] ring-offset-2 ring-offset-white'
+                                            : ''
                                             }`}>
                                             {profile?.avatar_url ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -257,8 +257,8 @@ export default function Header() {
                                             <div className="px-4 py-3 border-b border-[var(--color-border)] mb-2">
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-12 h-12 rounded-xl overflow-hidden ${profile?.plan === 'pro'
-                                                            ? 'ring-2 ring-[var(--color-gold)]'
-                                                            : ''
+                                                        ? 'ring-2 ring-[var(--color-gold)]'
+                                                        : ''
                                                         }`}>
                                                         {profile?.avatar_url ? (
                                                             // eslint-disable-next-line @next/next/no-img-element
@@ -275,10 +275,10 @@ export default function Header() {
                                                         </p>
                                                         <div className="flex items-center gap-2">
                                                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${profile?.plan === 'pro'
-                                                                    ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]'
-                                                                    : profile?.plan === 'starter'
-                                                                        ? 'bg-[var(--color-savanna)]/10 text-[var(--color-savanna)]'
-                                                                        : 'bg-[var(--color-text-muted)]/10 text-[var(--color-text-muted)]'
+                                                                ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]'
+                                                                : profile?.plan === 'starter'
+                                                                    ? 'bg-[var(--color-savanna)]/10 text-[var(--color-savanna)]'
+                                                                    : 'bg-[var(--color-text-muted)]/10 text-[var(--color-text-muted)]'
                                                                 }`}>
                                                                 {profile?.plan === 'free' ? t('plan.free') : profile?.plan === 'starter' ? t('plan.starter') : t('plan.pro')}
                                                             </span>
@@ -330,8 +330,8 @@ export default function Header() {
                                 <button
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                     className={`lg:hidden p-2 rounded-xl transition-all ${scrolled
-                                            ? 'hover:bg-[var(--color-cream-dark)] text-[var(--color-text-primary)]'
-                                            : 'hover:bg-white/50 text-[var(--color-earth)]'
+                                        ? 'hover:bg-[var(--color-cream-dark)] text-[var(--color-text-primary)]'
+                                        : 'hover:bg-white/50 text-[var(--color-earth)]'
                                         }`}
                                     aria-label="Menu"
                                 >
@@ -348,8 +348,8 @@ export default function Header() {
                                 <Link
                                     href="/login"
                                     className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${scrolled
-                                            ? 'text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
-                                            : 'text-[var(--color-earth)] hover:bg-white/50'
+                                        ? 'text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
+                                        : 'text-[var(--color-earth)] hover:bg-white/50'
                                         }`}
                                 >
                                     {t('nav.login')}
@@ -408,8 +408,8 @@ export default function Header() {
                                     key={link.href}
                                     href={link.href}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive(link.href)
-                                            ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/5'
-                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
+                                        ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/5'
+                                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream-dark)]'
                                         }`}
                                 >
                                     <link.icon size={20} />

@@ -190,7 +190,7 @@ export default function GalleryPage() {
                             <p>Vos créations IA en un coup d&apos;œil — {stats.total} création{stats.total !== 1 ? 's' : ''}</p>
                         </div>
                     </div>
-                    <div className="gallery-stats">
+                    <div className="gallery-stats flex-wrap">
                         <span className="gallery-stat"><IconImage size={14} /> {stats.images}</span>
                         <span className="gallery-stat"><IconChat size={14} /> {stats.chats}</span>
                         <span className="gallery-stat"><IconVideo size={14} /> {stats.videos}</span>
@@ -198,8 +198,8 @@ export default function GalleryPage() {
                 </div>
 
                 {/* Toolbar: Filters + Search */}
-                <div className="gallery-toolbar">
-                    <div className="gallery-filters">
+                <div className="gallery-toolbar flex-col sm:flex-row gap-3">
+                    <div className="gallery-filters overflow-x-auto flex-shrink-0">
                         {FILTER_OPTIONS.map(opt => {
                             const Icon = opt.icon;
                             return (

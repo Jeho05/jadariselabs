@@ -1,9 +1,12 @@
 import Header from '@/components/header';
+import MobileBottomNav from '@/components/mobile-bottom-nav';
 
 /**
  * Protected Layout Group
  * Wraps all authenticated pages (dashboard, studio, gallery)
  * with the Header component automatically.
+ * - pt-16 / lg:pt-20 compensates for the fixed header height
+ * - pb-20 / lg:pb-0 compensates for the mobile bottom nav
  */
 export default function ProtectedLayout({
     children,
@@ -13,7 +16,8 @@ export default function ProtectedLayout({
     return (
         <div className="min-h-screen bg-cream flex flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pt-16 lg:pt-20 pb-20 lg:pb-0">{children}</main>
+            <MobileBottomNav />
         </div>
     );
 }
