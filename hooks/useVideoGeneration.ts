@@ -57,15 +57,15 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
       try {
         const response = await fetch(`/api/generate/video?generation_id=${state.generationId}`);
         const data = await response.json();
-        
+
         if (data.success && data.generation) {
           const generation = data.generation as Generation;
-          
+
           // Update progress based on time elapsed
           const elapsed = Date.now() - new Date(generation.created_at).getTime();
           const estimatedMs = state.estimatedTime * 1000;
           const progressPercent = Math.min(Math.floor((elapsed / estimatedMs) * 100), 90);
-          
+
           if (generation.status === 'completed') {
             setState(prev => ({
               ...prev,
@@ -76,7 +76,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
             }));
             options.onCompleted?.(generation.result_url || '');
             clearInterval(pollInterval);
-            
+
           } else if (generation.status === 'failed') {
             setState(prev => ({
               ...prev,
@@ -86,7 +86,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
             }));
             options.onFailed?.(generation.error || 'Generation failed');
             clearInterval(pollInterval);
-            
+
           } else if (generation.status === 'cancelled') {
             setState(prev => ({
               ...prev,
@@ -95,7 +95,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
             }));
             options.onCancelled?.();
             clearInterval(pollInterval);
-            
+
           } else if (generation.status === 'processing') {
             setState(prev => ({
               ...prev,
@@ -116,7 +116,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
   const generate = useCallback(async (
     prompt: string,
     duration: number,
-    model: VideoModel = 'wan2',
+    model: VideoModel = 'text-to-video-ms',
     quality: string = 'standard',
     style?: string
   ) => {
@@ -234,6 +234,6 @@ export function calculateRequiredCredits(
 
   const baseCredits = modelConfig.creditsPerSecond * duration;
   const qualityMultiplier = quality === 'ultra' ? 2 : quality === 'high' ? 1.5 : 1;
-  
+
   return Math.ceil(baseCredits * qualityMultiplier);
 }

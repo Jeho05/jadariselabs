@@ -3,7 +3,7 @@
  * Génération d'images via FLUX.1-schnell et SDXL
  */
 
-export type ImageModel = 'flux-schnell' | 'sdxl';
+export type ImageModel = 'flux-schnell' | 'sdxl' | 'sd35-medium';
 
 export interface ImageGenerationOptions {
     width?: number;
@@ -17,6 +17,7 @@ export interface ImageGenerationOptions {
 const MODEL_IDS: Record<ImageModel, string> = {
     'flux-schnell': 'black-forest-labs/FLUX.1-schnell',
     'sdxl': 'stabilityai/stable-diffusion-xl-base-1.0',
+    'sd35-medium': 'stabilityai/stable-diffusion-3.5-medium',
 };
 
 export const IMAGE_MODELS: Record<ImageModel, {
@@ -26,6 +27,7 @@ export const IMAGE_MODELS: Record<ImageModel, {
     defaultSteps: number;
     creditsSD: number;
     creditsHD: number;
+    badge?: string;
 }> = {
     'flux-schnell': {
         displayName: 'FLUX.1 Schnell',
@@ -42,6 +44,15 @@ export const IMAGE_MODELS: Record<ImageModel, {
         defaultSteps: 25,
         creditsSD: 2,
         creditsHD: 3,
+    },
+    'sd35-medium': {
+        displayName: 'Stable Diffusion 3.5',
+        description: 'Nouvelle génération — excellente adhérence au prompt',
+        maxResolution: 1024,
+        defaultSteps: 20,
+        creditsSD: 2,
+        creditsHD: 3,
+        badge: 'NOUVEAU',
     },
 };
 
@@ -79,17 +90,17 @@ export async function generateImage(
         parameters: {
             width: Math.min(width, IMAGE_MODELS[model].maxResolution),
             height: Math.min(height, IMAGE_MODELS[model].maxResolution),
-            num_inference_steps: num_inference_steps || (model === 'sdxl' ? 40 : 8), // Increased for better quality
-            guidance_scale: guidance_scale || (model === 'sdxl' ? 8.5 : 7.0), // Standard values for better adherence
+            // Optmized defaults for free tier (balance between speed and quality before HF API timeout)
+            num_inference_steps: num_inference_steps || (model === 'flux-schnell' ? 4 : 25),
+            guidance_scale: guidance_scale || (model === 'flux-schnell' ? 3.5 : 7.5),
         },
     };
 
-    if (negative_prompt) {
-        (body.parameters as Record<string, unknown>).negative_prompt = negative_prompt;
-    } else if (model === 'sdxl') {
-        // Default high-quality negative prompt for SDXL
-        (body.parameters as Record<string, unknown>).negative_prompt = "blurry, poor quality, bad anatomy, bad proportions, deformed, lowres, ugly, out of focus";
-    }
+    // Universal high-quality negative prompt for free models (especially SDXL and SD3.5)
+    // Flux Schnell doesn't actively use negative prompts, but it doesn't break the API.
+    const defaultNegativePrompt = "blurry, poor quality, bad anatomy, bad proportions, deformed, lowres, ugly, out of focus, duplicate, mutated, extra limbs, poorly drawn face, poorly drawn hands, missing fingers";
+
+    (body.parameters as Record<string, unknown>).negative_prompt = negative_prompt || defaultNegativePrompt;
 
     const response = await fetch(
         `https://router.huggingface.co/hf-inference/models/${modelId}`,

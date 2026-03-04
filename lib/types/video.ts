@@ -7,11 +7,11 @@
 export type PlanType = 'free' | 'starter' | 'pro';
 
 // Video generation models
-export type VideoModel = 'wan2' | 'gen2' | 'sora';
+export type VideoModel = 'text-to-video-ms' | 'animatediff-lightning';
 
 export type VideoQuality = 'standard' | 'high' | 'ultra';
 
-export type VideoStyle = 
+export type VideoStyle =
   | 'cinematic'
   | 'anime'
   | 'realistic'
@@ -23,7 +23,7 @@ export type VideoStyle =
 
 export type VideoAspectRatio = '16:9' | '9:16' | '1:1' | '4:3';
 
-export type GenerationStatus = 
+export type GenerationStatus =
   | 'queued'
   | 'processing'
   | 'completed'
@@ -82,7 +82,7 @@ export interface VideoMetadata {
   creditsUsed: number;
 }
 
-// Replicate prediction
+// Replicate prediction (Kept for backwards compatibility if needed, but not used now)
 export interface ReplicatePrediction {
   id: string;
   version: string;
@@ -119,42 +119,30 @@ export interface VideoModelInfo {
 
 // Available models
 export const VIDEO_MODELS: Record<VideoModel, VideoModelInfo> = {
-  wan2: {
-    name: 'lucataco/wan2.1',
-    version: 'wan2.1-t2v-1.3b',
-    displayName: 'Wan 2.1',
-    description: 'Fast text-to-video generation with good quality',
-    creditsPerSecond: 1,
-    maxDuration: 15,
-    supportedFeatures: ['text-to-video', 'style-transfer'],
-    qualityLevels: ['standard', 'high'],
-    aspectRatios: ['16:9', '9:16', '1:1'],
-    avgGenerationTime: 30, // 30s per second of video
+  'text-to-video-ms': {
+    name: 'damo-vilab/text-to-video-ms-1.7b',
+    version: '1.7b',
+    displayName: 'Text-to-Video MS',
+    description: 'Modèle gratuit générant de courtes séquences vidéo à partir de texte',
+    creditsPerSecond: 1, // Simplified credits for free model
+    maxDuration: 4,      // HF models are restricted to short videos
+    supportedFeatures: ['text-to-video'],
+    qualityLevels: ['standard'],
+    aspectRatios: ['16:9', '1:1'],
+    avgGenerationTime: 45, // takes some time
   },
-  gen2: {
-    name: 'runwayml/gen-2',
-    version: 'gen2-t2v',
-    displayName: 'Gen-2',
-    description: 'High quality text-to-video with motion control',
-    creditsPerSecond: 2,
-    maxDuration: 10,
-    supportedFeatures: ['text-to-video', 'image-to-video', 'motion-brush'],
-    qualityLevels: ['standard', 'high', 'ultra'],
-    aspectRatios: ['16:9', '9:16'],
-    avgGenerationTime: 45,
-  },
-  sora: {
-    name: 'openai/sora',
-    version: 'sora-1.0',
-    displayName: 'Sora',
-    description: 'State-of-the-art video generation with physics simulation',
-    creditsPerSecond: 3,
-    maxDuration: 30,
-    supportedFeatures: ['text-to-video', 'physics-simulation', '4k-output', 'long-form'],
-    qualityLevels: ['high', 'ultra'],
-    aspectRatios: ['16:9', '9:16', '1:1'],
-    avgGenerationTime: 60,
-  },
+  'animatediff-lightning': {
+    name: 'ByteDance/AnimateDiff-Lightning',
+    version: 'lightning',
+    displayName: 'AnimateDiff Lightning',
+    description: 'Animation et vidéo ultra-rapide gratuite',
+    creditsPerSecond: 1, // Simplified
+    maxDuration: 2,      // Very short animations
+    supportedFeatures: ['text-to-video'],
+    qualityLevels: ['standard'],
+    aspectRatios: ['16:9', '1:1'],
+    avgGenerationTime: 20,
+  }
 };
 
 // Progress tracking
@@ -169,7 +157,7 @@ export interface VideoProgress {
   completedAt?: Date;
 }
 
-export type VideoProgressStage = 
+export type VideoProgressStage =
   | 'queued'
   | 'processing'
   | 'validating'
@@ -187,7 +175,7 @@ export interface VideoWebSocketEvents {
   'subscribe': { generationId: string };
   'unsubscribe': { generationId: string };
   'cancel': { generationId: string };
-  
+
   // Server -> Client
   'job:queued': { generationId: string; position: number };
   'job:started': { generationId: string; workerId: string };

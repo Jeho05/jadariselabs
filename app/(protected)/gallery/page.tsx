@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import type { Generation } from '@/lib/types';
+import type { Generation, Profile } from '@/lib/types';
 import {
     IconPalette,
     IconImage,
@@ -30,6 +30,7 @@ export default function GalleryPage() {
     const supabase = createClient();
 
     const [generations, setGenerations] = useState<Generation[]>([]);
+    const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<FilterType>('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +44,14 @@ export default function GalleryPage() {
         const fetchGenerations = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
+
+            // Fetch profile for plan info
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+            if (profileData) setProfile(profileData);
 
             const { data, error: fetchError } = await supabase
                 .from('generations')
@@ -286,6 +295,12 @@ export default function GalleryPage() {
                                         <span className={`gallery-card-badge ${badge.color}`}>
                                             {badge.label}
                                         </span>
+                                        {/* Watermark indicator for free plan */}
+                                        {profile?.plan === 'free' && gen.type === 'image' && (
+                                            <span className="absolute top-2 right-2 text-[10px] font-bold bg-black/50 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                                Watermark
+                                            </span>
+                                        )}
                                         {/* Hover overlay */}
                                         <div className="gallery-card-overlay">
                                             <IconSparkle size={24} />
@@ -307,9 +322,12 @@ export default function GalleryPage() {
                                             <button
                                                 className="gallery-action-btn"
                                                 onClick={() => handleDownload(gen.result_url!, gen.type)}
-                                                title="Télécharger"
+                                                title={profile?.plan === 'free' ? 'Télécharger (SD)' : 'Télécharger (HD)'}
                                             >
                                                 <IconDownload size={16} />
+                                                <span className="text-[10px] ml-1">
+                                                    {profile?.plan === 'free' ? 'SD' : 'HD'}
+                                                </span>
                                             </button>
                                         )}
                                         <button

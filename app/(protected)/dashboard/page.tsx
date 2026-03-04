@@ -20,6 +20,8 @@ import {
     IconTrendingUp,
     IconClock,
     IconStar,
+    IconWand,
+    IconMusic,
 } from '@/components/icons';
 
 /**
@@ -133,7 +135,7 @@ export default function DashboardPage() {
         {
             icon: IconImage,
             title: 'Génération d\'images',
-            description: 'Créez des images époustouflantes avec FLUX & SDXL',
+            description: 'Créez des images époustouflantes avec FLUX, SDXL & SD 3.5',
             href: '/studio/image',
             color: 'terracotta',
             tag: 'POPULAIRE',
@@ -153,6 +155,24 @@ export default function DashboardPage() {
             title: 'Génération vidéo',
             description: 'Transformez vos idées en vidéos créatives',
             href: '/studio/video',
+            color: 'gold',
+            tag: 'BÊTA',
+            gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]',
+        },
+        {
+            icon: IconWand,
+            title: 'Amélioration images',
+            description: 'Upscaling x4 et suppression d\'arrière-plan',
+            href: '/studio/enhance',
+            color: 'savanna',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
+        },
+        {
+            icon: IconMusic,
+            title: 'Synthèse vocale',
+            description: 'Convertissez du texte en audio avec Bark',
+            href: '/studio/audio',
             color: 'gold',
             tag: 'BÊTA',
             gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]',

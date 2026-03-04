@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  * Auth routes: /login, /signup (redirect to /dashboard if already logged in)
  */
 
-const PROTECTED_ROUTES = ['/dashboard', '/studio', '/gallery'];
+const PROTECTED_ROUTES = ['/dashboard', '/studio', '/gallery', '/pricing'];
 const AUTH_ROUTES = ['/login', '/signup'];
 
 export async function middleware(request: NextRequest) {

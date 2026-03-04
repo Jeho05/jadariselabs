@@ -26,12 +26,12 @@ import Link from 'next/link';
 
 export default function VideoStudioPage() {
   const supabase = createClient();
-  
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [prompt, setPrompt] = useState('');
   const [duration, setDuration] = useState<3 | 5 | 15>(5);
-  const [selectedModel, setSelectedModel] = useState<VideoModel>('wan2');
+  const [selectedModel, setSelectedModel] = useState<VideoModel>('text-to-video-ms');
   const [quality, setQuality] = useState<VideoQuality>('standard');
   const [style, setStyle] = useState<VideoStyle>('cinematic');
 
@@ -78,24 +78,8 @@ export default function VideoStudioPage() {
     );
   }
 
-  if (profile?.plan === 'free') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-xl text-center glass-card-premium p-12 rounded-3xl">
-          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] flex items-center justify-center mb-6">
-            <IconVideo size={40} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-bold mb-4">Studio Vidéo Premium</h1>
-          <p className="text-[var(--color-text-secondary)] mb-8">
-            La génération vidéo est réservée aux abonnés Starter et Pro.
-          </p>
-          <Link href="/pricing" className="btn-cta-premium inline-flex py-4 px-8">
-            Passer Premium
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // All plans can access free video generation now
+  // We remove the restriction that prevented free users from accessing the studio
 
   return (
     <div className="min-h-screen pb-20">
@@ -120,7 +104,7 @@ export default function VideoStudioPage() {
                 className="w-full h-32 p-4 rounded-xl border border-[var(--color-cream-dark)] bg-white/50 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)]/50"
                 disabled={isGenerating}
               />
-              <div className="text-xs text-[var(--color-text-muted)] mt-2">{prompt.length}/1000</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-2">{prompt.length}/500</div>
             </div>
 
             {/* Duration */}
@@ -130,38 +114,35 @@ export default function VideoStudioPage() {
                 {[
                   { value: 3, label: '3s' },
                   { value: 5, label: '5s' },
-                  { value: 15, label: '15s', pro: true },
                 ].map((d) => {
-                  const isDisabled = d.pro && profile?.plan === 'starter';
                   return (
                     <button
                       key={d.value}
-                      onClick={() => !isDisabled && setDuration(d.value as 3 | 5 | 15)}
-                      disabled={isDisabled || isGenerating}
-                      className={`p-3 rounded-2xl border-2 transition-all ${duration === d.value ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-[var(--color-cream-dark)] bg-white hover:border-[var(--color-gold)]/50'} ${isDisabled ? 'opacity-50' : ''}`}
+                      onClick={() => setDuration(d.value as 3 | 5 | 15)}
+                      disabled={isGenerating}
+                      className={`p-3 rounded-2xl border-2 transition-all ${duration === d.value ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-[var(--color-cream-dark)] bg-white hover:border-[var(--color-gold)]/50'}`}
                     >
                       {duration === d.value && <IconCheck size={14} className="absolute top-2 right-2 text-[var(--color-gold)]" />}
                       <div className="font-bold">{d.label}</div>
-                      {d.pro && <div className="text-xs text-[var(--color-terracotta)]">Pro</div>}
                     </button>
                   );
                 })}
               </div>
+              <p className="text-xs text-[var(--color-text-muted)] mt-3 text-center">Les modèles IA gratuits actuels génèrent des vidéos courtes de quelques secondes.</p>
             </div>
 
             {/* Model */}
             <div className="glass-card-premium p-6 rounded-2xl">
               <label className="block text-sm font-semibold mb-3">Modèle IA</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {(Object.keys(VIDEO_MODELS) as VideoModel[]).map((model) => {
                   const info = VIDEO_MODELS[model];
-                  const isAllowed = profile?.plan === 'pro' || (profile?.plan === 'starter' && (model === 'wan2' || model === 'gen2'));
                   return (
                     <button
                       key={model}
-                      onClick={() => isAllowed && setSelectedModel(model)}
-                      disabled={!isAllowed || isGenerating}
-                      className={`relative p-3 rounded-2xl border-2 transition-all ${selectedModel === model ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-[var(--color-cream-dark)] bg-white hover:border-[var(--color-gold)]/50'} ${!isAllowed ? 'opacity-50' : ''}`}
+                      onClick={() => setSelectedModel(model)}
+                      disabled={isGenerating}
+                      className={`relative p-3 rounded-2xl border-2 transition-all ${selectedModel === model ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-[var(--color-cream-dark)] bg-white hover:border-[var(--color-gold)]/50'}`}
                     >
                       {selectedModel === model && <IconCheck size={14} className="absolute top-2 right-2 text-[var(--color-gold)]" />}
                       <div className="font-semibold text-sm">{info.displayName}</div>
