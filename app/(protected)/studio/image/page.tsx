@@ -171,6 +171,24 @@ export default function ImageStudioPage() {
                     )}
                 </div>
 
+                {/* Step indicator */}
+                <div className="studio-steps">
+                    <div className={`studio-step ${!prompt ? 'active' : ''}`}>
+                        <div className="studio-step-dot" />
+                        1. Décrivez
+                    </div>
+                    <div className="studio-step-connector" />
+                    <div className={`studio-step ${prompt && !generating && !resultUrl ? 'active' : ''}`}>
+                        <div className="studio-step-dot" />
+                        2. Configurez
+                    </div>
+                    <div className="studio-step-connector" />
+                    <div className={`studio-step ${generating || resultUrl ? 'active' : ''}`}>
+                        <div className="studio-step-dot" />
+                        3. Générez
+                    </div>
+                </div>
+
                 <div className="image-studio-grid">
                     {/* Left — Controls */}
                     <div className="image-studio-controls">

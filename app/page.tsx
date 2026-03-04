@@ -193,15 +193,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-hidden">
       {/* Animated African Pattern Background */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none opacity-[0.03]"
-        style={{ 
-          backgroundImage: 'url(/pattern-african.svg)', 
+        style={{
+          backgroundImage: 'url(/pattern-african.svg)',
           backgroundRepeat: 'repeat',
           animation: 'parallax-float 20s linear infinite'
         }}
       />
-      
+
       {/* Premium Floating Orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="orb orb-gold w-96 h-96 -top-48 -right-48" />
@@ -255,20 +255,20 @@ export default function Home() {
                   Laboratoire IA Tout-en-1
                 </span>
               </div>
-              
+
               {/* Headline */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] mb-6 animate-fade-in-up" style={{ fontFamily: 'var(--font-heading)', animationDelay: '0.2s' }}>
                 <span className="text-gradient-animated">L&apos;intelligence artificielle</span>
                 <br />
                 <span className="text-[var(--color-text-primary)]">accessible à tous</span>
               </h1>
-              
+
               {/* Subheadline */}
               <p className="text-lg md:text-xl text-[var(--color-text-secondary)] max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 Générez des images, chattez avec l&apos;IA, créez des vidéos et bien plus.
                 <span className="text-[var(--color-earth)] font-semibold"> Conçu pour l&apos;Afrique de l&apos;Ouest.</span>
               </p>
-              
+
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                 <a href="/signup" className="btn-cta-premium group">
@@ -280,7 +280,7 @@ export default function Home() {
                   <span>Découvrir</span>
                 </a>
               </div>
-              
+
               {/* Trust Badge */}
               <div className="flex items-center justify-center lg:justify-start gap-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
                 <div className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
@@ -294,10 +294,10 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
             {/* Right Visual - Immersive */}
-            <div className="hidden lg:block relative animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative w-full max-w-lg mx-auto">
+            <div className="relative animate-fade-in-up mt-8 lg:mt-0" style={{ animationDelay: '0.3s' }}>
+              <div className="relative w-full max-w-sm lg:max-w-lg mx-auto">
                 {/* Main Hero Image */}
                 <div className="relative rounded-3xl overflow-hidden shadow-premium-lg hover-lift transition-all duration-500">
                   <Image
@@ -322,8 +322,8 @@ export default function Home() {
                   {/* Shimmer Effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
                 </div>
-                
-                {/* Floating Cards */}
+
+                {/* Floating Cards — desktop only */}
                 <div className="hidden xl:block absolute -top-6 -right-6 glass-card-premium !rounded-2xl !p-4 animate-float shadow-premium">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] flex items-center justify-center">
@@ -335,7 +335,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="hidden xl:block absolute -bottom-4 -left-4 glass-card-premium !rounded-2xl !p-4 animate-float-delayed shadow-premium">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-savanna)] to-[var(--color-savanna-light)] flex items-center justify-center">
@@ -403,11 +403,11 @@ export default function Home() {
               Commencez à créer en 3 étapes simples
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {steps.map((step, index) => (
-              <div 
-                key={step.title} 
+              <div
+                key={step.title}
                 className="relative group"
                 style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.2}s forwards`, opacity: 0 }}
               >
@@ -415,18 +415,18 @@ export default function Home() {
                 {index < steps.length - 1 && (
                   <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-[var(--color-gold)]/50 to-transparent" />
                 )}
-                
+
                 <div className="glass-card-premium rounded-2xl p-8 hover-lift">
                   {/* Step Number */}
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
                     <span className="text-white text-2xl font-bold">{index + 1}</span>
                   </div>
-                  
+
                   {/* Icon */}
                   <div className="w-12 h-12 rounded-xl bg-[var(--color-cream)] flex items-center justify-center mb-4 group-hover:bg-[var(--color-gold)]/10 transition-colors">
                     <step.icon size={24} className="text-[var(--color-earth)]" />
                   </div>
-                  
+
                   {/* Content */}
                   <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-3">
                     {step.title}
@@ -458,7 +458,7 @@ export default function Home() {
               Accédez aux meilleurs modèles d&apos;IA du marché, en un clic.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 stagger-container">
             {modules.map((module, index) => (
               <div
@@ -479,7 +479,7 @@ export default function Home() {
                       <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent" />
                     </div>
                   )}
-                  
+
                   <div className="flex items-start gap-4">
                     <div className={`module-icon-premium ${module.color} group-hover:scale-110 transition-transform`}>
                       <module.icon size={28} />
@@ -514,11 +514,11 @@ export default function Home() {
               Découvrez ce que nos utilisateurs disent de JadaRiseLabs
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8 stagger-container">
             {testimonials.map((testimonial, index) => (
-              <div 
-                key={testimonial.name} 
+              <div
+                key={testimonial.name}
                 className="testimonial-card hover-lift"
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
@@ -557,7 +557,7 @@ export default function Home() {
               Commencez gratuitement, upgradez quand vous voulez.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 stagger-container">
             {plans.map((plan, index) => (
               <div
@@ -577,7 +577,7 @@ export default function Home() {
                     PRO
                   </div>
                 )}
-                
+
                 <div className="text-center mb-8">
                   <h3 className="text-xl font-bold mb-3 text-[var(--color-text-primary)]">{plan.name}</h3>
                   <div className="flex items-baseline justify-center gap-1">
@@ -585,7 +585,7 @@ export default function Home() {
                     <span className="text-sm text-[var(--color-text-secondary)]">{plan.period}</span>
                   </div>
                 </div>
-                
+
                 <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm">
@@ -604,7 +604,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                
+
                 <a
                   href="/signup"
                   className={`w-full ${plan.popular || plan.pro ? 'btn-cta-premium' : 'btn-secondary'} py-4 text-center flex items-center justify-center gap-2 group`}
@@ -629,7 +629,7 @@ export default function Home() {
               Tout ce que vous devez savoir sur JadaRiseLabs
             </p>
           </div>
-          
+
           <div className="space-y-4 stagger-container">
             {faqs.map((item, i) => (
               <details key={i} className="faq-card group" style={{ animationDelay: `${i * 0.1}s` }}>
@@ -659,7 +659,7 @@ export default function Home() {
               <div className="absolute top-0 left-1/4 w-32 h-32 bg-[var(--color-gold)]/10 rounded-full blur-3xl" />
               <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-[var(--color-terracotta)]/10 rounded-full blur-3xl" />
             </div>
-            
+
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
                 Prêt à <span className="text-gradient-animated">créer</span> ?

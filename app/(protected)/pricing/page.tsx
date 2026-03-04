@@ -122,13 +122,13 @@ export default function PricingPage() {
 
     return (
         <div className="min-h-screen pb-20">
-            <div className="max-w-5xl mx-auto px-4 pt-8">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
                 {/* Header */}
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] mb-4 shadow-lg">
                         <IconCrown size={32} className="text-white" />
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
                         Choisissez votre plan
                     </h1>
                     <p className="text-[var(--color-text-secondary)] text-lg max-w-lg mx-auto">
@@ -151,7 +151,7 @@ export default function PricingPage() {
                 )}
 
                 {/* Pricing Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12">
                     {(['free', 'starter', 'pro'] as PlanType[]).map((planKey) => {
                         const plan = PLANS[planKey];
                         const info = PLAN_FEATURES[planKey];
@@ -162,8 +162,8 @@ export default function PricingPage() {
                             <div
                                 key={planKey}
                                 className={`relative rounded-3xl overflow-hidden transition-all duration-300 ${isPopular
-                                        ? 'ring-2 ring-[var(--color-gold)] shadow-xl scale-[1.02]'
-                                        : 'shadow-md hover:shadow-lg'
+                                    ? 'ring-2 ring-[var(--color-gold)] shadow-xl scale-[1.02]'
+                                    : 'shadow-md hover:shadow-lg'
                                     }`}
                                 style={{
                                     background: 'white',
@@ -262,7 +262,8 @@ export default function PricingPage() {
                 </div>
 
                 {/* Comparison table */}
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="text-xs text-[var(--color-text-muted)] mb-2 sm:hidden">← Scroll pour voir →</div>
                     <table className="w-full text-sm border-collapse">
                         <thead>
                             <tr className="border-b-2 border-[var(--color-cream-dark)]">

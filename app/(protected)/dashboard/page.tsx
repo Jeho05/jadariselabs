@@ -198,46 +198,74 @@ export default function DashboardPage() {
                 <div className="orb orb-savanna w-64 h-64 bottom-1/4 right-1/3" />
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-12">
                 {/* Welcome Section */}
-                <div className="mb-10 animate-fade-in-up">
+                <div className="mb-8 lg:mb-10 animate-fade-in-up">
+                    {/* Low credits warning */}
                     {profile && profile.plan !== 'pro' && profile.credits !== -1 && profile.credits < 5 && (
-                        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-red-500 animate-pulse flex items-center justify-between">
+                        <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-red-500 animate-pulse flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-sm">
-                                    <IconZap size={20} />
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-sm flex-shrink-0">
+                                    <IconZap size={18} />
                                 </div>
                                 <div>
-                                    <h3 className="text-red-600 font-bold">Attention : Crédits faibles</h3>
-                                    <p className="text-sm text-red-500">
-                                        Il ne vous reste que {profile.credits} crédit{profile.credits > 1 ? 's' : ''}. Passez à un plan supérieur pour continuer à générer sans interruption.
+                                    <h3 className="text-red-600 font-bold text-sm sm:text-base">Crédits faibles</h3>
+                                    <p className="text-xs sm:text-sm text-red-500">
+                                        Il vous reste {profile.credits} crédit{profile.credits > 1 ? 's' : ''}.
                                     </p>
                                 </div>
                             </div>
-                            <Link href="/pricing" className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm whitespace-nowrap hidden sm:block">
+                            <Link href="/pricing" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm whitespace-nowrap">
                                 Gérer mon plan
                             </Link>
                         </div>
                     )}
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                    {/* Onboarding banner for new users */}
+                    {totalGenerations === 0 && !loading && (
+                        <div className="onboarding-banner">
+                            <div className="onboarding-banner-title">
+                                <IconRocket size={18} className="text-[var(--color-gold)]" />
+                                Bienvenue ! Voici comment démarrer
+                            </div>
+                            <div className="onboarding-steps">
+                                <div className="onboarding-step completed">
+                                    <span className="onboarding-step-number">✓</span>
+                                    <span>Créer votre compte</span>
+                                </div>
+                                <div className="onboarding-connector" />
+                                <Link href="/studio/image" className="onboarding-step current">
+                                    <span className="onboarding-step-number">2</span>
+                                    <span>Générer votre 1ère image</span>
+                                </Link>
+                                <div className="onboarding-connector" />
+                                <div className="onboarding-step">
+                                    <span className="onboarding-step-number">3</span>
+                                    <span>Explorer tous les modules</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
                         <div>
-                            <div className="inline-flex items-center gap-2 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-full px-4 py-2 mb-4">
+                            <div className="inline-flex items-center gap-2 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 mb-3 sm:mb-4">
                                 <div className="w-2 h-2 rounded-full bg-[var(--color-savanna)] animate-pulse" />
-                                <span className="text-[var(--color-savanna-dark)] text-sm font-medium">
+                                <span className="text-[var(--color-savanna-dark)] text-xs sm:text-sm font-medium">
                                     Espace créatif
                                 </span>
                             </div>
-                            <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-text-primary)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--color-text-primary)] mb-1 sm:mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
                                 Bienvenue, <span className="text-gradient-animated">{profile?.username || 'Utilisateur'}</span>
-                                <IconSparkle size={32} className="inline ml-2 text-[var(--color-gold)]" />
+                                <IconSparkle size={24} className="inline ml-1 sm:ml-2 text-[var(--color-gold)]" />
                             </h1>
-                            <p className="text-[var(--color-text-secondary)] text-lg">
+                            <p className="text-[var(--color-text-secondary)] text-sm sm:text-lg">
                                 Votre laboratoire IA est prêt à créer
                             </p>
                         </div>
                         <Link
                             href="/studio/image"
-                            className="btn-cta-premium group inline-flex items-center"
+                            className="btn-cta-premium group inline-flex items-center self-start md:self-auto"
                         >
                             <span>Commencer à créer</span>
                             <IconRocket size={18} className="ml-2 group-hover:animate-bounce" />
@@ -246,7 +274,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 stagger-container">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 mb-8 lg:mb-10 stagger-container">
                     {/* Credits Card */}
                     <div className="stat-card-premium hover-lift" style={{ animationDelay: '0.1s' }}>
                         <div className="flex items-center justify-between mb-4">
@@ -259,7 +287,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                         <div>
-                            <p className="text-4xl font-bold text-[var(--color-text-primary)] mb-1">
+                            <p className="text-2xl sm:text-4xl font-bold text-[var(--color-text-primary)] mb-1">
                                 {profile?.credits === -1 ? (
                                     <IconInfinity size={36} className="text-[var(--color-gold)]" />
                                 ) : (
@@ -288,7 +316,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                         <div>
-                            <p className="text-4xl font-bold text-gradient mb-1">{totalGenerations}</p>
+                            <p className="text-2xl sm:text-4xl font-bold text-gradient mb-1">{totalGenerations}</p>
                             <p className="text-[var(--color-text-muted)] text-sm">Générations totales</p>
                         </div>
                         <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
@@ -305,8 +333,8 @@ export default function DashboardPage() {
                     <div className="stat-card-premium hover-lift" style={{ animationDelay: '0.2s' }}>
                         <div className="flex items-center justify-between mb-4">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${profile?.plan === 'pro'
-                                    ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-earth-dark)]'
-                                    : 'bg-gradient-to-br from-[var(--color-terracotta)] to-[var(--color-terracotta-dark)]'
+                                ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-earth-dark)]'
+                                : 'bg-gradient-to-br from-[var(--color-terracotta)] to-[var(--color-terracotta-dark)]'
                                 }`}>
                                 {profile?.plan === 'pro' ? (
                                     <IconCrown size={28} className="text-white" />
@@ -324,7 +352,7 @@ export default function DashboardPage() {
                             )}
                         </div>
                         <div>
-                            <p className="text-4xl font-bold text-[var(--color-text-primary)] mb-1 capitalize">
+                            <p className="text-2xl sm:text-4xl font-bold text-[var(--color-text-primary)] mb-1 capitalize">
                                 {getPlanDisplay(profile?.plan || 'free')}
                             </p>
                             <p className="text-[var(--color-text-muted)] text-sm">Votre plan</p>
@@ -342,7 +370,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Module Cards */}
-                <div className="mb-10">
+                <div className="mb-8 lg:mb-10">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
                             Modules IA
@@ -354,7 +382,7 @@ export default function DashboardPage() {
                             Voir tout <IconArrowRight size={16} />
                         </Link>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-container">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 stagger-container">
                         {modules.map((module, index) => (
                             <Link
                                 key={module.href}
@@ -456,7 +484,7 @@ export default function DashboardPage() {
                                 Voir la galerie <IconArrowRight size={16} />
                             </Link>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-container">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 stagger-container">
                             {recentGenerations.map((gen, index) => {
                                 const getTypeStyle = (type: string) => {
                                     switch (type) {
