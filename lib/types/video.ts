@@ -1,0 +1,274 @@
+/**
+ * Video Generation Types - Enterprise Grade
+ * Complete type definitions for video generation pipeline
+ */
+
+// PlanType is defined locally to avoid import issues
+export type PlanType = 'free' | 'starter' | 'pro';
+
+// Video generation models
+export type VideoModel = 'text-to-video-ms' | 'animatediff-lightning';
+
+export type VideoQuality = 'standard' | 'high' | 'ultra';
+
+export type VideoStyle =
+  | 'cinematic'
+  | 'anime'
+  | 'realistic'
+  | 'artistic'
+  | 'documentary'
+  | 'commercial'
+  | 'social-media'
+  | 'custom';
+
+export type VideoAspectRatio = '16:9' | '9:16' | '1:1' | '4:3';
+
+export type GenerationStatus =
+  | 'queued'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+
+// Video generation configuration
+export interface VideoGenerationConfig {
+  prompt: string;
+  duration: number;
+  model?: VideoModel;
+  quality?: VideoQuality;
+  style?: VideoStyle;
+  aspectRatio?: VideoAspectRatio;
+  negativePrompt?: string;
+  seed?: number;
+  enhancePrompt?: boolean;
+  webhook?: string;
+}
+
+// Video job data for queue
+export interface VideoJobData {
+  userId: string;
+  generationId: string;
+  config: VideoGenerationConfig;
+  priority: number;
+  traceId: string;
+  retryCount: number;
+  createdAt: Date;
+}
+
+// Video job result
+export interface VideoJobResult {
+  success: boolean;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  predictionId?: string;
+  metadata?: VideoMetadata;
+  error?: string;
+  retryIn?: number;
+}
+
+// Video metadata
+export interface VideoMetadata {
+  model: VideoModel;
+  duration: number;
+  quality: VideoQuality;
+  style: VideoStyle;
+  aspectRatio: VideoAspectRatio;
+  fileSize: number;
+  resolution: string;
+  fps: number;
+  codec: string;
+  bitrate: number;
+  generationTime: number;
+  creditsUsed: number;
+}
+
+// Replicate prediction (Kept for backwards compatibility if needed, but not used now)
+export interface ReplicatePrediction {
+  id: string;
+  version: string;
+  status: 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+  input: Record<string, unknown>;
+  output?: string[];
+  error?: string;
+  logs?: string;
+  created_at: string;
+  started_at?: string;
+  completed_at?: string;
+  urls: {
+    cancel: string;
+    get: string;
+  };
+  metrics?: {
+    predict_time?: number;
+  };
+}
+
+// Model information
+export interface VideoModelInfo {
+  name: string;
+  version: string;
+  displayName: string;
+  description: string;
+  creditsPerSecond: number;
+  maxDuration: number;
+  supportedFeatures: string[];
+  qualityLevels: VideoQuality[];
+  aspectRatios: VideoAspectRatio[];
+  avgGenerationTime: number; // seconds per second of video
+}
+
+// Available models
+export const VIDEO_MODELS: Record<VideoModel, VideoModelInfo> = {
+  'text-to-video-ms': {
+    name: 'damo-vilab/text-to-video-ms-1.7b',
+    version: '1.7b',
+    displayName: 'Text-to-Video MS',
+    description: 'Modèle gratuit générant de courtes séquences vidéo à partir de texte',
+    creditsPerSecond: 1, // Simplified credits for free model
+    maxDuration: 4,      // HF models are restricted to short videos
+    supportedFeatures: ['text-to-video'],
+    qualityLevels: ['standard'],
+    aspectRatios: ['16:9', '1:1'],
+    avgGenerationTime: 45, // takes some time
+  },
+  'animatediff-lightning': {
+    name: 'ByteDance/AnimateDiff-Lightning',
+    version: 'lightning',
+    displayName: 'AnimateDiff Lightning',
+    description: 'Animation et vidéo ultra-rapide gratuite',
+    creditsPerSecond: 1, // Simplified
+    maxDuration: 2,      // Very short animations
+    supportedFeatures: ['text-to-video'],
+    qualityLevels: ['standard'],
+    aspectRatios: ['16:9', '1:1'],
+    avgGenerationTime: 20,
+  }
+};
+
+// Progress tracking
+export interface VideoProgress {
+  generationId: string;
+  status: GenerationStatus;
+  progress: number; // 0-100
+  stage: VideoProgressStage;
+  message: string;
+  estimatedTimeRemaining?: number;
+  startedAt?: Date;
+  completedAt?: Date;
+}
+
+export type VideoProgressStage =
+  | 'queued'
+  | 'processing'
+  | 'validating'
+  | 'enhancing-prompt'
+  | 'creating-prediction'
+  | 'generating'
+  | 'uploading'
+  | 'finalizing'
+  | 'completed'
+  | 'failed';
+
+// WebSocket events
+export interface VideoWebSocketEvents {
+  // Client -> Server
+  'subscribe': { generationId: string };
+  'unsubscribe': { generationId: string };
+  'cancel': { generationId: string };
+
+  // Server -> Client
+  'job:queued': { generationId: string; position: number };
+  'job:started': { generationId: string; workerId: string };
+  'job:progress': VideoProgress;
+  'job:completed': { generationId: string; videoUrl: string };
+  'job:failed': { generationId: string; error: string; retryIn?: number };
+  'job:cancelled': { generationId: string };
+}
+
+// Cache keys
+export interface VideoCacheKeys {
+  promptHash: (prompt: string) => string;
+  userQuota: (userId: string) => string;
+  modelStatus: (model: VideoModel) => string;
+  trending: () => string;
+  generation: (generationId: string) => string;
+}
+
+export const VIDEO_CACHE_KEYS: VideoCacheKeys = {
+  promptHash: (prompt: string) => `video:prompt:${hashPrompt(prompt)}`,
+  userQuota: (userId: string) => `video:quota:${userId}`,
+  modelStatus: (model: VideoModel) => `video:model:${model}:status`,
+  trending: () => `video:trending:${new Date().toISOString().split('T')[0]}`,
+  generation: (generationId: string) => `video:gen:${generationId}`,
+};
+
+// Helper function to hash prompt
+function hashPrompt(prompt: string): string {
+  const crypto = require('crypto');
+  return crypto
+    .createHash('sha256')
+    .update(prompt.trim().toLowerCase())
+    .digest('hex')
+    .substring(0, 16);
+}
+
+// API request/response types
+export interface VideoGenerationRequest {
+  prompt: string;
+  duration: number;
+  model?: VideoModel;
+  quality?: VideoQuality;
+  style?: VideoStyle;
+  aspectRatio?: VideoAspectRatio;
+  negativePrompt?: string;
+  seed?: number;
+  enhancePrompt?: boolean;
+}
+
+export interface VideoGenerationResponse {
+  success: boolean;
+  generation_id: string;
+  job_id: string;
+  estimated_time_seconds: number;
+  queue_position: number;
+  model_used: VideoModel;
+  credits_charged: number;
+  remaining_credits: number;
+  trace_id: string;
+}
+
+export interface VideoGenerationErrorResponse {
+  success: false;
+  error: string;
+  details?: string;
+  trace_id: string;
+  retry_after?: number;
+}
+
+// Rate limiting
+export interface RateLimitConfig {
+  windowMs: number;
+  maxRequests: number;
+  skipFailedRequests: boolean;
+  keyGenerator?: (userId: string) => string;
+}
+
+export const VIDEO_RATE_LIMITS: Record<string, RateLimitConfig> = {
+  perMinute: {
+    windowMs: 60000,
+    maxRequests: 10,
+    skipFailedRequests: false,
+  },
+  perHour: {
+    windowMs: 3600000,
+    maxRequests: 100,
+    skipFailedRequests: true,
+  },
+  perDay: {
+    windowMs: 86400000,
+    maxRequests: 500,
+    skipFailedRequests: true,
+  },
+};
+
+export default VideoGenerationConfig;

@@ -35,9 +35,11 @@ export default function SignupPage() {
 
     const passwordsMatch = password === confirmPassword && confirmPassword !== '';
     const usernameValid = username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailValid = emailRegex.test(email.trim());
 
     const canSubmit =
-        email &&
+        emailValid &&
         passwordIsStrong &&
         passwordsMatch &&
         usernameValid &&
@@ -81,20 +83,22 @@ export default function SignupPage() {
         setLoading(true);
 
         try {
-            const { error: authError } = await supabase.auth.signUp({
-                email: email.trim().toLowerCase(),
-                password,
-                options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
-                    data: {
-                        username: username.trim(),
-                        preferred_lang: preferredLang,
-                    },
-                },
+            // Use our server-side API for signup (handles profile creation)
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email.trim().toLowerCase(),
+                    password,
+                    username: username.trim(),
+                    preferredLang,
+                }),
             });
 
-            if (authError) {
-                setError(getAuthErrorMessage(authError.message));
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.error || 'Une erreur est survenue lors de la création du compte.');
                 setLoading(false);
                 return;
             }
@@ -363,9 +367,14 @@ export default function SignupPage() {
                                         autoComplete="email"
                                         required
                                         disabled={loading}
-                                        className="input-field"
+                                        className={`input-field ${email && !emailValid ? '!border-[var(--color-terracotta)]' : email && emailValid ? '!border-[var(--color-savanna)]' : ''}`}
                                     />
                                 </div>
+                                {email && !emailValid && (
+                                    <p className="text-xs text-[var(--color-terracotta)] mt-1.5 flex items-center gap-1">
+                                        <span>⚠</span> Format d&apos;email invalide
+                                    </p>
+                                )}
                             </div>
 
                             {/* Password */}
@@ -455,7 +464,10 @@ export default function SignupPage() {
                                         disabled={loading}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-5 h-5 rounded border-2 border-[var(--color-border)] peer-checked:bg-[var(--color-savanna)] peer-checked:border-[var(--color-savanna)] transition-all flex items-center justify-center cursor-pointer">
+                                    <div 
+                                        onClick={() => !loading && setAcceptTerms(!acceptTerms)}
+                                        className="w-5 h-5 rounded border-2 border-[var(--color-border)] peer-checked:bg-[var(--color-savanna)] peer-checked:border-[var(--color-savanna)] transition-all flex items-center justify-center cursor-pointer"
+                                    >
                                         {acceptTerms && <IconCheck size={14} className="text-white" />}
                                     </div>
                                 </div>

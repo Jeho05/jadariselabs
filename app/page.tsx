@@ -24,7 +24,7 @@ import {
 function AnimatedCounter({ value, suffix = '' }: { value: string; suffix?: string }) {
   return (
     <span className="inline-flex items-center counter-animated">
-      <span className="text-3xl md:text-4xl font-bold text-gradient-animated">{value}</span>
+      <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient-animated">{value}</span>
       {suffix && <span className="text-lg md:text-xl text-[var(--color-text-secondary)] ml-1">{suffix}</span>}
     </span>
   );
@@ -231,11 +231,11 @@ export default function Home() {
             FAQ
           </a>
         </nav>
-        <div className="flex items-center gap-3">
-          <a href="/login" className="btn-secondary text-sm py-2.5 px-5 hover-lift">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <a href="/login" className="btn-secondary text-sm py-2 px-4 sm:py-2.5 sm:px-5 hover-lift">
             Connexion
           </a>
-          <a href="/signup" className="btn-primary text-sm py-2.5 px-5 btn-ripple hover-lift animate-pulse-glow">
+          <a href="/signup" className="btn-primary text-sm py-2 px-4 sm:py-2.5 sm:px-5 btn-ripple hover-lift animate-pulse-glow">
             Commencer gratuitement
           </a>
         </div>
@@ -324,7 +324,7 @@ export default function Home() {
                 </div>
                 
                 {/* Floating Cards */}
-                <div className="absolute -top-6 -right-6 glass-card-premium !rounded-2xl !p-4 animate-float shadow-premium">
+                <div className="hidden xl:block absolute -top-6 -right-6 glass-card-premium !rounded-2xl !p-4 animate-float shadow-premium">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] flex items-center justify-center">
                       <IconSparkle size={20} className="text-white" />
@@ -336,7 +336,7 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <div className="absolute -bottom-4 -left-4 glass-card-premium !rounded-2xl !p-4 animate-float-delayed shadow-premium">
+                <div className="hidden xl:block absolute -bottom-4 -left-4 glass-card-premium !rounded-2xl !p-4 animate-float-delayed shadow-premium">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-savanna)] to-[var(--color-savanna-light)] flex items-center justify-center">
                       <IconImage size={20} className="text-white" />
@@ -349,7 +349,7 @@ export default function Home() {
                 </div>
 
                 {/* Stats Mini Card */}
-                <div className="absolute top-1/2 -right-8 glass-card-premium !rounded-2xl !p-3 animate-float shadow-premium" style={{ animationDelay: '1s' }}>
+                <div className="hidden xl:block absolute top-1/2 -right-8 glass-card-premium !rounded-2xl !p-3 animate-float shadow-premium" style={{ animationDelay: '1s' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-earth-light)] flex items-center justify-center">
                       <IconUsers size={16} className="text-white" />
@@ -510,7 +510,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
               Ils nous <span className="text-gradient-animated">font confiance</span>
             </h2>
-            <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto text-lg">
+            <p className="text-[var(--color-text-secondary)] text-lg">
               Découvrez ce que nos utilisateurs disent de JadaRiseLabs
             </p>
           </div>
@@ -566,13 +566,13 @@ export default function Home() {
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg animate-pulse-glow">
+                  <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg animate-pulse-glow">
                     <IconStar size={14} />
                     POPULAIRE
                   </div>
                 )}
                 {plan.pro && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-light)] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-light)] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
                     <IconCrown size={14} />
                     PRO
                   </div>
@@ -635,7 +635,7 @@ export default function Home() {
               <details key={i} className="faq-card group" style={{ animationDelay: `${i * 0.1}s` }}>
                 <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)] flex items-center justify-between p-6 hover:bg-[var(--color-cream)]/50 transition-colors rounded-xl">
                   <span className="pr-4">{item.q}</span>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center group-open:rotate-180 transition-transform duration-300 flex-shrink-0">
+                  <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center group-open:rotate-180 transition-transform duration-300 flex-shrink-0">
                     <span className="text-white text-sm">▾</span>
                   </div>
                 </summary>
