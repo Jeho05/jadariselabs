@@ -59,30 +59,48 @@ export async function generateHFVideo(
 
     const modelId = MODEL_IDS[model];
 
-    const response = await fetch(
-        `https://api-inference.huggingface.co/models/${modelId}`,
-        {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                inputs: prompt,
-                parameters: {
-                    num_inference_steps: options.num_inference_steps || 25,
-                    guidance_scale: options.guidance_scale || 7.5,
+    let response;
+    let retries = 0;
+    const maxRetries = 3;
+    let lastError = '';
+
+    while (retries < maxRetries) {
+        response = await fetch(
+            `https://api-inference.huggingface.co/models/${modelId}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
                 },
-            }),
-        }
-    );
+                body: JSON.stringify({
+                    inputs: prompt,
+                    parameters: {
+                        num_inference_steps: options.num_inference_steps || 25,
+                        guidance_scale: options.guidance_scale || 7.5,
+                    },
+                }),
+            }
+        );
 
-    if (!response.ok) {
+        if (response.ok) {
+            break; // Success!
+        }
+
         const errorText = await response.text();
+        lastError = errorText;
 
+        // Error 503 means the model is loading. We MUST wait and retry for free tier.
         if (response.status === 503) {
-            throw new Error(`Le modèle vidéo ${HF_VIDEO_MODELS[model].displayName} est en cours de chargement. L'IA gratuite demande parfois un peu de patience. Réessayez dans 30 secondes.`);
+            retries++;
+            if (retries < maxRetries) {
+                console.log(`[HF-Video] Le modèle charge (503). Attente de 20s... (Essai ${retries}/${maxRetries - 1})`);
+                await new Promise(resolve => setTimeout(resolve, 20000)); // Wait 20 seconds
+                continue;
+            }
+            throw new Error(`Le modèle vidéo ${HF_VIDEO_MODELS[model].displayName} met trop de temps à charger. Veuillez réessayer dans quelques minutes.`);
         }
+
         if (response.status === 429) {
             throw new Error('Trop de requêtes vidéo pour le moment. L\'API gratuite limite les usages intensifs. Veuillez patienter.');
         }
@@ -91,6 +109,10 @@ export async function generateHFVideo(
         }
 
         throw new Error(`Erreur HF Video: ${errorText.substring(0, 200)}`);
+    }
+
+    if (!response || !response.ok) {
+        throw new Error(`Erreur inattendue de l'API Vidéo: ${lastError.substring(0, 200)}`);
     }
 
     // L'API HF Inference retourne directement le fichier vidéo binaire (par ex: mp4/gif)

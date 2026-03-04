@@ -86,8 +86,30 @@ export async function POST(request: NextRequest) {
       });
 
     if (insertError) {
-      console.error('[VideoAPI] Insert error:', insertError);
-      return NextResponse.json({ success: false, error: 'Erreur lors de la création', trace_id: traceId }, { status: 500 });
+      console.error('[VideoAPI] Insert error:', JSON.stringify(insertError, null, 2));
+      console.error('[VideoAPI] Insert error details - code:', insertError.code, 'message:', insertError.message, 'details:', insertError.details);
+      
+      // Provide more specific error message based on error code
+      let errorMessage = 'Erreur lors de la création';
+      if (insertError.code === '42P01') {
+        errorMessage = 'La table "generations" n\'existe pas. Veuillez exécuter les migrations.';
+      } else if (insertError.code === '42703') {
+        errorMessage = 'Une colonne requise est manquante dans la table "generations".';
+      } else if (insertError.code === '23505') {
+        errorMessage = 'Cette génération existe déjà.';
+      } else if (insertError.code === '23503') {
+        errorMessage = 'Erreur de référence - le profil utilisateur n\'existe pas.';
+      } else if (insertError.message?.includes('permission')) {
+        errorMessage = 'Permissions insuffisantes pour créer une génération.';
+      }
+      
+      return NextResponse.json({ 
+        success: false, 
+        error: errorMessage, 
+        details: insertError.message || 'Erreur inconnue',
+        code: insertError.code,
+        trace_id: traceId 
+      }, { status: 500 });
     }
 
     // Deduct credits temporarily (held)
