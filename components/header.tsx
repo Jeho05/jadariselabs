@@ -151,7 +151,7 @@ export default function Header() {
                             <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[var(--color-savanna)] animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <span
-                            className={`font-bold text-lg lg:text-xl transition-colors ${scrolled ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-earth)]'
+                            className={`hidden sm:inline font-bold text-lg lg:text-xl transition-colors ${scrolled ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-earth)]'
                                 }`}
                             style={{ fontFamily: 'var(--font-heading)' }}
                         >
