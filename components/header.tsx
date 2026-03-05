@@ -187,9 +187,9 @@ export default function Header() {
                     <div className="flex items-center gap-3">
                         {isAuthenticated ? (
                             <>
-                                {/* Credits badge */}
+                                {/* Credits badge - hidden on mobile, shown from sm */}
                                 {profile && (
-                                    <div className={`flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm transition-all ${profile.credits !== -1 && profile.credits < 5
+                                    <div className={`hidden sm:flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm transition-all ${profile.credits !== -1 && profile.credits < 5
                                         ? 'bg-red-50 border border-red-200 text-red-600 animate-pulse'
                                         : scrolled
                                             ? 'bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-terracotta)]/10 border border-[var(--color-gold)]/20 text-[var(--color-earth)]'
