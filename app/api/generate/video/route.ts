@@ -68,12 +68,10 @@ export async function POST(request: NextRequest) {
       }, { status: 402 });
     }
 
-    // Create generation record
-    const generationId = `gen_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const { error: insertError } = await supabase
+    // Create generation record - let Supabase generate UUID
+    const { data: generationData, error: insertError } = await supabase
       .from('generations')
       .insert({
-        id: generationId,
         user_id: user.id,
         type: 'video',
         prompt: body.prompt.trim(),
@@ -82,10 +80,11 @@ export async function POST(request: NextRequest) {
           model,
           credits: creditsRequired
         },
-        created_at: new Date().toISOString(),
-      });
+      })
+      .select('id')
+      .single();
 
-    if (insertError) {
+    if (insertError || !generationData) {
       console.error('[VideoAPI] Insert error:', JSON.stringify(insertError, null, 2));
       console.error('[VideoAPI] Insert error details - code:', insertError.code, 'message:', insertError.message, 'details:', insertError.details);
       
@@ -138,7 +137,7 @@ export async function POST(request: NextRequest) {
       await supabase
         .from('generations')
         .update({ status: 'failed', error: hfError instanceof Error ? hfError.message : String(hfError) })
-        .eq('id', generationId);
+        .eq('id', generationData.id);
 
       console.error('[VideoAPI] Hugging Face error:', hfError);
       return NextResponse.json({
@@ -180,11 +179,11 @@ export async function POST(request: NextRequest) {
         result_url: publicUrl,
         completed_at: new Date().toISOString(),
       })
-      .eq('id', generationId);
+      .eq('id', generationData.id);
 
     return NextResponse.json({
       success: true,
-      generation_id: generationId,
+      generation_id: generationData.id,
       video_url: publicUrl,
       model_used: model,
       credits_charged: creditsRequired,
