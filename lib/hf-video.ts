@@ -66,7 +66,7 @@ export async function generateHFVideo(
 
     while (retries < maxRetries) {
         response = await fetch(
-            `https://router.huggingface.co/models/${modelId}`,
+            `https://router.huggingface.co/hf-inference/models/${modelId}`,
             {
                 method: 'POST',
                 headers: {

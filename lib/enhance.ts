@@ -54,7 +54,7 @@ export async function upscaleImage(imageBuffer: Buffer): Promise<EnhanceResult> 
     }
 
     const response = await fetch(
-        'https://router.huggingface.co/models/ai-forever/Real-ESRGAN',
+        'https://router.huggingface.co/hf-inference/models/ai-forever/Real-ESRGAN',
         {
             method: 'POST',
             headers: {
@@ -100,7 +100,7 @@ export async function restoreFace(imageBuffer: Buffer, model: 'gfpgan' | 'codefo
     const modelConfig = ENHANCE_MODELS[model];
 
     const response = await fetch(
-        `https://router.huggingface.co/models/${modelConfig.huggingfaceId}`,
+        `https://router.huggingface.co/hf-inference/models/${modelConfig.huggingfaceId}`,
         {
             method: 'POST',
             headers: {

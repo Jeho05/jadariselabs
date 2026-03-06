@@ -65,7 +65,7 @@ export async function removeBackgroundRMBG(imageBuffer: Buffer): Promise<RemoveB
     }
 
     const response = await fetch(
-        'https://router.huggingface.co/models/briaai/RMBG-1.4',
+        'https://router.huggingface.co/hf-inference/models/briaai/RMBG-1.4',
         {
             method: 'POST',
             headers: {
