@@ -95,7 +95,7 @@ export async function generateAudio(
 
     while (retries < maxRetries) {
         response = await fetch(
-            'https://api-inference.huggingface.co/models/suno/bark',
+            'https://router.huggingface.co/models/suno/bark',
             {
                 method: 'POST',
                 headers: {

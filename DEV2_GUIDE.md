@@ -145,7 +145,7 @@ export const PLANS: Record<PlanType, PlanDetails> = {
 
 ### Endpoint
 ```
-POST https://api-inference.huggingface.co/models/{model_id}
+POST https://router.huggingface.co/models/{model_id}
 ```
 
 ### Modèles recommandés
@@ -160,7 +160,7 @@ const HF_API_KEY = process.env.HUGGINGFACE_API_KEY;
 
 export async function generateImage(prompt: string, model: string = 'black-forest-labs/FLUX.1-schnell') {
     const response = await fetch(
-        `https://api-inference.huggingface.co/models/${model}`,
+        `https://router.huggingface.co/models/${model}`,
         {
             method: 'POST',
             headers: {

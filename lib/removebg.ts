@@ -34,13 +34,13 @@ export async function removeBackgroundRemoveBg(imageBuffer: Buffer): Promise<Rem
 
     if (!response.ok) {
         const errorText = await response.text();
-        
+
         if (response.status === 402) {
             // Quota dépassé, fallback vers RMBG
             console.log('[RemoveBg] Quota dépassé, utilisation de RMBG');
             return removeBackgroundRMBG(imageBuffer);
         }
-        
+
         throw new Error(`Erreur remove.bg: ${errorText.substring(0, 200)}`);
     }
 
@@ -65,7 +65,7 @@ export async function removeBackgroundRMBG(imageBuffer: Buffer): Promise<RemoveB
     }
 
     const response = await fetch(
-        'https://api-inference.huggingface.co/models/briaai/RMBG-1.4',
+        'https://router.huggingface.co/models/briaai/RMBG-1.4',
         {
             method: 'POST',
             headers: {
@@ -77,14 +77,14 @@ export async function removeBackgroundRMBG(imageBuffer: Buffer): Promise<RemoveB
 
     if (!response.ok) {
         const errorText = await response.text();
-        
+
         if (response.status === 503) {
             throw new Error('Le modèle est en cours de chargement. Réessayez dans quelques secondes.');
         }
         if (response.status === 429) {
             throw new Error('Trop de requêtes. Veuillez patienter.');
         }
-        
+
         throw new Error(`Erreur RMBG: ${errorText.substring(0, 200)}`);
     }
 
@@ -109,7 +109,7 @@ export async function removeBackground(imageBuffer: Buffer): Promise<RemoveBgRes
             console.log('[RemoveBg] Erreur, fallback vers RMBG:', error);
         }
     }
-    
+
     // Utiliser RMBG (gratuit via HuggingFace)
     return removeBackgroundRMBG(imageBuffer);
 }

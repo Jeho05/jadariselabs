@@ -54,7 +54,7 @@ export async function upscaleImage(imageBuffer: Buffer): Promise<EnhanceResult> 
     }
 
     const response = await fetch(
-        'https://api-inference.huggingface.co/models/ai-forever/Real-ESRGAN',
+        'https://router.huggingface.co/models/ai-forever/Real-ESRGAN',
         {
             method: 'POST',
             headers: {
@@ -66,14 +66,14 @@ export async function upscaleImage(imageBuffer: Buffer): Promise<EnhanceResult> 
 
     if (!response.ok) {
         const errorText = await response.text();
-        
+
         if (response.status === 503) {
             throw new Error('Le modèle est en cours de chargement. Réessayez dans quelques secondes.');
         }
         if (response.status === 429) {
             throw new Error('Trop de requêtes. Veuillez patienter.');
         }
-        
+
         throw new Error(`Erreur upscaling: ${errorText.substring(0, 200)}`);
     }
 
@@ -100,7 +100,7 @@ export async function restoreFace(imageBuffer: Buffer, model: 'gfpgan' | 'codefo
     const modelConfig = ENHANCE_MODELS[model];
 
     const response = await fetch(
-        `https://api-inference.huggingface.co/models/${modelConfig.huggingfaceId}`,
+        `https://router.huggingface.co/models/${modelConfig.huggingfaceId}`,
         {
             method: 'POST',
             headers: {
@@ -112,14 +112,14 @@ export async function restoreFace(imageBuffer: Buffer, model: 'gfpgan' | 'codefo
 
     if (!response.ok) {
         const errorText = await response.text();
-        
+
         if (response.status === 503) {
             throw new Error('Le modèle est en cours de chargement. Réessayez dans quelques secondes.');
         }
         if (response.status === 429) {
             throw new Error('Trop de requêtes. Veuillez patienter.');
         }
-        
+
         throw new Error(`Erreur restauration: ${errorText.substring(0, 200)}`);
     }
 
