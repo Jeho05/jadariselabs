@@ -31,7 +31,7 @@ export default function VideoStudioPage() {
   const [loading, setLoading] = useState(true);
   const [prompt, setPrompt] = useState('');
   const [duration, setDuration] = useState<3 | 5 | 15>(5);
-  const [selectedModel, setSelectedModel] = useState<VideoModel>('text-to-video-ms');
+  const [selectedModel, setSelectedModel] = useState<VideoModel>('wan-video/wan-2.1-1.3b');
   const [quality, setQuality] = useState<VideoQuality>('standard');
   const [style, setStyle] = useState<VideoStyle>('cinematic');
 
@@ -88,8 +88,8 @@ export default function VideoStudioPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] mb-4">
             <IconVideo size={32} className="text-white" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Studio Vidéo</h1>
-          <p className="text-[var(--color-text-secondary)]">Créez des vidéos avec l&apos;IA</p>
+          <h1 className="text-3xl font-bold mb-2">Studio VidÃ©o</h1>
+          <p className="text-[var(--color-text-secondary)]">CrÃ©ez des vidÃ©os avec l&apos;IA</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
@@ -100,7 +100,7 @@ export default function VideoStudioPage() {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Décrivez la vidéo que vous souhaitez créer..."
+                placeholder="DÃ©crivez la vidÃ©o que vous souhaitez crÃ©er..."
                 className="w-full h-32 p-4 rounded-xl border border-[var(--color-cream-dark)] bg-white/50 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)]/50"
                 disabled={isGenerating}
               />
@@ -109,7 +109,7 @@ export default function VideoStudioPage() {
 
             {/* Duration */}
             <div className="glass-card-premium p-6 rounded-2xl">
-              <label className="block text-sm font-semibold mb-3">Durée</label>
+              <label className="block text-sm font-semibold mb-3">DurÃ©e</label>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { value: 3, label: '3s' },
@@ -128,12 +128,12 @@ export default function VideoStudioPage() {
                   );
                 })}
               </div>
-              <p className="text-xs text-[var(--color-text-muted)] mt-3 text-center">Les modèles IA gratuits actuels génèrent des vidéos courtes de quelques secondes.</p>
+              <p className="text-xs text-[var(--color-text-muted)] mt-3 text-center">Les modÃ¨les IA gratuits actuels gÃ©nÃ¨rent des vidÃ©os courtes de quelques secondes.</p>
             </div>
 
             {/* Model */}
             <div className="glass-card-premium p-6 rounded-2xl">
-              <label className="block text-sm font-semibold mb-3">Modèle IA</label>
+              <label className="block text-sm font-semibold mb-3">ModÃ¨le IA</label>
               <div className="grid grid-cols-2 gap-3">
                 {(Object.keys(VIDEO_MODELS) as VideoModel[]).map((model) => {
                   const info = VIDEO_MODELS[model];
@@ -158,14 +158,14 @@ export default function VideoStudioPage() {
           <div className="space-y-6">
             <div className="glass-card-premium p-6 rounded-2xl">
               <div className="flex justify-between mb-4">
-                <span className="text-sm text-[var(--color-text-secondary)]">Crédits</span>
+                <span className="text-sm text-[var(--color-text-secondary)]">CrÃ©dits</span>
                 <span className="font-bold flex items-center gap-1">
                   <IconZap size={18} className="text-[var(--color-gold)]" />
-                  {profile?.credits === -1 ? '∞' : profile?.credits ?? 0}
+                  {profile?.credits === -1 ? 'âˆž' : profile?.credits ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--color-text-secondary)]">Coût</span>
+                <span className="text-[var(--color-text-secondary)]">CoÃ»t</span>
                 <span className="font-semibold text-[var(--color-gold)]">{requiredCredits} cr</span>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function VideoStudioPage() {
                 <div className="space-y-4">
                   <div className="text-center">
                     <IconLoader2 size={24} className="animate-spin mx-auto mb-2 text-[var(--color-gold)]" />
-                    <p className="font-semibold">Génération...</p>
+                    <p className="font-semibold">GÃ©nÃ©ration...</p>
                     <div className="w-full bg-[var(--color-cream)] rounded-full h-2 my-2">
                       <div className="bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-terracotta)] h-2 rounded-full" style={{ width: `${progress}%` }} />
                     </div>
@@ -189,10 +189,10 @@ export default function VideoStudioPage() {
                 <div className="space-y-4">
                   <div className="text-center">
                     <IconCheck size={24} className="mx-auto mb-2 text-green-600" />
-                    <p className="font-semibold text-green-600">Terminé!</p>
+                    <p className="font-semibold text-green-600">TerminÃ©!</p>
                   </div>
                   <button onClick={() => { reset(); setPrompt(''); }} className="w-full btn-premium py-3">
-                    <IconRefresh size={18} className="inline mr-2" /> Nouvelle vidéo
+                    <IconRefresh size={18} className="inline mr-2" /> Nouvelle vidÃ©o
                   </button>
                 </div>
               ) : (
@@ -201,7 +201,7 @@ export default function VideoStudioPage() {
                   disabled={!prompt.trim() || (profile?.credits !== undefined && profile?.credits !== -1 && profile?.credits < requiredCredits)}
                   className="w-full btn-premium py-4 disabled:opacity-50"
                 >
-                  <IconSparkles size={20} className="inline mr-2" /> Générer
+                  <IconSparkles size={20} className="inline mr-2" /> GÃ©nÃ©rer
                 </button>
               )}
 
@@ -217,13 +217,13 @@ export default function VideoStudioPage() {
         {/* Result */}
         {videoUrl && (
           <div className="mt-8 glass-card-premium p-6 rounded-2xl">
-            <h3 className="font-semibold mb-4">Votre vidéo</h3>
+            <h3 className="font-semibold mb-4">Votre vidÃ©o</h3>
             <div className="aspect-video rounded-xl overflow-hidden bg-black">
               <video src={videoUrl} controls autoPlay className="w-full h-full object-contain" />
             </div>
             <div className="flex gap-3 mt-4">
               <a href={videoUrl} download className="flex-1 py-3 rounded-xl border border-[var(--color-cream-dark)] hover:bg-[var(--color-cream)]/50 flex items-center justify-center gap-2">
-                <IconDownload size={18} /> Télécharger
+                <IconDownload size={18} /> TÃ©lÃ©charger
               </a>
               <ShareButtons url={videoUrl} />
             </div>
@@ -233,3 +233,4 @@ export default function VideoStudioPage() {
     </div>
   );
 }
+

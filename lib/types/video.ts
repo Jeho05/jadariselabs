@@ -7,7 +7,7 @@
 export type PlanType = 'free' | 'starter' | 'pro';
 
 // Video generation models
-export type VideoModel = 'text-to-video-ms' | 'animatediff-lightning';
+export type VideoModel = 'wan-video/wan-2.1-1.3b';
 
 export type VideoQuality = 'standard' | 'high' | 'ultra';
 
@@ -119,29 +119,17 @@ export interface VideoModelInfo {
 
 // Available models
 export const VIDEO_MODELS: Record<VideoModel, VideoModelInfo> = {
-  'text-to-video-ms': {
-    name: 'damo-vilab/text-to-video-ms-1.7b',
-    version: '1.7b',
-    displayName: 'Text-to-Video MS',
-    description: 'Modèle gratuit générant de courtes séquences vidéo à partir de texte',
-    creditsPerSecond: 1, // Simplified credits for free model
-    maxDuration: 4,      // HF models are restricted to short videos
+  'wan-video/wan-2.1-1.3b': {
+    name: 'wan-video/wan-2.1-1.3b',
+    version: '1.0',
+    displayName: 'Wan 2.1 (1.3B)',
+    description: 'Modèle de génération vidéo de haute qualité',
+    creditsPerSecond: 2,
+    maxDuration: 5,
     supportedFeatures: ['text-to-video'],
-    qualityLevels: ['standard'],
-    aspectRatios: ['16:9', '1:1'],
-    avgGenerationTime: 45, // takes some time
-  },
-  'animatediff-lightning': {
-    name: 'ByteDance/AnimateDiff-Lightning',
-    version: 'lightning',
-    displayName: 'AnimateDiff Lightning',
-    description: 'Animation et vidéo ultra-rapide gratuite',
-    creditsPerSecond: 1, // Simplified
-    maxDuration: 2,      // Very short animations
-    supportedFeatures: ['text-to-video'],
-    qualityLevels: ['standard'],
-    aspectRatios: ['16:9', '1:1'],
-    avgGenerationTime: 20,
+    qualityLevels: ['standard', 'high'],
+    aspectRatios: ['16:9', '1:1', '9:16'],
+    avgGenerationTime: 120,
   }
 };
 

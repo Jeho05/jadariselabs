@@ -1,8 +1,8 @@
 // ============================================
-// JadaRiseLabs — Types TypeScript Partagés
+// JadaRiseLabs â€” Types TypeScript PartagÃ©s
 // ============================================
 // Convention : chaque dev ajoute ses types dans sa SECTION
-// Pull avant d'ajouter, push immédiatement après
+// Pull avant d'ajouter, push immÃ©diatement aprÃ¨s
 
 // ---- SECTION : Types communs ----
 
@@ -18,7 +18,7 @@ export type SubscriptionStatus = 'active' | 'canceled' | 'expired';
 
 export type SupportedLang = 'fr' | 'en';
 
-// ---- SECTION : Modèles de données ----
+// ---- SECTION : ModÃ¨les de donnÃ©es ----
 
 export interface Profile {
     id: string;
@@ -64,7 +64,7 @@ export interface Payment {
     created_at: string;
 }
 
-// ---- SECTION : Plans & Crédits ----
+// ---- SECTION : Plans & CrÃ©dits ----
 
 export interface PlanDetails {
     name: PlanType;
@@ -100,7 +100,7 @@ export const PLANS: Record<PlanType, PlanDetails> = {
     },
     pro: {
         name: 'pro',
-        credits_per_month: -1, // illimité
+        credits_per_month: -1, // illimitÃ©
         image_hd: true,
         video: true,
         video_max_seconds: 15,
@@ -110,7 +110,7 @@ export const PLANS: Record<PlanType, PlanDetails> = {
     },
 };
 
-// ---- SECTION : Dev 1 — Auth, Dashboard, Chat, Vidéo, Crédits ----
+// ---- SECTION : Dev 1 â€” Auth, Dashboard, Chat, VidÃ©o, CrÃ©dits ----
 
 export interface LoginFormData {
     email: string;
@@ -132,7 +132,7 @@ export interface PasswordStrength {
     isValid: boolean;
 }
 
-// ---- SECTION : Dev 1 — Chat IA ----
+// ---- SECTION : Dev 1 â€” Chat IA ----
 
 export interface ChatMessage {
     role: 'user' | 'assistant' | 'system';
@@ -155,9 +155,9 @@ export interface ProfileUpdateData {
     avatar_url?: string;
 }
 
-// ---- SECTION : Dev 2 — Image, Galerie, Paiement ----
+// ---- SECTION : Dev 2 â€” Image, Galerie, Paiement ----
 
-export type ImageModel = 'flux-schnell' | 'sdxl';
+export type ImageModel = 'flux-schnell' | 'sdxl' | 'sd35-medium';
 
 export type ImageSize = '512x512' | '768x768' | '1024x1024';
 
@@ -175,3 +175,4 @@ export interface GalleryItem extends Generation {
     // Extended with computed UI fields
     preview_type: 'image' | 'text' | 'video';
 }
+

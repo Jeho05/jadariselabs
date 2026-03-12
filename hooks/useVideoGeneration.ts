@@ -116,7 +116,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
   const generate = useCallback(async (
     prompt: string,
     duration: number,
-    model: VideoModel = 'text-to-video-ms',
+    model: VideoModel = 'wan-video/wan-2.1-1.3b',
     quality: string = 'standard',
     style?: string
   ) => {
@@ -237,3 +237,4 @@ export function calculateRequiredCredits(
 
   return Math.ceil(baseCredits * qualityMultiplier);
 }
+

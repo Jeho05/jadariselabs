@@ -1,0 +1,37 @@
+[
+  {
+    "url": "https://api-inference.huggingface.co/models/briaai/RMBG-1.4",
+    "status": 410,
+    "error": "{\"error\":\"https://api-inference.huggingface.co is no longer supported. Please use https://router.huggingface.co instead.\"}"
+  },
+  {
+    "url": "https://api-inference.huggingface.co/pipeline/image-segmentation/briaai/RMBG-1.4",
+    "status": 410,
+    "error": "{\"error\":\"https://api-inference.huggingface.co is no longer supported. Please use https://router.huggingface.co instead.\"}"
+  },
+  {
+    "url": "https://router.huggingface.co/models/briaai/RMBG-1.4",
+    "status": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://router.huggingface.co/briaai/RMBG-1.4",
+    "status": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://router.huggingface.co/hf-inference/models/briaai/RMBG-1.4",
+    "status": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://router.huggingface.co/hf-inference/v1/models/briaai/RMBG-1.4",
+    "status": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://api-inference.huggingface.co/v1/models/briaai/RMBG-1.4",
+    "status": 410,
+    "error": "{\"error\":\"https://api-inference.huggingface.co is no longer supported. Please use https://router.huggingface.co instead.\"}"
+  }
+]
