@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { runProviderChain, ProviderError } from '@/lib/provider-router';
+import type { ProviderTask } from '@/lib/provider-router';
 
 /**
  * POST /api/generate/chat — Chat IA via Groq (LLaMA 3.3 70B)
@@ -11,6 +13,7 @@ import { createClient } from '@/lib/supabase/server';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 const CREDITS_PER_MESSAGE = 1;
 
 const SYSTEM_PROMPT = `Tu es JadaBot, l'assistant IA de JadaRiseLabs — une plateforme de créativité IA conçue pour l'Afrique de l'Ouest et le grand public.
@@ -115,80 +118,79 @@ export async function POST(request: NextRequest) {
     messages.push({ role: 'user', content: message.trim() });
 
     try {
-        // Appel Groq API avec streaming
-        let response = await fetch(GROQ_API_URL, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${groqApiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: GROQ_MODEL,
-                messages,
-                stream: true,
-                temperature: 0.7,
-                max_tokens: 2048,
-                top_p: 0.9,
-            }),
-        });
-        
-        let usedModel = GROQ_MODEL;
+        const geminiApiKey = process.env.GEMINI_API_KEY;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn('Groq API error (attempting fallback):', response.status, errorText);
-
-            // Fallback to Gemini if Groq fails (429 Too Many Requests or 5xx Server Error)
-            const geminiApiKey = process.env.GEMINI_API_KEY;
-            if ((response.status === 429 || response.status >= 500) && geminiApiKey) {
-               console.log("Switching to Gemini Fallback");
-               usedModel = "gemini-2.5-flash";
-               
-               // Gemini OpenAI compatibility endpoint
-               const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
-               
-               response = await fetch(GEMINI_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${geminiApiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: usedModel,
-                        messages,
-                        stream: true,
-                        temperature: 0.7,
-                        max_tokens: 2048,
-                        top_p: 0.9,
-                    }),
-                });
-            }
-
-            // If still not ok (either no Gemini key, or Gemini also failed)
-            if (!response.ok) {
-                const finalErrorText = await response.text();
-                console.error('Final API error:', response.status, finalErrorText);
-                
-                if (response.status === 429) {
-                    return NextResponse.json(
-                        {
-                            error: 'Trop de requêtes',
-                            details:
-                                'Limite de requêtes atteinte sur tous les services. Veuillez patienter quelques secondes.',
+        const tasks: ProviderTask<Response>[] = [
+            {
+                name: 'groq',
+                run: async () => {
+                    const response = await fetch(GROQ_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${groqApiKey}`,
+                            'Content-Type': 'application/json',
                         },
-                        { status: 429 }
-                    );
-                }
-    
-                return NextResponse.json(
-                    {
-                        error: 'Erreur du service IA',
-                        details: 'Le service de chat IA est temporairement indisponible.',
-                    },
-                    { status: 502 }
-                );
-            }
+                        body: JSON.stringify({
+                            model: GROQ_MODEL,
+                            messages,
+                            stream: true,
+                            temperature: 0.7,
+                            max_tokens: 2048,
+                            top_p: 0.9,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new ProviderError('groq', errorText.substring(0, 200), response.status);
+                    }
+
+                    return response;
+                },
+                canFallback: (err) => err.status === 429 || (err.status ?? 0) >= 500,
+            },
+        ];
+
+        if (geminiApiKey) {
+            tasks.push({
+                name: 'gemini',
+                run: async () => {
+                    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+                    const response = await fetch(GEMINI_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${geminiApiKey}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: GEMINI_MODEL,
+                            messages,
+                            stream: true,
+                            temperature: 0.7,
+                            max_tokens: 2048,
+                            top_p: 0.9,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new ProviderError('gemini', errorText.substring(0, 200), response.status);
+                    }
+
+                    return response;
+                },
+            });
         }
+
+        const providerResult = await runProviderChain<Response>(tasks, { purpose: 'chat' });
+
+        const response = providerResult.result;
+        const usedModel = providerResult.provider === 'gemini' ? GEMINI_MODEL : GROQ_MODEL;
+        const routerMeta = {
+            provider: providerResult.provider,
+            attempts: providerResult.attempts,
+            duration_ms: providerResult.latency_ms,
+        };
 
         // Déduire les crédits AVANT le streaming
         if (profile.credits !== -1) {
@@ -204,7 +206,13 @@ export async function POST(request: NextRequest) {
             type: 'chat',
             prompt: message.trim().substring(0, 500),
             result_url: null,
-            metadata: { model: usedModel, streaming: true, fallback_used: usedModel !== GROQ_MODEL },
+            metadata: {
+                model: usedModel,
+                provider: routerMeta.provider,
+                streaming: true,
+                fallback_used: routerMeta.attempts.length > 1,
+                router: routerMeta,
+            },
             credits_used: CREDITS_PER_MESSAGE,
         });
 
@@ -271,13 +279,24 @@ export async function POST(request: NextRequest) {
             },
         });
     } catch (error) {
+        if (error instanceof ProviderError && error.status === 429) {
+            return NextResponse.json(
+                {
+                    error: 'Trop de requêtes',
+                    details:
+                        'Limite de requêtes atteinte sur tous les services. Veuillez patienter quelques secondes.',
+                },
+                { status: 429 }
+            );
+        }
+
         console.error('Chat API error:', error);
         return NextResponse.json(
             {
-                error: 'Erreur interne',
-                details: 'Une erreur inattendue est survenue.',
+                error: 'Erreur du service IA',
+                details: 'Le service de chat IA est temporairement indisponible.',
             },
-            { status: 500 }
+            { status: 502 }
         );
     }
 }

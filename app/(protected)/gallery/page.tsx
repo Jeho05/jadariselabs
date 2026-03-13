@@ -231,17 +231,13 @@ export default function GalleryPage() {
                     </div>
                 </div>
 
-                {/* Error */}
-                {error && (
+                {/* Error */} ? {error && (
                     <div className="gallery-error">
                         <IconAlertCircle size={18} />
                         <span>{error}</span>
                         <button onClick={() => setError(null)}>✕</button>
                     </div>
-                )}
-
-                {/* Gallery Grid */}
-                {filteredGenerations.length === 0 ? (
+                )} ? {/* Gallery Grid */} ? {filteredGenerations.length === 0 ? (
                     <div className="gallery-empty">
                         <div className="gallery-empty-icon">
                             <IconPalette size={56} />
@@ -290,18 +286,15 @@ export default function GalleryPage() {
                                             <div className="gallery-card-text-preview">
                                                 <p>{gen.prompt.substring(0, 120)}{gen.prompt.length > 120 ? '...' : ''}</p>
                                             </div>
-                                        )}
-                                        {/* Type badge */}
+                                        )} ? {/* Type badge */}
                                         <span className={`gallery-card-badge ${badge.color}`}>
                                             {badge.label}
                                         </span>
-                                        {/* Watermark indicator for free plan */}
-                                        {profile?.plan === 'free' && gen.type === 'image' && (
+                                        {/* Watermark indicator for free plan */} ? {profile?.plan === 'free' && gen.type === 'image' && (
                                             <span className="absolute top-2 right-2 text-[10px] font-bold bg-black/50 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
                                                 Watermark
                                             </span>
-                                        )}
-                                        {/* Hover overlay */}
+                                        )} ? {/* Hover overlay */}
                                         <div className="gallery-card-overlay">
                                             <IconSparkle size={24} />
                                         </div>
@@ -339,8 +332,7 @@ export default function GalleryPage() {
                                         </button>
                                     </div>
 
-                                    {/* Expanded view with share */}
-                                    {isExpanded && gen.result_url && (
+                                    {/* Expanded view with share */} ? {isExpanded && gen.result_url && (
                                         <div className="gallery-card-share">
                                             <ShareButtons
                                                 title={`Créé avec JadaRiseLabs : "${gen.prompt.substring(0, 50)}"`}
@@ -355,8 +347,7 @@ export default function GalleryPage() {
                 )}
             </div>
 
-            {/* Delete Confirmation Modal */}
-            {deleteId && (
+            {/* Delete Confirmation Modal */} ? {deleteId && (
                 <div className="gallery-modal-overlay" onClick={() => !deleting && setDeleteId(null)}>
                     <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
                         <h3>Supprimer cette création ?</h3>

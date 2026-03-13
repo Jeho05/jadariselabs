@@ -9,6 +9,7 @@ import { generateImage, calculateImageCredits, IMAGE_MODELS } from '@/lib/huggin
 import type { ImageModel } from '@/lib/huggingface';
 import { generateImagePollinations } from '@/lib/pollinations';
 import { generateFalImage } from '@/lib/fal';
+import { runProviderChain } from '@/lib/provider-router';
 
 // Watermark via sharp
 async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
@@ -69,6 +70,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Le prompt est trop long (max 2000 caractères)', trace_id: traceId }, { status: 400 });
         }
 
+        const prompt = body.prompt.trim();
+
         // 4. Get profile
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
@@ -112,33 +115,56 @@ export async function POST(request: NextRequest) {
 
         // 10. Generate image
         let imageBuffer: Buffer;
+        let providerUsed: string | undefined;
+        let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
         try {
             if (profile.plan === 'free') {
                 // Arbirtage: Routage vers Pollinations.ai pour les utilisateurs gratuits (100% gratuit)
-                imageBuffer = await generateImagePollinations(body.prompt.trim(), {
-                    width,
-                    height,
-                });
+                const providerResult = await runProviderChain<Buffer>(
+                    [
+                        {
+                            name: 'pollinations',
+                            run: () => generateImagePollinations(prompt, { width, height }),
+                        },
+                    ],
+                    { purpose: 'image' }
+                );
+                imageBuffer = providerResult.result;
+                providerUsed = providerResult.provider;
+                routerMeta = {
+                    provider: providerResult.provider,
+                    attempts: providerResult.attempts,
+                    duration_ms: providerResult.latency_ms,
+                };
             } else {
                 // Routage vers Fal.ai si FAL_KEY est dispo, sinon Hugging Face
+                const providers: Array<{ name: 'fal' | 'huggingface'; run: () => Promise<Buffer> }> = [];
+
                 if (process.env.FAL_KEY && (model === 'flux-schnell' || isHD)) {
-                     try {
-                         imageBuffer = await generateFalImage(body.prompt.trim(), { width, height });
-                     } catch (falErr) {
-                         console.warn("[ImageAPI] Fal.ai error, falling back to Hugging Face:", falErr);
-                         imageBuffer = await generateImage(body.prompt.trim(), model, {
-                             width,
-                             height,
-                             negative_prompt: body.negative_prompt,
-                         });
-                     }
-                } else {
-                    imageBuffer = await generateImage(body.prompt.trim(), model, {
+                    providers.push({
+                        name: 'fal',
+                        run: () => generateFalImage(prompt, { width, height }),
+                    });
+                }
+
+                providers.push({
+                    name: 'huggingface',
+                    run: () => generateImage(prompt, model, {
                         width,
                         height,
                         negative_prompt: body.negative_prompt,
-                    });
-                }
+                    }),
+                });
+
+                const providerResult = await runProviderChain<Buffer>(providers, { purpose: 'image' });
+
+                imageBuffer = providerResult.result;
+                providerUsed = providerResult.provider;
+                routerMeta = {
+                    provider: providerResult.provider,
+                    attempts: providerResult.attempts,
+                    duration_ms: providerResult.latency_ms,
+                };
             }
         } catch (apiError) {
             console.error('[ImageAPI] Generation error:', apiError);
@@ -204,6 +230,8 @@ export async function POST(request: NextRequest) {
                     size: `${width}x${height}`,
                     hd: isHD,
                     negative_prompt: body.negative_prompt || null,
+                    provider: providerUsed || null,
+                    router: routerMeta || null,
                 },
                 credits_used: creditsRequired,
             });

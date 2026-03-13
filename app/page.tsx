@@ -411,8 +411,7 @@ export default function Home() {
                 className="relative group"
                 style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.2}s forwards`, opacity: 0 }}
               >
-                {/* Connector Line */}
-                {index < steps.length - 1 && (
+                {/* Connector Line */} ? {index < steps.length - 1 && (
                   <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-[var(--color-gold)]/50 to-transparent" />
                 )}
 
@@ -467,8 +466,7 @@ export default function Home() {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="bg-white rounded-[calc(1.25rem-2px)] p-6 h-full">
-                  {/* Module Image */}
-                  {module.image && (
+                  {/* Module Image */} ? {module.image && (
                     <div className="relative w-full h-40 mb-5 rounded-xl overflow-hidden -mx-6 -mt-6 px-6 pt-6">
                       <Image
                         src={module.image}
@@ -570,8 +568,7 @@ export default function Home() {
                     <IconStar size={14} />
                     POPULAIRE
                   </div>
-                )}
-                {plan.pro && (
+                )} ? {plan.pro && (
                   <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-light)] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
                     <IconCrown size={14} />
                     PRO

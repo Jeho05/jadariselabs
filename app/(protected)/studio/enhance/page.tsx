@@ -293,8 +293,7 @@ export default function EnhanceStudioPage() {
                             )}
                         </button>
 
-                        {/* Error */}
-                        {error && (
+                        {/* Error */}{error && (
                             <div className="enhance-studio-error">
                                 <IconAlertCircle size={18} />
                                 <span>{error}</span>

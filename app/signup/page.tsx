@@ -258,10 +258,8 @@ export default function SignupPage() {
                             <div key={step.id} className="flex items-center">
                                 <div className={`flex items-center gap-2 ${index <= currentStep ? 'opacity-100' : 'opacity-40'} transition-opacity`}>
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                                        step.completed 
-                                            ? 'bg-[var(--color-savanna)] text-white' 
-                                            : index === currentStep
-                                                ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] text-white'
+                                        step.completed ? 'bg-[var(--color-savanna)] text-white' 
+                                            : index === currentStep ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] text-white'
                                                 : 'bg-[var(--color-cream-dark)] text-[var(--color-text-muted)]'
                                     }`}>
                                         {step.completed ? <IconCheck size={18} /> : <step.icon size={18} />}
@@ -298,7 +296,6 @@ export default function SignupPage() {
                         {/* Error messages */}
                         <AuthError message={error} />
                         {error && <div className="h-4" />}
-
                         {/* Google OAuth */}
                         <OAuthButtons loading={loading} />
 

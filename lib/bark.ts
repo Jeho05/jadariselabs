@@ -6,6 +6,8 @@
  * Supporte le français, anglais, et d'autres langues
  */
 
+import { runProviderChain, ProviderError } from '@/lib/provider-router';
+
 export type BarkVoice = 'fr' | 'en' | 'de' | 'es' | 'it' | 'pt' | 'zh';
 
 export interface AudioGenerationOptions {
@@ -17,6 +19,8 @@ export interface AudioGenerationResult {
     audio: Buffer;
     voice: BarkVoice;
     duration: number; // en secondes (approximatif)
+    provider?: 'fish' | 'bark';
+    router?: { provider: string; attempts: unknown[]; duration_ms: number };
 }
 
 // Voix disponibles
@@ -76,121 +80,138 @@ export async function generateAudio(
     const fishApiKey = process.env.FISH_AUDIO_API_KEY;
 
     if (!text || text.trim().length === 0) {
-        throw new Error('Le texte ne peut pas être vide');
+        throw new Error("Le texte ne peut pas être vide");
     }
 
     if (text.length > 500) {
-        throw new Error('Le texte est trop long (max 500 caractères pour l\'instant)');
-    }
-    
-    // Fish Audio API implementation
-    if (fishApiKey) {
-        try {
-            const fishResponse = await fetch("https://api.fish.audio/v1/tts", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${fishApiKey}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    text: text,
-                    // Optionally map voice to specific Fish Audio model/reference if needed, default is ok
-                })
-            });
-            
-            if (fishResponse.ok) {
-                const fishAudioBuffer = Buffer.from(await fishResponse.arrayBuffer());
-                const wordCount = text.split(/\s+/).length;
-                const estimatedDuration = Math.ceil(wordCount / 2.5);
-                
-                return {
-                    audio: fishAudioBuffer,
-                    voice,
-                    duration: estimatedDuration,
-                };
-            } else {
-                console.warn("[AudioAPI] Fish Audio failed, falling back to Hugging Face Bark", await fishResponse.text());
-            }
-        } catch (fishError) {
-             console.warn("[AudioAPI] Fish Audio network error, falling back to Hugging Face Bark", fishError);
-        }
+        throw new Error("Le texte est trop long (max 500 caractères pour l'instant)");
     }
 
-    // Fallback: Hugging Face Bark
-    if (!apiKey) {
+    if (!fishApiKey && !apiKey) {
         throw new Error('HUGGINGFACE_API_KEY and FISH_AUDIO_API_KEY are not configured');
     }
 
-    // Construire le prompt avec la langue
-    // Bark utilise des préfixes pour les langues
-    const languagePrompt = getLanguagePrompt(text, voice);
+    const estimateDuration = (value: string) => {
+        const wordCount = value.split(/\s+/).length;
+        return Math.ceil(wordCount / 2.5);
+    };
 
-    let response;
-    let retries = 0;
-    const maxRetries = 3;
-    let lastError = '';
+    const providers: Array<{ name: 'fish' | 'bark'; run: () => Promise<{ audio: Buffer; duration: number }> }> = [];
 
-    while (retries < maxRetries) {
-        response = await fetch(
-            'https://router.huggingface.co/hf-inference/models/suno/bark',
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    inputs: languagePrompt,
-                    parameters: {
-                        temperature: options.temperature || 0.7,
+    if (fishApiKey) {
+        providers.push({
+            name: 'fish',
+            run: async () => {
+                const fishResponse = await fetch('https://api.fish.audio/v1/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${fishApiKey}`,
+                        'Content-Type': 'application/json',
                     },
-                }),
-            }
-        );
+                    body: JSON.stringify({
+                        text: text,
+                        // Optionally map voice to specific Fish Audio model/reference if needed, default is ok
+                    }),
+                });
 
-        if (response.ok) {
-            break; // Success!
-        }
+                if (!fishResponse.ok) {
+                    const errorText = await fishResponse.text();
+                    throw new ProviderError('fish', errorText.substring(0, 200), fishResponse.status);
+                }
 
-        const errorText = await response.text();
-        lastError = errorText;
-
-        // Error 503 means the model is loading. We MUST wait and retry for free tier.
-        if (response.status === 503) {
-            retries++;
-            if (retries < maxRetries) {
-                console.log(`[Bark] Le modèle charge (503). Attente de 15s... (Essai ${retries}/${maxRetries - 1})`);
-                await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds
-                continue;
-            }
-            throw new Error('Le modèle audio met trop de temps à charger. Veuillez réessayer dans quelques minutes.');
-        }
-
-        if (response.status === 429) {
-            throw new Error('Trop de requêtes audio pour le moment. Veuillez patienter.');
-        }
-        if (response.status === 400) {
-            throw new Error('Texte invalide. Essayez avec un texte plus court.');
-        }
-
-        throw new Error(`Erreur Bark: ${errorText.substring(0, 200)}`);
+                const fishAudioBuffer = Buffer.from(await fishResponse.arrayBuffer());
+                return {
+                    audio: fishAudioBuffer,
+                    duration: estimateDuration(text),
+                };
+            },
+        });
     }
 
-    if (!response || !response.ok) {
-        throw new Error(`Erreur inattendue de l'API Audio: ${lastError.substring(0, 200)}`);
+    if (apiKey) {
+        providers.push({
+            name: 'bark',
+            run: async () => {
+                const languagePrompt = getLanguagePrompt(text, voice);
+
+                let response;
+                let retries = 0;
+                const maxRetries = 3;
+                let lastError = '';
+
+                while (retries < maxRetries) {
+                    response = await fetch(
+                        'https://router.huggingface.co/hf-inference/models/suno/bark',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${apiKey}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                inputs: languagePrompt,
+                                parameters: {
+                                    temperature: options.temperature || 0.7,
+                                },
+                            }),
+                        }
+                    );
+
+                    if (response.ok) {
+                        break; // Success!
+                    }
+
+                    const errorText = await response.text();
+                    lastError = errorText;
+
+                    // Error 503 means the model is loading. We MUST wait and retry for free tier.
+                    if (response.status === 503) {
+                        retries++;
+                        if (retries < maxRetries) {
+                            console.log(`[Bark] Le modele charge (503). Attente de 15s... (Essai ${retries}/${maxRetries - 1})`);
+                            await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds
+                            continue;
+                        }
+                        throw new ProviderError('bark', 'Le modele audio met trop de temps a charger. Veuillez reessayer dans quelques minutes.', response.status);
+                    }
+
+                    if (response.status === 429) {
+                        throw new ProviderError('bark', 'Trop de requetes audio pour le moment. Veuillez patienter.', response.status);
+                    }
+                    if (response.status === 400) {
+                        throw new ProviderError('bark', 'Texte invalide. Essayez avec un texte plus court.', response.status);
+                    }
+
+                    throw new ProviderError('bark', `Erreur Bark: ${errorText.substring(0, 200)}`, response.status);
+                }
+
+                if (!response || !response.ok) {
+                    throw new ProviderError('bark', `Erreur inattendue de l'API Audio: ${lastError.substring(0, 200)}`);
+                }
+
+                // La reponse est un fichier audio (WAV ou MP3)
+                const audioBuffer = Buffer.from(await response.arrayBuffer());
+
+                return {
+                    audio: audioBuffer,
+                    duration: estimateDuration(text),
+                };
+            },
+        });
     }
 
-    // La réponse est un fichier audio (WAV ou MP3)
-    const audioBuffer = Buffer.from(await response.arrayBuffer());
-
-    // Estimer la durée (approximatif : ~150 mots/minute en synthèse)
-    const wordCount = text.split(/\s+/).length;
-    const estimatedDuration = Math.ceil(wordCount / 2.5); // ~2.5 mots/seconde
+    const providerResult = await runProviderChain<{ audio: Buffer; duration: number }>(providers, { purpose: 'audio' });
 
     return {
-        audio: audioBuffer,
+        audio: providerResult.result.audio,
         voice,
-        duration: estimatedDuration,
+        duration: providerResult.result.duration,
+        provider: providerResult.provider as 'fish' | 'bark',
+        router: {
+            provider: providerResult.provider,
+            attempts: providerResult.attempts,
+            duration_ms: providerResult.latency_ms,
+        },
     };
 }
 

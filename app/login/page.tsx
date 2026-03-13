@@ -199,7 +199,6 @@ function LoginForm() {
                         />
 
                         {error || callbackError ? <div className="h-4" /> : null}
-
                         {/* Google OAuth */}
                         <OAuthButtons loading={loading} />
 

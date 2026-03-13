@@ -212,8 +212,7 @@ export default function ImageStudioPage() {
                             </div>
                         </div>
 
-                        {/* Suggestions */}
-                        {!prompt && !resultUrl && (
+                        {/* Suggestions */} ? {!prompt && !resultUrl && (
                             <div className="image-studio-suggestions">
                                 {STYLE_SUGGESTIONS.map((s) => (
                                     <button
@@ -225,9 +224,7 @@ export default function ImageStudioPage() {
                                     </button>
                                 ))}
                             </div>
-                        )}
-
-                        {/* Model Selection */}
+                        )} ? {/* Model Selection */}
                         <div className="image-studio-section">
                             <label className="image-studio-label">Modèle IA</label>
                             <div className="image-studio-model-grid">
@@ -239,8 +236,7 @@ export default function ImageStudioPage() {
                                         disabled={generating}
                                     >
                                         <span className="image-studio-model-name">
-                                            {m.name}
-                                            {m.badge && <span className="image-studio-model-badge">{m.badge}</span>}
+                                            {m.name} ? {m.badge && <span className="image-studio-model-badge">{m.badge}</span>}
                                         </span>
                                         <span className="image-studio-model-desc">{m.desc}</span>
                                     </button>
@@ -259,8 +255,7 @@ export default function ImageStudioPage() {
                                         onClick={() => setSize(s.id)}
                                         disabled={generating}
                                     >
-                                        {s.label}
-                                        {s.id === '1024x1024' && profile?.plan === 'free' && (
+                                        {s.label} ? {s.id === '1024x1024' && profile?.plan === 'free' && (
                                             <span className="image-studio-hd-badge">PRO</span>
                                         )}
                                     </button>
@@ -316,8 +311,7 @@ export default function ImageStudioPage() {
                             )}
                         </button>
 
-                        {/* Error */}
-                        {error && (
+                        {/* Error */} ? {error && (
                             <div className="image-studio-error">
                                 <IconAlertCircle size={18} />
                                 <span>{error}</span>

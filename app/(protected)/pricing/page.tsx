@@ -136,21 +136,17 @@ export default function PricingPage() {
                     </p>
                 </div>
 
-                {/* Success/Error Messages */}
-                {successMessage && (
+                {/* Success/Error Messages */} ? {successMessage && (
                     <div className="max-w-2xl mx-auto mb-8 p-4 rounded-2xl bg-green-50 border border-green-200 text-green-700 flex items-center gap-3">
                         <IconCheck size={20} />
                         <span>{successMessage}</span>
                     </div>
-                )}
-                {error && (
+                )} ? {error && (
                     <div className="max-w-2xl mx-auto mb-8 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-600 flex items-center gap-3">
                         <IconAlertCircle size={20} />
                         <span>{error}</span>
                     </div>
-                )}
-
-                {/* Pricing Cards */}
+                )} ? {/* Pricing Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12">
                     {(['free', 'starter', 'pro'] as PlanType[]).map((planKey) => {
                         const plan = PLANS[planKey];
@@ -161,20 +157,17 @@ export default function PricingPage() {
                         return (
                             <div
                                 key={planKey}
-                                className={`relative rounded-3xl overflow-hidden transition-all duration-300 ${isPopular
-                                    ? 'ring-2 ring-[var(--color-gold)] shadow-xl scale-[1.02]'
+                                className={`relative rounded-3xl overflow-hidden transition-all duration-300 ${isPopular ?
+                                     'ring-2 ring-[var(--color-gold)] shadow-xl scale-[1.02]'
                                     : 'shadow-md hover:shadow-lg'
                                     }`}
                                 style={{
                                     background: 'white',
                                 }}
                             >
-                                {/* Popular badge */}
-                                {isPopular && (
+                                {/* Popular badge */} ? {isPopular && (
                                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-terracotta)]" />
-                                )}
-
-                                {isPopular && (
+                                )} ? {isPopular && (
                                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 translate-y-0">
                                         <span className="inline-flex items-center gap-1 px-4 py-1.5 rounded-b-xl text-xs font-bold text-white bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-terracotta)] shadow-lg">
                                             <IconSparkle size={12} /> POPULAIRE
@@ -209,8 +202,7 @@ export default function PricingPage() {
                                         ))}
                                     </ul>
 
-                                    {/* CTA Button */}
-                                    {isCurrentPlan ? (
+                                    {/* CTA Button */} ? {isCurrentPlan ? (
                                         <div className="w-full py-3 rounded-xl border-2 border-[var(--color-savanna)] text-center font-semibold text-[var(--color-savanna)]">
                                             ✓ Plan actuel
                                         </div>

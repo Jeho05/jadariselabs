@@ -65,10 +65,14 @@ export async function POST(request: NextRequest) {
         // 8. Generate audio
         let audioBuffer: Buffer;
         let duration: number;
+        let providerUsed: string | undefined;
+        let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
         try {
             const result = await generateAudio(body.text.trim(), { voice });
             audioBuffer = result.audio;
             duration = result.duration;
+            providerUsed = result.provider;
+            routerMeta = result.router;
         } catch (genError) {
             console.error('[AudioAPI] Generation error:', genError);
             return NextResponse.json({
@@ -122,6 +126,8 @@ export async function POST(request: NextRequest) {
                     voice,
                     duration,
                     credits: creditsRequired,
+                    provider: providerUsed || null,
+                    router: routerMeta || null,
                 },
                 credits_used: creditsRequired,
             });

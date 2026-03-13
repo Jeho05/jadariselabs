@@ -10,6 +10,7 @@ import type { VideoGenerationRequest } from '@/lib/types/video';
 import { generateReplicateVideo, checkReplicatePrediction, calculateVideoCredits } from '@/lib/replicate';
 import type { ReplicateVideoModel } from '@/lib/replicate';
 import { generateFalVideo, checkFalPrediction } from '@/lib/fal';
+import { runProviderChain } from '@/lib/provider-router';
 
 // POST - Create video generation
 export async function POST(request: NextRequest) {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Non authentifiÃ©', trace_id: traceId }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Non authentifié', trace_id: traceId }, { status: 401 });
     }
 
     // Parse body
@@ -28,15 +29,15 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ success: false, error: 'RequÃªte invalide', trace_id: traceId }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Requête invalide', trace_id: traceId }, { status: 400 });
     }
 
     // Validate prompt
     if (!body.prompt || body.prompt.trim().length === 0) {
-      return NextResponse.json({ success: false, error: 'Le prompt ne peut pas Ãªtre vide', trace_id: traceId }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Le prompt ne peut pas être vide', trace_id: traceId }, { status: 400 });
     }
     if (body.prompt.length > 500) {
-      return NextResponse.json({ success: false, error: 'Le prompt est trop long (max 500 caractÃ¨res)', trace_id: traceId }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Le prompt est trop long (max 500 caractères)', trace_id: traceId }, { status: 400 });
     }
 
     // Get profile
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json({ success: false, error: 'Profil non trouvÃ©', trace_id: traceId }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Profil non trouvé', trace_id: traceId }, { status: 404 });
     }
 
   // Select model
@@ -106,8 +107,8 @@ export async function POST(request: NextRequest) {
     if (profile.credits !== -1 && profile.credits < creditsRequired) {
       return NextResponse.json({
         success: false,
-        error: 'CrÃ©dits insuffisants',
-        details: `Il vous faut ${creditsRequired} crÃ©dits. Vous avez ${profile.credits} crÃ©dits.`,
+        error: 'Crédits insuffisants',
+        details: `Il vous faut ${creditsRequired} crédits. Vous avez ${profile.credits} crédits.`,
         trace_id: traceId
       }, { status: 402 });
     }
@@ -130,17 +131,17 @@ export async function POST(request: NextRequest) {
       console.error('[VideoAPI] Insert error details - code:', insertError.code, 'message:', insertError.message, 'details:', insertError.details);
 
       // Provide more specific error message based on error code
-      let errorMessage = 'Erreur lors de la crÃ©ation';
+      let errorMessage = 'Erreur lors de la création';
       if (insertError.code === '42P01') {
-        errorMessage = 'La table "generations" n\'existe pas. Veuillez exÃ©cuter les migrations.';
+        errorMessage = 'La table "generations" n\'existe pas. Veuillez exécuter les migrations.';
       } else if (insertError.code === '42703') {
         errorMessage = 'Une colonne requise est manquante dans la table "generations".';
       } else if (insertError.code === '23505') {
-        errorMessage = 'Cette gÃ©nÃ©ration existe dÃ©jÃ .';
+        errorMessage = 'Cette génération existe déjà.';
       } else if (insertError.code === '23503') {
-        errorMessage = 'Erreur de rÃ©fÃ©rence - le profil utilisateur n\'existe pas.';
+        errorMessage = 'Erreur de référence - le profil utilisateur n\'existe pas.';
       } else if (insertError.message?.includes('permission')) {
-        errorMessage = 'Permissions insuffisantes pour crÃ©er une gÃ©nÃ©ration.';
+        errorMessage = 'Permissions insuffisantes pour créer une génération.';
       }
 
       return NextResponse.json({
@@ -163,24 +164,32 @@ export async function POST(request: NextRequest) {
     // Arbitrage: Call Fal.ai API first if FAL_KEY exists, else use Replicate
     let predictionId: string | undefined = undefined;
     let providerUsed: 'fal' | 'replicate' | undefined = undefined;
-    
+    let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
+
     try {
+      const providers: Array<{ name: 'fal' | 'replicate'; run: () => Promise<{ predictionId: string }> }> = [];
+
       if (process.env.FAL_KEY) {
-        try {
-          const result = await generateFalVideo(body.prompt.trim());
-          predictionId = result.predictionId;
-          providerUsed = 'fal';
-        } catch (falError) {
-          console.warn('[VideoAPI] Fal.ai error, falling back to Replicate...', falError);
-          // Fallback handled below
-        }
+        providers.push({
+          name: 'fal',
+          run: () => generateFalVideo(body.prompt.trim()),
+        });
       }
 
-      if (!predictionId) {
-        const result = await generateReplicateVideo(body.prompt.trim(), { model });
-        predictionId = result.predictionId;
-        providerUsed = 'replicate';
-      }
+      providers.push({
+        name: 'replicate',
+        run: () => generateReplicateVideo(body.prompt.trim(), { model }),
+      });
+
+      const providerResult = await runProviderChain<{ predictionId: string }>(providers, { purpose: 'video' });
+
+      predictionId = providerResult.result.predictionId;
+      providerUsed = providerResult.provider as 'fal' | 'replicate';
+      routerMeta = {
+        provider: providerResult.provider,
+        attempts: providerResult.attempts,
+        duration_ms: providerResult.latency_ms,
+      };
     } catch (apiError) {
       // Refund credits on failure
       if (profile.credits !== -1) {
@@ -199,8 +208,8 @@ export async function POST(request: NextRequest) {
       console.error('[VideoAPI] Generation error:', apiError);
       return NextResponse.json({
         success: false,
-        error: 'Erreur de crÃ©ation vidéo',
-        details: apiError instanceof Error ? apiError.message : 'Impossible de dÃ©marrer la crÃ©ation de la vidÃ©o.',
+        error: 'Erreur de création vidéo',
+        details: apiError instanceof Error ? apiError.message : 'Impossible de démarrer la création de la vidéo.',
         trace_id: traceId
       }, { status: 500 });
     }
@@ -209,7 +218,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('generations')
       .update({
-        metadata: { ...baseMetadata, predictionId, provider: providerUsed }
+        metadata: { ...baseMetadata, predictionId, provider: providerUsed, router: routerMeta || null }
       })
       .eq('id', generationData.id);
 
@@ -240,7 +249,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Non authentifiÃ©', trace_id: traceId }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Non authentifié', trace_id: traceId }, { status: 401 });
     }
 
     if (generationId) {
@@ -253,7 +262,7 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (error || !generation) {
-        return NextResponse.json({ success: false, error: 'GÃ©nÃ©ration non trouvÃ©e', trace_id: traceId }, { status: 404 });
+        return NextResponse.json({ success: false, error: 'Génération non trouvée', trace_id: traceId }, { status: 404 });
       }
 
       // Check Replicate/Fal status if it's still processing
@@ -343,7 +352,7 @@ export async function GET(request: NextRequest) {
       .limit(20);
 
     if (error) {
-      return NextResponse.json({ success: false, error: 'Erreur lors de la rÃ©cupÃ©ration', trace_id: traceId }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Erreur lors de la récupération', trace_id: traceId }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, generations, trace_id: traceId });
@@ -368,7 +377,7 @@ export async function DELETE(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Non authentifiÃ©', trace_id: traceId }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Non authentifié', trace_id: traceId }, { status: 401 });
     }
 
     const { data: generation, error: findError } = await supabase
@@ -379,11 +388,11 @@ export async function DELETE(request: NextRequest) {
       .single();
 
     if (findError || !generation) {
-      return NextResponse.json({ success: false, error: 'GÃ©nÃ©ration non trouvÃ©e', trace_id: traceId }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Génération non trouvée', trace_id: traceId }, { status: 404 });
     }
 
     if (!['queued', 'processing'].includes(generation.status)) {
-      return NextResponse.json({ success: false, error: 'Impossible d\'annuler une gÃ©nÃ©ration terminÃ©e', trace_id: traceId }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Impossible d\'annuler une génération terminée', trace_id: traceId }, { status: 400 });
     }
 
     // Update status
@@ -392,7 +401,7 @@ export async function DELETE(request: NextRequest) {
       .update({ status: 'cancelled', updated_at: new Date().toISOString() })
       .eq('id', generationId);
 
-    return NextResponse.json({ success: true, message: 'GÃ©nÃ©ration annulÃ©e', trace_id: traceId });
+    return NextResponse.json({ success: true, message: 'Génération annulée', trace_id: traceId });
 
   } catch (error) {
     console.error('[VideoAPI] DELETE error:', error);

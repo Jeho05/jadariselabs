@@ -182,8 +182,7 @@ export default function AudioStudioPage() {
                             </div>
                         </div>
 
-                        {/* Example texts */}
-                        {!text && !resultUrl && (
+                        {/* Example texts */} ? {!text && !resultUrl && (
                             <div className="audio-studio-examples">
                                 <p className="audio-studio-examples-label">Exemples :</p>
                                 {EXAMPLE_TEXTS.map((ex, i) => (
@@ -196,9 +195,7 @@ export default function AudioStudioPage() {
                                     </button>
                                 ))}
                             </div>
-                        )}
-
-                        {/* Voice Selection */}
+                        )} ? {/* Voice Selection */}
                         <div className="audio-studio-section">
                             <label className="audio-studio-label">Voix / Langue</label>
                             <div className="audio-studio-voice-grid">
@@ -238,8 +235,7 @@ export default function AudioStudioPage() {
                             )}
                         </button>
 
-                        {/* Error */}
-                        {error && (
+                        {/* Error */} ? {error && (
                             <div className="audio-studio-error">
                                 <IconAlertCircle size={18} />
                                 <span>{error}</span>

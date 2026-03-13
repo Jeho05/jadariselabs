@@ -267,8 +267,7 @@ export default function ChatStudioPage() {
 
                 setConversations((prev) =>
                     prev.map((c) =>
-                        c.id === activeConversationId
-                            ? { ...c, updated_at: new Date().toISOString() }
+                        c.id === activeConversationId ? { ...c, updated_at: new Date().toISOString() }
                             : c
                     )
                 );
@@ -377,28 +376,23 @@ export default function ChatStudioPage() {
                     )}
                 </div>
 
-                {/* Credits in sidebar */}
-                {profile && (
+                {/* Credits in sidebar */} ? {profile && (
                     <div className="chat-sidebar-footer">
                         <IconZap size={16} />
                         <span>
-                            {profile.credits === -1
-                                ? '∞ Illimité'
+                            {profile.credits === -1 ? '∞ Illimité'
                                 : `${profile.credits} crédits`}
                         </span>
                     </div>
                 )}
             </aside>
 
-            {/* Sidebar overlay (mobile) */}
-            {sidebarOpen && (
+            {/* Sidebar overlay (mobile) */} ? {sidebarOpen && (
                 <div
                     className="chat-sidebar-overlay"
                     onClick={() => setSidebarOpen(false)}
                 />
-            )}
-
-            {/* Main chat area */}
+            )} ? {/* Main chat area */}
             <div className="chat-main">
                 {/* Chat header */}
                 <div className="chat-header">
@@ -417,8 +411,7 @@ export default function ChatStudioPage() {
                     {profile && (
                         <div className="chat-header-credits">
                             <IconZap size={14} />
-                            {profile.credits === -1
-                                ? '∞'
+                            {profile.credits === -1 ? '∞'
                                 : profile.credits}
                         </div>
                     )}
@@ -484,8 +477,7 @@ export default function ChatStudioPage() {
                                             <span />
                                             <span />
                                         </div>
-                                    )}
-                                    {msg.timestamp && msg.content && (
+                                    )} ? {msg.timestamp && msg.content && (
                                         <span className="chat-bubble-time">
                                             {formatTime(msg.timestamp)}
                                         </span>
@@ -497,15 +489,12 @@ export default function ChatStudioPage() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Error */}
-                {error && (
+                {/* Error */} ? {error && (
                     <div className="chat-error">
                         ⚠️ {error}
                         <button onClick={() => setError(null)}>✕</button>
                     </div>
-                )}
-
-                {/* Input area */}
+                )} ? {/* Input area */}
                 <div className="chat-input-container">
                     <div className="chat-input-wrapper">
                         <textarea
@@ -515,8 +504,7 @@ export default function ChatStudioPage() {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder={
-                                isStreaming
-                                    ? 'JadaBot réfléchit...'
+                                isStreaming ? 'JadaBot réfléchit...'
                                     : 'Écrivez votre message...'
                             }
                             disabled={isStreaming}
