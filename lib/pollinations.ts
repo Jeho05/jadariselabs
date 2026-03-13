@@ -30,8 +30,9 @@ export async function generateImagePollinations(
     const encodedPrompt = encodeURIComponent(prompt.trim());
     
     // Construct the URL
-    // Format: https://image.pollinations.ai/prompt/{prompt}?width={width}&height={height}&seed={seed}&nologo={nologo}&model={model}
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=${nologo ? 'true' : 'false'}&model=${model}`;
+    // Format: https://image.pollinations.ai/prompt/{prompt}
+    // Note: Query parameters like width/height/model currently cause 500 errors on Pollinations API
+    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
 
     const response = await fetch(url, { method: 'GET' });
 
