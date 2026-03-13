@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     try {
         // Appel Groq API avec streaming
-        const groqResponse = await fetch(GROQ_API_URL, {
+        let response = await fetch(GROQ_API_URL, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${groqApiKey}`,
@@ -131,29 +131,63 @@ export async function POST(request: NextRequest) {
                 top_p: 0.9,
             }),
         });
+        
+        let usedModel = GROQ_MODEL;
 
-        if (!groqResponse.ok) {
-            const errorText = await groqResponse.text();
-            console.error('Groq API error:', groqResponse.status, errorText);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.warn('Groq API error (attempting fallback):', response.status, errorText);
 
-            if (groqResponse.status === 429) {
-                return NextResponse.json(
-                    {
-                        error: 'Trop de requêtes',
-                        details:
-                            'Limite de requêtes atteinte. Veuillez patienter quelques secondes et réessayer.',
+            // Fallback to Gemini if Groq fails (429 Too Many Requests or 5xx Server Error)
+            const geminiApiKey = process.env.GEMINI_API_KEY;
+            if ((response.status === 429 || response.status >= 500) && geminiApiKey) {
+               console.log("Switching to Gemini Fallback");
+               usedModel = "gemini-2.5-flash";
+               
+               // Gemini OpenAI compatibility endpoint
+               const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+               
+               response = await fetch(GEMINI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${geminiApiKey}`,
+                        'Content-Type': 'application/json',
                     },
-                    { status: 429 }
-                );
+                    body: JSON.stringify({
+                        model: usedModel,
+                        messages,
+                        stream: true,
+                        temperature: 0.7,
+                        max_tokens: 2048,
+                        top_p: 0.9,
+                    }),
+                });
             }
 
-            return NextResponse.json(
-                {
-                    error: 'Erreur du service IA',
-                    details: 'Le service de chat IA est temporairement indisponible.',
-                },
-                { status: 502 }
-            );
+            // If still not ok (either no Gemini key, or Gemini also failed)
+            if (!response.ok) {
+                const finalErrorText = await response.text();
+                console.error('Final API error:', response.status, finalErrorText);
+                
+                if (response.status === 429) {
+                    return NextResponse.json(
+                        {
+                            error: 'Trop de requêtes',
+                            details:
+                                'Limite de requêtes atteinte sur tous les services. Veuillez patienter quelques secondes.',
+                        },
+                        { status: 429 }
+                    );
+                }
+    
+                return NextResponse.json(
+                    {
+                        error: 'Erreur du service IA',
+                        details: 'Le service de chat IA est temporairement indisponible.',
+                    },
+                    { status: 502 }
+                );
+            }
         }
 
         // Déduire les crédits AVANT le streaming
@@ -170,12 +204,12 @@ export async function POST(request: NextRequest) {
             type: 'chat',
             prompt: message.trim().substring(0, 500),
             result_url: null,
-            metadata: { model: GROQ_MODEL, streaming: true },
+            metadata: { model: usedModel, streaming: true, fallback_used: usedModel !== GROQ_MODEL },
             credits_used: CREDITS_PER_MESSAGE,
         });
 
         // Streaming SSE
-        const reader = groqResponse.body?.getReader();
+        const reader = response.body?.getReader();
         const decoder = new TextDecoder();
 
         const stream = new ReadableStream({
@@ -195,7 +229,8 @@ export async function POST(request: NextRequest) {
                         const chunk = decoder.decode(value, { stream: true });
                         const lines = chunk.split('\n');
 
-                        for (const line of lines) {
+                        for (let line of lines) {
+                            line = line.trim();
                             if (line.startsWith('data: ')) {
                                 const data = line.slice(6).trim();
                                 if (data === '[DONE]') {

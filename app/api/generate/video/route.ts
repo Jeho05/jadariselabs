@@ -9,6 +9,7 @@ import { VIDEO_MODELS } from '@/lib/types/video';
 import type { VideoGenerationRequest } from '@/lib/types/video';
 import { generateReplicateVideo, checkReplicatePrediction, calculateVideoCredits } from '@/lib/replicate';
 import type { ReplicateVideoModel } from '@/lib/replicate';
+import { generateFalVideo, checkFalPrediction } from '@/lib/fal';
 
 // POST - Create video generation
 export async function POST(request: NextRequest) {
@@ -159,11 +160,27 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id);
     }
 
-    // Call Replicate API to start generating
-    let predictionId: string;
+    // Arbitrage: Call Fal.ai API first if FAL_KEY exists, else use Replicate
+    let predictionId: string | undefined = undefined;
+    let providerUsed: 'fal' | 'replicate' | undefined = undefined;
+    
     try {
-      const result = await generateReplicateVideo(body.prompt.trim(), { model });
-      predictionId = result.predictionId;
+      if (process.env.FAL_KEY) {
+        try {
+          const result = await generateFalVideo(body.prompt.trim());
+          predictionId = result.predictionId;
+          providerUsed = 'fal';
+        } catch (falError) {
+          console.warn('[VideoAPI] Fal.ai error, falling back to Replicate...', falError);
+          // Fallback handled below
+        }
+      }
+
+      if (!predictionId) {
+        const result = await generateReplicateVideo(body.prompt.trim(), { model });
+        predictionId = result.predictionId;
+        providerUsed = 'replicate';
+      }
     } catch (apiError) {
       // Refund credits on failure
       if (profile.credits !== -1) {
@@ -179,20 +196,20 @@ export async function POST(request: NextRequest) {
         .update({ status: 'failed', error: apiError instanceof Error ? apiError.message : String(apiError) })
         .eq('id', generationData.id);
 
-      console.error('[VideoAPI] Replicate error:', apiError);
+      console.error('[VideoAPI] Generation error:', apiError);
       return NextResponse.json({
         success: false,
-        error: 'Erreur de gÃ©nÃ©ration',
+        error: 'Erreur de crÃ©ation vidéo',
         details: apiError instanceof Error ? apiError.message : 'Impossible de dÃ©marrer la crÃ©ation de la vidÃ©o.',
         trace_id: traceId
       }, { status: 500 });
     }
 
-    // Update DB with prediction ID
+    // Update DB with prediction ID and provider
     await supabase
       .from('generations')
       .update({
-        metadata: { ...baseMetadata, predictionId }
+        metadata: { ...baseMetadata, predictionId, provider: providerUsed }
       })
       .eq('id', generationData.id);
 
@@ -239,13 +256,20 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'GÃ©nÃ©ration non trouvÃ©e', trace_id: traceId }, { status: 404 });
       }
 
-      // Check Replicate status if it's still processing
+      // Check Replicate/Fal status if it's still processing
       if (generation.status === 'processing' && generation.metadata?.predictionId) {
         try {
-          const prediction = await checkReplicatePrediction(generation.metadata.predictionId);
+          const provider = generation.metadata?.provider || 'replicate';
+          let prediction;
+          
+          if (provider === 'fal') {
+              prediction = await checkFalPrediction(generation.metadata.predictionId);
+          } else {
+              prediction = await checkReplicatePrediction(generation.metadata.predictionId);
+          }
 
           if (prediction.status === 'succeeded' && prediction.output) {
-            // Replicate offers a temporary URL, let's download it and upload to Supabase
+            // Providers offer a temporary URL, let's download it and upload to Supabase
             const fileRes = await fetch(prediction.output);
             const arrayBuffer = await fileRes.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
@@ -259,7 +283,7 @@ export async function GET(request: NextRequest) {
                 upsert: false,
               });
 
-            let publicUrl = prediction.output; // Default to Replicate URL
+            let publicUrl = prediction.output; // Default to Provider URL
             if (!uploadError) {
               const { data: urlData } = supabase
                 .storage
@@ -290,7 +314,7 @@ export async function GET(request: NextRequest) {
               .eq('id', generation.id);
 
             generation.status = 'failed';
-            generation.error = prediction.error || 'Statut Replicate inconnu';
+            generation.error = prediction.error || 'Statut inconnu';
 
             // Refund credits
             const profile = await supabase.from('profiles').select('credits').eq('id', user.id).single();

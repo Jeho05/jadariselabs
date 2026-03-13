@@ -72,16 +72,53 @@ export async function generateAudio(
     const apiKey = process.env.HUGGINGFACE_API_KEY;
     const voice = options.voice || 'fr';
 
-    if (!apiKey) {
-        throw new Error('HUGGINGFACE_API_KEY is not configured');
-    }
+    // Check for Fish Audio Key first
+    const fishApiKey = process.env.FISH_AUDIO_API_KEY;
 
     if (!text || text.trim().length === 0) {
         throw new Error('Le texte ne peut pas être vide');
     }
 
     if (text.length > 500) {
-        throw new Error('Le texte est trop long (max 500 caractères pour Bark)');
+        throw new Error('Le texte est trop long (max 500 caractères pour l\'instant)');
+    }
+    
+    // Fish Audio API implementation
+    if (fishApiKey) {
+        try {
+            const fishResponse = await fetch("https://api.fish.audio/v1/tts", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${fishApiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    text: text,
+                    // Optionally map voice to specific Fish Audio model/reference if needed, default is ok
+                })
+            });
+            
+            if (fishResponse.ok) {
+                const fishAudioBuffer = Buffer.from(await fishResponse.arrayBuffer());
+                const wordCount = text.split(/\s+/).length;
+                const estimatedDuration = Math.ceil(wordCount / 2.5);
+                
+                return {
+                    audio: fishAudioBuffer,
+                    voice,
+                    duration: estimatedDuration,
+                };
+            } else {
+                console.warn("[AudioAPI] Fish Audio failed, falling back to Hugging Face Bark", await fishResponse.text());
+            }
+        } catch (fishError) {
+             console.warn("[AudioAPI] Fish Audio network error, falling back to Hugging Face Bark", fishError);
+        }
+    }
+
+    // Fallback: Hugging Face Bark
+    if (!apiKey) {
+        throw new Error('HUGGINGFACE_API_KEY and FISH_AUDIO_API_KEY are not configured');
     }
 
     // Construire le prompt avec la langue

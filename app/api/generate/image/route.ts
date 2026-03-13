@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateImage, calculateImageCredits, IMAGE_MODELS } from '@/lib/huggingface';
 import type { ImageModel } from '@/lib/huggingface';
+import { generateImagePollinations } from '@/lib/pollinations';
+import { generateFalImage } from '@/lib/fal';
 
 // Watermark via sharp
 async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
@@ -111,17 +113,39 @@ export async function POST(request: NextRequest) {
         // 10. Generate image
         let imageBuffer: Buffer;
         try {
-            imageBuffer = await generateImage(body.prompt.trim(), model, {
-                width,
-                height,
-                negative_prompt: body.negative_prompt,
-            });
-        } catch (hfError) {
-            console.error('[ImageAPI] Hugging Face error:', hfError);
+            if (profile.plan === 'free') {
+                // Arbirtage: Routage vers Pollinations.ai pour les utilisateurs gratuits (100% gratuit)
+                imageBuffer = await generateImagePollinations(body.prompt.trim(), {
+                    width,
+                    height,
+                });
+            } else {
+                // Routage vers Fal.ai si FAL_KEY est dispo, sinon Hugging Face
+                if (process.env.FAL_KEY && (model === 'flux-schnell' || isHD)) {
+                     try {
+                         imageBuffer = await generateFalImage(body.prompt.trim(), { width, height });
+                     } catch (falErr) {
+                         console.warn("[ImageAPI] Fal.ai error, falling back to Hugging Face:", falErr);
+                         imageBuffer = await generateImage(body.prompt.trim(), model, {
+                             width,
+                             height,
+                             negative_prompt: body.negative_prompt,
+                         });
+                     }
+                } else {
+                    imageBuffer = await generateImage(body.prompt.trim(), model, {
+                        width,
+                        height,
+                        negative_prompt: body.negative_prompt,
+                    });
+                }
+            }
+        } catch (apiError) {
+            console.error('[ImageAPI] Generation error:', apiError);
             return NextResponse.json({
                 success: false,
                 error: 'Erreur de génération',
-                details: hfError instanceof Error ? hfError.message : 'Impossible de générer l\'image. Réessayez.',
+                details: apiError instanceof Error ? apiError.message : 'Impossible de générer l\'image. Réessayez.',
                 trace_id: traceId,
             }, { status: 500 });
         }
