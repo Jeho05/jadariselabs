@@ -1,4 +1,5 @@
 import { IconPalette, IconChat, IconVideo, IconMusic, IconCode, IconSparkle } from '@/components/icons';
+import Image from 'next/image';
 
 interface StudioPageProps {
     params: Promise<{
@@ -105,10 +106,12 @@ export default async function StudioPage({ params }: StudioPageProps) {
                     {/* Right - Preview Card */}
                     <div className="module-card-premium flex-col overflow-hidden p-0" style={{ animationDelay: '0.2s' }}>
                         <div className="relative h-48 w-full">
-                            <img 
+                            <Image
                                 src={config.image}
                                 alt={config.name}
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                className="object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
                         </div>

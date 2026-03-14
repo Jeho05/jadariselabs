@@ -3,6 +3,7 @@
 
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 
 import { createClient } from '@/lib/supabase/client';
 
@@ -567,11 +568,14 @@ export default function ProfilePage() {
                             <div className="profile-avatar-large">
 
                                 {displayAvatar ? (
-
-                                    // eslint-disable-next-line @next/next/no-img-element
-
-                                    <img src={displayAvatar} alt="Avatar" />
-
+                                    <Image
+                                        src={displayAvatar}
+                                        alt="Avatar"
+                                        fill
+                                        sizes="72px"
+                                        className="object-cover"
+                                        unoptimized
+                                    />
                                 ) : (
 
                                     <span>{profile?.username?.[0]?.toUpperCase() || '?'}</span>
@@ -604,9 +608,14 @@ export default function ProfilePage() {
 
                                     <div className="avatar-preview-container">
 
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-
-                                        <img src={displayAvatar} alt="Avatar preview" className="avatar-preview-img" />
+                                        <Image
+                                            src={displayAvatar}
+                                            alt="Avatar preview"
+                                            fill
+                                            sizes="72px"
+                                            className="avatar-preview-img"
+                                            unoptimized
+                                        />
 
                                         <div className="avatar-preview-actions">
 

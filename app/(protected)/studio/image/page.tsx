@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
 import {
@@ -337,10 +338,15 @@ export default function ImageStudioPage() {
                         ) : resultUrl ? (
                             <div className="image-studio-result">
                                 <div className="image-studio-result-image-wrapper">
-                                    <img
+                                    <Image
                                         src={resultUrl}
                                         alt={prompt}
+                                        width={1024}
+                                        height={1024}
+                                        sizes="(max-width: 768px) 90vw, 600px"
                                         className="image-studio-result-image"
+                                        style={{ width: '100%', height: 'auto' }}
+                                        unoptimized
                                     />
                                 </div>
                                 <div className="image-studio-result-actions">

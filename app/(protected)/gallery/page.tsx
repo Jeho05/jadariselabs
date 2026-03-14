@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Generation, Profile } from '@/lib/types';
 import {
@@ -310,7 +311,15 @@ export default function GalleryPage() {
                                         onClick={() => setExpandedId(isExpanded ? null : gen.id)}
                                     >
                                         {gen.type === 'image' && gen.result_url ? (
-                                            <img src={gen.result_url} alt={gen.prompt} loading="lazy" />
+                                            <Image
+                                                src={gen.result_url}
+                                                alt={gen.prompt}
+                                                fill
+                                                sizes="(max-width: 768px) 50vw, 25vw"
+                                                className="object-cover"
+                                                loading="lazy"
+                                                unoptimized
+                                            />
                                         ) : gen.type === 'video' && gen.result_url ? (
                                             <video src={gen.result_url} muted />
                                         ) : (

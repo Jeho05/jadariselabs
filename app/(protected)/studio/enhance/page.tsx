@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
 import {
@@ -248,7 +249,16 @@ export default function EnhanceStudioPage() {
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 {previewUrl ? (
-                                    <img src={previewUrl} alt="Preview" className="enhance-studio-preview" />
+                                    <Image
+                                        src={previewUrl}
+                                        alt="Preview"
+                                        width={1200}
+                                        height={900}
+                                        sizes="100vw"
+                                        className="enhance-studio-preview"
+                                        style={{ width: '100%', height: 'auto' }}
+                                        unoptimized
+                                    />
                                 ) : (
                                     <div className="enhance-studio-dropzone-content">
                                         <IconUpload size={40} />
@@ -316,10 +326,15 @@ export default function EnhanceStudioPage() {
                         ) : resultUrl ? (
                             <div className="enhance-studio-result">
                                 <div className="enhance-studio-result-image-wrapper">
-                                    <img
+                                    <Image
                                         src={resultUrl}
                                         alt="Result"
+                                        width={1200}
+                                        height={900}
+                                        sizes="100vw"
                                         className="enhance-studio-result-image"
+                                        style={{ width: '100%', height: 'auto' }}
+                                        unoptimized
                                     />
                                 </div>
                                 <div className="enhance-studio-result-actions">

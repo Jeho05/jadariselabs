@@ -39,6 +39,7 @@ yarn-error.log*
 
 # temp files
 _cahier_des_charges.txt
+tmp/
 
 # vercel
 .vercel
