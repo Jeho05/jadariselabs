@@ -690,6 +690,35 @@ export function IconDownload({ className = '', size = 24 }: IconProps) {
     );
 }
 
+// Copy
+export function IconCopy({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <rect
+                x="9"
+                y="9"
+                width="11"
+                height="11"
+                rx="2"
+                stroke="url(#gradient-earth)"
+                strokeWidth="2"
+                fill="none"
+            />
+            <rect
+                x="4"
+                y="4"
+                width="11"
+                height="11"
+                rx="2"
+                stroke="url(#gradient-gold)"
+                strokeWidth="2"
+                fill="none"
+            />
+        </svg>
+    );
+}
+
 // Wand (Magic Tool)
 export function IconWand({ className = '', size = 24 }: IconProps) {
     return (
@@ -965,6 +994,15 @@ export function IconSearch({ className = '', size = 24 }: IconProps) {
         <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
             <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" fill="none" />
             <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Heart
+export function IconHeart({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="currentColor" />
         </svg>
     );
 }

@@ -8,7 +8,7 @@
 
 export type PlanType = 'free' | 'starter' | 'pro';
 
-export type GenerationType = 'image' | 'chat' | 'video' | 'audio' | 'code';
+export type GenerationType = 'image' | 'chat' | 'video' | 'audio' | 'code' | 'ocr' | 'search';
 
 export type PaymentProvider = 'orange_money' | 'wave' | 'mtn' | 'moov' | 'card';
 
@@ -169,7 +169,7 @@ export interface ImageGenerationRequest {
     hd?: boolean;
 }
 
-export type GalleryFilterType = 'all' | 'image' | 'chat' | 'video';
+export type GalleryFilterType = 'all' | 'image' | 'chat' | 'video' | 'audio' | 'code' | 'ocr' | 'search';
 
 export interface GalleryItem extends Generation {
     // Extended with computed UI fields

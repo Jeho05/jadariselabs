@@ -6,10 +6,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { VIDEO_MODELS } from '@/lib/types/video';
-import type { VideoGenerationRequest } from '@/lib/types/video';
+import type { VideoGenerationRequest, VideoModel } from '@/lib/types/video';
 import { generateReplicateVideo, checkReplicatePrediction, calculateVideoCredits } from '@/lib/replicate';
 import type { ReplicateVideoModel } from '@/lib/replicate';
 import { generateFalVideo, checkFalPrediction } from '@/lib/fal';
+import { createMinimaxVideoTask, getMinimaxVideoTask, retrieveMinimaxFile } from '@/lib/minimax';
 import { runProviderChain } from '@/lib/provider-router';
 
 // POST - Create video generation
@@ -52,11 +53,13 @@ export async function POST(request: NextRequest) {
     }
 
   // Select model
-  const model: ReplicateVideoModel = (body.model as ReplicateVideoModel) || 'wan-video/wan-2.1-1.3b';
-  const modelInfo = VIDEO_MODELS[model as keyof typeof VIDEO_MODELS];
+  const requestedModel: VideoModel = (body.model as VideoModel) || 'wan-video/wan-2.1-1.3b';
+  const modelInfo = VIDEO_MODELS[requestedModel];
   if (!modelInfo) {
     return NextResponse.json({ success: false, error: 'Modele invalide', trace_id: traceId }, { status: 400 });
   }
+
+  const replicateModel: ReplicateVideoModel = 'wan-video/wan-2.1-1.3b';
 
   const duration = Number(body.duration);
   if (!Number.isFinite(duration) || duration <= 0) {
@@ -91,15 +94,17 @@ export async function POST(request: NextRequest) {
   const aspectRatio = body.aspectRatio || '16:9';
 
   // Calculate credits
-  const creditsRequired = calculateVideoCredits(model, duration, quality);
+  const creditsRequired = calculateVideoCredits(requestedModel, duration, quality);
+  const resolution = quality === 'high' || quality === 'ultra' ? '1080P' : '720P';
 
   const baseMetadata = {
-    model,
+    model: requestedModel,
     credits: creditsRequired,
     duration,
     quality,
     style,
     aspect_ratio: aspectRatio,
+    resolution,
   };
 
 
@@ -161,30 +166,57 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id);
     }
 
-    // Arbitrage: Call Fal.ai API first if FAL_KEY exists, else use Replicate
+    // Arbitrage: MiniMax (Hailuo) -> Fal.ai -> Replicate
     let predictionId: string | undefined = undefined;
-    let providerUsed: 'fal' | 'replicate' | undefined = undefined;
+    let providerUsed: 'minimax' | 'fal' | 'replicate' | undefined = undefined;
+    let modelUsed: VideoModel | undefined = undefined;
+    let providerModel: string | undefined = undefined;
     let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
 
     try {
-      const providers: Array<{ name: 'fal' | 'replicate'; run: () => Promise<{ predictionId: string }> }> = [];
+      type VideoProviderResult = { predictionId: string; modelUsed: VideoModel; providerModel?: string };
+      const providers: Array<{ name: 'minimax' | 'fal' | 'replicate'; run: () => Promise<VideoProviderResult> }> = [];
+
+      if (process.env.MINIMAX_API_KEY && requestedModel === 'minimax/video-01') {
+        const minimaxModel = process.env.MINIMAX_MODEL || 'video-01';
+        providers.push({
+          name: 'minimax',
+          run: async () => {
+            const task = await createMinimaxVideoTask({
+              prompt: body.prompt.trim(),
+              model: minimaxModel,
+              duration,
+              resolution,
+            });
+            return { predictionId: task.taskId, modelUsed: requestedModel, providerModel: minimaxModel };
+          },
+        });
+      }
 
       if (process.env.FAL_KEY) {
         providers.push({
           name: 'fal',
-          run: () => generateFalVideo(body.prompt.trim()),
+          run: async () => {
+            const { predictionId } = await generateFalVideo(body.prompt.trim());
+            return { predictionId, modelUsed: replicateModel, providerModel: replicateModel };
+          },
         });
       }
 
       providers.push({
         name: 'replicate',
-        run: () => generateReplicateVideo(body.prompt.trim(), { model }),
+        run: async () => {
+          const { predictionId } = await generateReplicateVideo(body.prompt.trim(), { model: replicateModel });
+          return { predictionId, modelUsed: replicateModel, providerModel: replicateModel };
+        },
       });
 
-      const providerResult = await runProviderChain<{ predictionId: string }>(providers, { purpose: 'video' });
+      const providerResult = await runProviderChain<VideoProviderResult>(providers, { purpose: 'video' });
 
       predictionId = providerResult.result.predictionId;
-      providerUsed = providerResult.provider as 'fal' | 'replicate';
+      providerUsed = providerResult.provider as 'minimax' | 'fal' | 'replicate';
+      modelUsed = providerResult.result.modelUsed;
+      providerModel = providerResult.result.providerModel;
       routerMeta = {
         provider: providerResult.provider,
         attempts: providerResult.attempts,
@@ -218,7 +250,15 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('generations')
       .update({
-        metadata: { ...baseMetadata, predictionId, provider: providerUsed, router: routerMeta || null }
+        metadata: {
+          ...baseMetadata,
+          model: modelUsed || requestedModel,
+          requested_model: requestedModel,
+          provider_model: providerModel || null,
+          predictionId,
+          provider: providerUsed,
+          router: routerMeta || null,
+        },
       })
       .eq('id', generationData.id);
 
@@ -226,7 +266,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       generation_id: generationData.id,
-      model_used: model,
+      model_used: modelUsed || requestedModel,
       credits_charged: creditsRequired,
       remaining_credits: profile.credits === -1 ? -1 : profile.credits - creditsRequired,
       estimated_time_seconds: modelInfo.avgGenerationTime * duration,
@@ -265,73 +305,132 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Génération non trouvée', trace_id: traceId }, { status: 404 });
       }
 
-      // Check Replicate/Fal status if it's still processing
+      // Check provider status if it's still processing
       if (generation.status === 'processing' && generation.metadata?.predictionId) {
         try {
           const provider = generation.metadata?.provider || 'replicate';
-          let prediction;
-          
-          if (provider === 'fal') {
-              prediction = await checkFalPrediction(generation.metadata.predictionId);
-          } else {
-              prediction = await checkReplicatePrediction(generation.metadata.predictionId);
-          }
+          const predictionId = generation.metadata.predictionId as string;
 
-          if (prediction.status === 'succeeded' && prediction.output) {
-            // Providers offer a temporary URL, let's download it and upload to Supabase
-            const fileRes = await fetch(prediction.output);
-            const arrayBuffer = await fileRes.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
+          if (provider === 'minimax') {
+            const task = await getMinimaxVideoTask(predictionId);
+            if (task.status === 'Success' && task.file_id) {
+              const fileInfo = await retrieveMinimaxFile(task.file_id);
+              const fileRes = await fetch(fileInfo.download_url);
+              const arrayBuffer = await fileRes.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
 
-            const fileName = `${user.id}/video/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.mp4`;
-            const { error: uploadError } = await supabase
-              .storage
-              .from('generations')
-              .upload(fileName, buffer, {
-                contentType: 'video/mp4',
-                upsert: false,
-              });
-
-            let publicUrl = prediction.output; // Default to Provider URL
-            if (!uploadError) {
-              const { data: urlData } = supabase
+              const fileName = `${user.id}/video/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.mp4`;
+              const { error: uploadError } = await supabase
                 .storage
                 .from('generations')
-                .getPublicUrl(fileName);
-              publicUrl = urlData.publicUrl;
-            }
+                .upload(fileName, buffer, {
+                  contentType: 'video/mp4',
+                  upsert: false,
+                });
 
-            await supabase
-              .from('generations')
-              .update({
-                status: 'completed',
-                result_url: publicUrl,
-                completed_at: new Date().toISOString(),
-              })
-              .eq('id', generation.id);
+              let publicUrl = fileInfo.download_url;
+              if (!uploadError) {
+                const { data: urlData } = supabase
+                  .storage
+                  .from('generations')
+                  .getPublicUrl(fileName);
+                publicUrl = urlData.publicUrl;
+              }
 
-            generation.status = 'completed';
-            generation.result_url = publicUrl;
-
-          } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
-            await supabase
-              .from('generations')
-              .update({
-                status: 'failed',
-                error: prediction.error || 'Statut Replicate inconnu',
-              })
-              .eq('id', generation.id);
-
-            generation.status = 'failed';
-            generation.error = prediction.error || 'Statut inconnu';
-
-            // Refund credits
-            const profile = await supabase.from('profiles').select('credits').eq('id', user.id).single();
-            if (profile.data && profile.data.credits !== -1) {
               await supabase
-                .from('profiles')
-                .update({ credits: profile.data.credits + (generation.metadata?.credits || 0) })
-                .eq('id', user.id);
+                .from('generations')
+                .update({
+                  status: 'completed',
+                  result_url: publicUrl,
+                  completed_at: new Date().toISOString(),
+                })
+                .eq('id', generation.id);
+
+              generation.status = 'completed';
+              generation.result_url = publicUrl;
+            } else if (task.status === 'Fail') {
+              await supabase
+                .from('generations')
+                .update({
+                  status: 'failed',
+                  error: task.error || task.message || 'Statut MiniMax inconnu',
+                })
+                .eq('id', generation.id);
+
+              generation.status = 'failed';
+              generation.error = task.error || task.message || 'Statut inconnu';
+
+              // Refund credits
+              const profile = await supabase.from('profiles').select('credits').eq('id', user.id).single();
+              if (profile.data && profile.data.credits !== -1) {
+                await supabase
+                  .from('profiles')
+                  .update({ credits: profile.data.credits + (generation.metadata?.credits || 0) })
+                  .eq('id', user.id);
+              }
+            }
+          } else {
+            const prediction =
+              provider === 'fal'
+                ? await checkFalPrediction(predictionId)
+                : await checkReplicatePrediction(predictionId);
+
+            if (prediction.status === 'succeeded' && prediction.output) {
+              // Providers offer a temporary URL, let's download it and upload to Supabase
+              const fileRes = await fetch(prediction.output);
+              const arrayBuffer = await fileRes.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
+
+              const fileName = `${user.id}/video/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.mp4`;
+              const { error: uploadError } = await supabase
+                .storage
+                .from('generations')
+                .upload(fileName, buffer, {
+                  contentType: 'video/mp4',
+                  upsert: false,
+                });
+
+              let publicUrl = prediction.output; // Default to Provider URL
+              if (!uploadError) {
+                const { data: urlData } = supabase
+                  .storage
+                  .from('generations')
+                  .getPublicUrl(fileName);
+                publicUrl = urlData.publicUrl;
+              }
+
+              await supabase
+                .from('generations')
+                .update({
+                  status: 'completed',
+                  result_url: publicUrl,
+                  completed_at: new Date().toISOString(),
+                })
+                .eq('id', generation.id);
+
+              generation.status = 'completed';
+              generation.result_url = publicUrl;
+
+            } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
+              await supabase
+                .from('generations')
+                .update({
+                  status: 'failed',
+                  error: prediction.error || 'Statut Replicate inconnu',
+                })
+                .eq('id', generation.id);
+
+              generation.status = 'failed';
+              generation.error = prediction.error || 'Statut inconnu';
+
+              // Refund credits
+              const profile = await supabase.from('profiles').select('credits').eq('id', user.id).single();
+              if (profile.data && profile.data.credits !== -1) {
+                await supabase
+                  .from('profiles')
+                  .update({ credits: profile.data.credits + (generation.metadata?.credits || 0) })
+                  .eq('id', user.id);
+              }
             }
           }
         } catch (pollError) {

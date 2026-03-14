@@ -22,6 +22,9 @@ import {
     IconStar,
     IconWand,
     IconMusic,
+    IconFile,
+    IconCode,
+    IconSearch,
 } from '@/components/icons';
 
 /**
@@ -151,6 +154,24 @@ export default function DashboardPage() {
             gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
         },
         {
+            icon: IconSearch,
+            title: 'Recherche Web',
+            description: 'Sources en temps réel pour vos analyses',
+            href: '/studio/search',
+            color: 'savanna',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
+        },
+        {
+            icon: IconCode,
+            title: 'Assistant Code',
+            description: 'Planification, débogage et refactoring',
+            href: '/studio/code',
+            color: 'earth',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]',
+        },
+        {
             icon: IconVideo,
             title: 'Génération vidéo',
             description: 'Transformez vos idées en vidéos créatives',
@@ -167,6 +188,15 @@ export default function DashboardPage() {
             color: 'savanna',
             tag: 'NOUVEAU',
             gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
+        },
+        {
+            icon: IconFile,
+            title: 'OCR Documentaire',
+            description: 'Extraction texte PDF/images en Markdown ou JSON',
+            href: '/studio/ocr',
+            color: 'earth',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]',
         },
         {
             icon: IconMusic,
@@ -201,7 +231,7 @@ export default function DashboardPage() {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-12">
                 {/* Welcome Section */}
                 <div className="mb-8 lg:mb-10 animate-fade-in-up">
-                    {/* Low credits warning */} ? {profile && profile.plan !== 'pro' && profile.credits !== -1 && profile.credits < 5 && (
+                    {/* Low credits warning */} {profile && profile.plan !== 'pro' && profile.credits !== -1 && profile.credits < 5 && (
                         <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-red-500 animate-pulse flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-sm flex-shrink-0">
@@ -218,7 +248,7 @@ export default function DashboardPage() {
                                 Gérer mon plan
                             </Link>
                         </div>
-                    )} ? {/* Onboarding banner for new users */} ? {totalGenerations === 0 && !loading && (
+                    )} {/* Onboarding banner for new users */} {totalGenerations === 0 && !loading && (
                         <div className="onboarding-banner">
                             <div className="onboarding-banner-title">
                                 <IconRocket size={18} className="text-[var(--color-gold)]" />
@@ -411,7 +441,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Module Stats */} ? {totalGenerations > 0 && (
+                {/* Module Stats */} {totalGenerations > 0 && (
                     <div className="mb-10 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                         <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
                             Vos outils favoris
@@ -425,6 +455,10 @@ export default function DashboardPage() {
                                             case 'image': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'chat': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'video': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
+                                            case 'audio': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
+                                            case 'code': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
+                                            case 'search': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
+                                            case 'ocr': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                             default: return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                         }
                                     };
@@ -433,6 +467,10 @@ export default function DashboardPage() {
                                             case 'image': return 'Génération d\'images';
                                             case 'chat': return 'Chat IA';
                                             case 'video': return 'Génération vidéo';
+                                            case 'audio': return 'Synthèse vocale';
+                                            case 'code': return 'Assistant Code';
+                                            case 'search': return 'Recherche Web';
+                                            case 'ocr': return 'OCR Documentaire';
                                             default: return type;
                                         }
                                     };
@@ -463,7 +501,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
-                )} ? {/* Recent generations */} ? {recentGenerations.length > 0 && (
+                )} {/* Recent generations */} {recentGenerations.length > 0 && (
                     <div className="mb-10 animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -483,6 +521,10 @@ export default function DashboardPage() {
                                         case 'image': return { icon: IconImage, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'chat': return { icon: IconChat, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'video': return { icon: IconVideo, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
+                                        case 'audio': return { icon: IconMusic, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
+                                        case 'code': return { icon: IconCode, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
+                                        case 'search': return { icon: IconSearch, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
+                                        case 'ocr': return { icon: IconFile, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                         default: return { icon: IconPalette, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                     }
                                 };
@@ -516,7 +558,7 @@ export default function DashboardPage() {
                             })}
                         </div>
                     </div>
-                )} ? {/* Empty State */} ? {recentGenerations.length === 0 && (
+                )} {/* Empty State */} {recentGenerations.length === 0 && (
                     <div className="glass-card-premium rounded-3xl p-12 text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                         <div className="relative inline-block mb-8">
                             <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[var(--color-terracotta)] to-[var(--color-gold)] flex items-center justify-center animate-float shadow-premium">

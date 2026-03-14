@@ -24,6 +24,14 @@ import ChatMessageContent from '@/components/chat-message-content';
  * - Real-time credit counter
  * - Responsive mobile (sidebar toggle)
  */
+type ChatMode = 'speed' | 'reasoning' | 'long';
+
+const CHAT_MODES: Array<{ id: ChatMode; label: string; model: string; hint: string }> = [
+    { id: 'speed', label: 'Rapide', model: 'Groq · LLaMA 3.3', hint: '300 t/s' },
+    { id: 'reasoning', label: 'Raisonnement', model: 'DeepSeek R1', hint: 'Logique' },
+    { id: 'long', label: 'Contexte long', model: 'Gemini 2.5 Flash', hint: '1M+ tokens' },
+];
+
 export default function ChatStudioPage() {
     const supabase = createClient();
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -34,6 +42,7 @@ export default function ChatStudioPage() {
     const [conversations, setConversations] = useState<ChatConversation[]>([]);
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [mode, setMode] = useState<ChatMode>('speed');
     const [inputValue, setInputValue] = useState('');
     const [isStreaming, setIsStreaming] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -178,6 +187,7 @@ export default function ChatStudioPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: trimmed,
+                    mode,
                     history: updatedMessages
                         .filter((m) => m.role !== 'system')
                         .map((m) => ({ role: m.role, content: m.content })),
@@ -312,6 +322,8 @@ export default function ChatStudioPage() {
         });
     };
 
+    const modeConfig = CHAT_MODES.find((m) => m.id === mode) || CHAT_MODES[0];
+
     if (loading) {
         return (
             <div className="chat-container">
@@ -376,7 +388,7 @@ export default function ChatStudioPage() {
                     )}
                 </div>
 
-                {/* Credits in sidebar */} ? {profile && (
+                {/* Credits in sidebar */} {profile && (
                     <div className="chat-sidebar-footer">
                         <IconZap size={16} />
                         <span>
@@ -387,12 +399,12 @@ export default function ChatStudioPage() {
                 )}
             </aside>
 
-            {/* Sidebar overlay (mobile) */} ? {sidebarOpen && (
+            {/* Sidebar overlay (mobile) */} {sidebarOpen && (
                 <div
                     className="chat-sidebar-overlay"
                     onClick={() => setSidebarOpen(false)}
                 />
-            )} ? {/* Main chat area */}
+            )} {/* Main chat area */}
             <div className="chat-main">
                 {/* Chat header */}
                 <div className="chat-header">
@@ -406,7 +418,7 @@ export default function ChatStudioPage() {
                         <h3 style={{ fontFamily: 'var(--font-heading)' }}>
                             JadaBot
                         </h3>
-                        <span className="chat-header-model">LLaMA 3.3 · 70B</span>
+                        <span className="chat-header-model">{modeConfig.model}</span>
                     </div>
                     {profile && (
                         <div className="chat-header-credits">
@@ -415,6 +427,22 @@ export default function ChatStudioPage() {
                                 : profile.credits}
                         </div>
                     )}
+                </div>
+
+                {/* Mode selector */}
+                <div className="chat-mode-bar">
+                    {CHAT_MODES.map((m) => (
+                        <button
+                            key={m.id}
+                            className={`chat-mode-btn ${mode === m.id ? 'active' : ''}`}
+                            onClick={() => setMode(m.id)}
+                            disabled={isStreaming}
+                            type="button"
+                        >
+                            <span className="chat-mode-label">{m.label}</span>
+                            <span className="chat-mode-hint">{m.hint}</span>
+                        </button>
+                    ))}
                 </div>
 
                 {/* Messages area */}
@@ -477,7 +505,7 @@ export default function ChatStudioPage() {
                                             <span />
                                             <span />
                                         </div>
-                                    )} ? {msg.timestamp && msg.content && (
+                                    )} {msg.timestamp && msg.content && (
                                         <span className="chat-bubble-time">
                                             {formatTime(msg.timestamp)}
                                         </span>
@@ -489,12 +517,12 @@ export default function ChatStudioPage() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Error */} ? {error && (
+                {/* Error */} {error && (
                     <div className="chat-error">
                         ⚠️ {error}
                         <button onClick={() => setError(null)}>✕</button>
                     </div>
-                )} ? {/* Input area */}
+                )} {/* Input area */}
                 <div className="chat-input-container">
                     <div className="chat-input-wrapper">
                         <textarea
@@ -535,7 +563,7 @@ export default function ChatStudioPage() {
                         </button>
                     </div>
                     <p className="chat-disclaimer">
-                        JadaBot utilise LLaMA 3.3 via Groq. Les réponses peuvent
+                        Mode actuel : {modeConfig.label} · {modeConfig.model}. Les réponses peuvent
                         contenir des erreurs. 1 crédit par message.
                     </p>
                 </div>

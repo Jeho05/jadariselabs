@@ -59,7 +59,7 @@ function VerifyContent() {
                         <p className="font-semibold text-[var(--color-earth)] mb-6 break-all bg-[var(--color-cream)] px-4 py-2 rounded-lg">
                             {email}
                         </p>
-                    )} ? {/* Info Cards */}
+                    )} {/* Info Cards */}
                     <div className="w-full space-y-3 mb-6">
                         <div className="flex items-start gap-3 p-3 bg-[var(--color-savanna)]/5 rounded-lg">
                             <IconSparkle size={20} className="text-[var(--color-gold)] flex-shrink-0 mt-0.5" />

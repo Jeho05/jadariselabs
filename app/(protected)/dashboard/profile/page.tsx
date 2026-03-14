@@ -538,7 +538,7 @@ export default function ProfilePage() {
 
 
 
-            {/* Message feedback */} ? {message && (
+            {/* Message feedback */} {message && (
 
                 <div className={`profile-message ${message.type}`}>
 
@@ -708,7 +708,7 @@ export default function ProfilePage() {
 
                                     <IconZap size={14} />
 
-                                )} ? {t('plan.free') === getPlanLabel(profile?.plan || 'free') ? '' : 'Plan '} ? {getPlanLabel(profile?.plan || 'free')}
+                                )} {t('plan.free') === getPlanLabel(profile?.plan || 'free') ? '' : 'Plan '} {getPlanLabel(profile?.plan || 'free')}
 
                             </div>
 
@@ -718,7 +718,7 @@ export default function ProfilePage() {
 
 
 
-                    {/* Edit button */} ? {!isEditing ? (
+                    {/* Edit button */} {!isEditing ? (
 
                         <button
 

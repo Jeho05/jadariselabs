@@ -7,7 +7,7 @@
 export type PlanType = 'free' | 'starter' | 'pro';
 
 // Video generation models
-export type VideoModel = 'wan-video/wan-2.1-1.3b';
+export type VideoModel = 'wan-video/wan-2.1-1.3b' | 'minimax/video-01';
 
 export type VideoQuality = 'standard' | 'high' | 'ultra';
 
@@ -130,7 +130,19 @@ export const VIDEO_MODELS: Record<VideoModel, VideoModelInfo> = {
     qualityLevels: ['standard', 'high'],
     aspectRatios: ['16:9', '1:1', '9:16'],
     avgGenerationTime: 120,
-  }
+  },
+  'minimax/video-01': {
+    name: 'minimax/video-01',
+    version: '1.0',
+    displayName: 'Hailuo 2.3 (MiniMax)',
+    description: 'ModÃ¨le vidÃ©o performant avec excellent rapport qualitÃ©/coÃ»t',
+    creditsPerSecond: 3,
+    maxDuration: 6,
+    supportedFeatures: ['text-to-video'],
+    qualityLevels: ['standard', 'high'],
+    aspectRatios: ['16:9', '1:1', '9:16'],
+    avgGenerationTime: 90,
+  },
 };
 
 // Progress tracking

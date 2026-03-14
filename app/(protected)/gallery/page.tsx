@@ -8,22 +8,29 @@ import {
     IconImage,
     IconChat,
     IconVideo,
+    IconMusic,
+    IconCode,
     IconTrash,
     IconDownload,
     IconSparkle,
     IconSearch,
     IconClose,
     IconAlertCircle,
+    IconFile,
 } from '@/components/icons';
 import ShareButtons from '@/components/share-buttons';
 
-type FilterType = 'all' | 'image' | 'chat' | 'video';
+type FilterType = 'all' | 'image' | 'chat' | 'video' | 'audio' | 'code' | 'ocr' | 'search';
 
 const FILTER_OPTIONS: { id: FilterType; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
     { id: 'all', label: 'Tout', icon: IconSparkle },
     { id: 'image', label: 'Images', icon: IconImage },
     { id: 'chat', label: 'Chat', icon: IconChat },
     { id: 'video', label: 'Vidéos', icon: IconVideo },
+    { id: 'audio', label: 'Audio', icon: IconMusic },
+    { id: 'code', label: 'Code', icon: IconCode },
+    { id: 'ocr', label: 'OCR', icon: IconFile },
+    { id: 'search', label: 'Recherche', icon: IconSearch },
 ];
 
 export default function GalleryPage() {
@@ -109,10 +116,24 @@ export default function GalleryPage() {
     }, [expandedId]);
 
     // Download
-    const handleDownload = (url: string, type: string) => {
+    const handleDownload = (generation: Generation) => {
+        const url = generation.result_url;
+        if (!url) return;
+
+        const format = (generation.metadata as { format?: string } | null)?.format;
+        const extensionByType: Record<string, string> = {
+            video: 'mp4',
+            image: 'png',
+            audio: 'wav',
+            code: 'txt',
+            ocr: format === 'json' ? 'json' : format === 'markdown' ? 'md' : 'txt',
+            search: 'json',
+        };
+        const extension = extensionByType[generation.type] || 'txt';
+
         const link = document.createElement('a');
         link.href = url;
-        link.download = `jadarise-${type}-${Date.now()}.${type === 'video' ? 'mp4' : 'png'}`;
+        link.download = `jadarise-${generation.type}-${Date.now()}.${extension}`;
         link.target = '_blank';
         document.body.appendChild(link);
         link.click();
@@ -137,6 +158,8 @@ export default function GalleryPage() {
             video: { label: 'Vidéo', color: 'gold' },
             audio: { label: 'Audio', color: 'earth' },
             code: { label: 'Code', color: 'savanna' },
+            ocr: { label: 'OCR', color: 'earth' },
+            search: { label: 'Recherche', color: 'savanna' },
         };
         return badges[type] || { label: type, color: 'earth' };
     };
@@ -147,6 +170,10 @@ export default function GalleryPage() {
         images: generations.filter(g => g.type === 'image').length,
         chats: generations.filter(g => g.type === 'chat').length,
         videos: generations.filter(g => g.type === 'video').length,
+        audios: generations.filter(g => g.type === 'audio').length,
+        codes: generations.filter(g => g.type === 'code').length,
+        ocr: generations.filter(g => g.type === 'ocr').length,
+        searches: generations.filter(g => g.type === 'search').length,
     }), [generations]);
 
     if (loading) {
@@ -194,6 +221,10 @@ export default function GalleryPage() {
                         <span className="gallery-stat"><IconImage size={14} /> {stats.images}</span>
                         <span className="gallery-stat"><IconChat size={14} /> {stats.chats}</span>
                         <span className="gallery-stat"><IconVideo size={14} /> {stats.videos}</span>
+                        <span className="gallery-stat"><IconMusic size={14} /> {stats.audios}</span>
+                        <span className="gallery-stat"><IconCode size={14} /> {stats.codes}</span>
+                        <span className="gallery-stat"><IconFile size={14} /> {stats.ocr}</span>
+                        <span className="gallery-stat"><IconSearch size={14} /> {stats.searches}</span>
                     </div>
                 </div>
 
@@ -231,13 +262,13 @@ export default function GalleryPage() {
                     </div>
                 </div>
 
-                {/* Error */} ? {error && (
+                {/* Error */} {error && (
                     <div className="gallery-error">
                         <IconAlertCircle size={18} />
                         <span>{error}</span>
                         <button onClick={() => setError(null)}>✕</button>
                     </div>
-                )} ? {/* Gallery Grid */} ? {filteredGenerations.length === 0 ? (
+                )} {/* Gallery Grid */} {filteredGenerations.length === 0 ? (
                     <div className="gallery-empty">
                         <div className="gallery-empty-icon">
                             <IconPalette size={56} />
@@ -286,15 +317,15 @@ export default function GalleryPage() {
                                             <div className="gallery-card-text-preview">
                                                 <p>{gen.prompt.substring(0, 120)}{gen.prompt.length > 120 ? '...' : ''}</p>
                                             </div>
-                                        )} ? {/* Type badge */}
+                                        )} {/* Type badge */}
                                         <span className={`gallery-card-badge ${badge.color}`}>
                                             {badge.label}
                                         </span>
-                                        {/* Watermark indicator for free plan */} ? {profile?.plan === 'free' && gen.type === 'image' && (
+                                        {/* Watermark indicator for free plan */} {profile?.plan === 'free' && gen.type === 'image' && (
                                             <span className="absolute top-2 right-2 text-[10px] font-bold bg-black/50 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
                                                 Watermark
                                             </span>
-                                        )} ? {/* Hover overlay */}
+                                        )} {/* Hover overlay */}
                                         <div className="gallery-card-overlay">
                                             <IconSparkle size={24} />
                                         </div>
@@ -314,7 +345,7 @@ export default function GalleryPage() {
                                         {gen.result_url && (
                                             <button
                                                 className="gallery-action-btn"
-                                                onClick={() => handleDownload(gen.result_url!, gen.type)}
+                                                onClick={() => handleDownload(gen)}
                                                 title={profile?.plan === 'free' ? 'Télécharger (SD)' : 'Télécharger (HD)'}
                                             >
                                                 <IconDownload size={16} />
@@ -332,7 +363,7 @@ export default function GalleryPage() {
                                         </button>
                                     </div>
 
-                                    {/* Expanded view with share */} ? {isExpanded && gen.result_url && (
+                                    {/* Expanded view with share */} {isExpanded && gen.result_url && (
                                         <div className="gallery-card-share">
                                             <ShareButtons
                                                 title={`Créé avec JadaRiseLabs : "${gen.prompt.substring(0, 50)}"`}
@@ -347,7 +378,7 @@ export default function GalleryPage() {
                 )}
             </div>
 
-            {/* Delete Confirmation Modal */} ? {deleteId && (
+            {/* Delete Confirmation Modal */} {deleteId && (
                 <div className="gallery-modal-overlay" onClick={() => !deleting && setDeleteId(null)}>
                     <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
                         <h3>Supprimer cette création ?</h3>

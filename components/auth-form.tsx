@@ -261,7 +261,7 @@ export function PasswordStrengthMeter({ password }: { password: string }) {
                             <svg fill="currentColor" viewBox="0 0 20 20">
                                 <circle cx="10" cy="10" r="4" opacity="0.3" />
                             </svg>
-                        )} ? {check.label}
+                        )} {check.label}
                     </li>
                 ))}
             </ul>

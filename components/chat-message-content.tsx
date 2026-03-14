@@ -20,7 +20,7 @@ export default function ChatMessageContent({ content, isUser = false }: ChatMess
             <div className="chat-bubble-text user-text">
                 {content.split('\n').map((line, i) => (
                     <Fragment key={i}>
-                        {line} ? {i < content.split('\n').length - 1 && <br />}
+                        {line} {i < content.split('\n').length - 1 && <br />}
                     </Fragment>
                 ))}
             </div>

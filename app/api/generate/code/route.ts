@@ -3,36 +3,31 @@ import { createClient } from '@/lib/supabase/server';
 import { runProviderChain, ProviderError } from '@/lib/provider-router';
 import type { ProviderTask } from '@/lib/provider-router';
 
-/**
- * POST /api/generate/chat — Chat IA multi-modèles (Groq/Gemini/DeepSeek)
- * Streaming SSE response
- *
- * Body: { message: string, conversationId?: string }
- * Returns: ReadableStream (SSE) or JSON error
- */
+export const runtime = 'nodejs';
 
 const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
+const ZHIPU_CODE_API_BASE = process.env.ZHIPU_CODE_API_BASE || 'https://open.bigmodel.cn/api/coding/paas/v4';
+
 const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const DEEPSEEK_API_BASE = process.env.DEEPSEEK_API_BASE;
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL;
+const ZHIPU_MODEL = process.env.ZHIPU_MODEL || 'glm-5';
+
 const CREDITS_PER_MESSAGE = 1;
 
-type ChatMode = 'speed' | 'reasoning' | 'long';
+type CodeMode = 'speed' | 'agentic' | 'long';
 
-const SYSTEM_PROMPT = `Tu es JadaBot, l'assistant IA de JadaRiseLabs — une plateforme de créativité IA conçue pour l'Afrique de l'Ouest et le grand public.
+const SYSTEM_PROMPT = `Tu es JadaCode, un assistant de programmation expert pour JadaRiseLabs.
 
-Tes caractéristiques :
-- Tu es amical, professionnel et culturellement sensible
-- Tu réponds en français par défaut, mais tu peux répondre en anglais si l'utilisateur le demande
-- Tu es expert en technologie, créativité, business et culture africaine
-- Tu peux aider avec : écriture, traduction, brainstorming, code, marketing, éducation
-- Tu es concis mais complet dans tes réponses
-- Tu utilises des émojis avec modération pour rendre la conversation agréable
-- Tu es honnête quand tu ne sais pas quelque chose
-
-Note : Tu ne peux PAS générer d'images, de vidéos ou d'audio directement. Redirige l'utilisateur vers les modules appropriés de JadaRiseLabs pour ces fonctions.`;
+RÃ¨gles:
+- RÃ©ponds en franÃ§ais par dÃ©faut (anglais si demandÃ©).
+- Donne des rÃ©ponses actionnables, structurÃ©es et concises.
+- Utilise des blocs de code Markdown avec le langage indiquÃ©.
+- Si la demande est ambiguÃ«, pose 1-2 questions de clarification avant de rÃ©pondre.
+- Ne prÃ©tends pas avoir exÃ©cutÃ© du code.
+- Si une solution comporte des risques, signale-les clairement.`;
 
 const OPENAI_CHAT_PATH = '/chat/completions';
 
@@ -47,7 +42,7 @@ async function runOpenAICompatibleChat({
     model,
     messages,
 }: {
-    provider: 'groq' | 'gemini' | 'deepseek';
+    provider: 'groq' | 'gemini' | 'deepseek' | 'zhipu';
     baseUrl: string;
     apiKey: string;
     model: string;
@@ -63,8 +58,8 @@ async function runOpenAICompatibleChat({
             model,
             messages,
             stream: true,
-            temperature: 0.7,
-            max_tokens: 2048,
+            temperature: 0.2,
+            max_tokens: 4096,
             top_p: 0.9,
         }),
     });
@@ -79,15 +74,12 @@ async function runOpenAICompatibleChat({
 
 export async function POST(request: NextRequest) {
     const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+        return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
     }
 
-    // Parse body
     let body;
     try {
         body = await request.json();
@@ -98,24 +90,19 @@ export async function POST(request: NextRequest) {
     const { message, history, mode } = body as {
         message: string;
         history?: Array<{ role: string; content: string }>;
-        mode?: ChatMode;
+        mode?: CodeMode;
     };
 
-    const selectedMode: ChatMode =
-        mode === 'reasoning' || mode === 'long' || mode === 'speed' ? mode : 'speed';
+    const selectedMode: CodeMode = mode === 'agentic' || mode === 'long' || mode === 'speed' ? mode : 'agentic';
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
-        return NextResponse.json({ error: 'Le message ne peut pas être vide' }, { status: 400 });
+        return NextResponse.json({ error: 'Le message ne peut pas Ãªtre vide' }, { status: 400 });
     }
 
-    if (message.length > 4000) {
-        return NextResponse.json(
-            { error: 'Le message est trop long (max 4000 caractères)' },
-            { status: 400 }
-        );
+    if (message.length > 6000) {
+        return NextResponse.json({ error: 'Le message est trop long (max 6000 caractÃ¨res)' }, { status: 400 });
     }
 
-    // Vérifier les crédits
     const { data: profile } = await supabase
         .from('profiles')
         .select('credits, plan')
@@ -123,71 +110,48 @@ export async function POST(request: NextRequest) {
         .single();
 
     if (!profile) {
-        return NextResponse.json({ error: 'Profil non trouvé' }, { status: 404 });
+        return NextResponse.json({ error: 'Profil non trouvÃ©' }, { status: 404 });
     }
 
-    // -1 = illimité (plan Pro)
     if (profile.credits !== -1 && profile.credits < CREDITS_PER_MESSAGE) {
-        return NextResponse.json(
-            {
-                error: 'Crédits insuffisants',
-                details: `Il vous faut ${CREDITS_PER_MESSAGE} crédit(s) pour envoyer un message. Crédits restants : ${profile.credits}`,
-            },
-            { status: 402 }
-        );
+        return NextResponse.json({
+            error: 'CrÃ©dits insuffisants',
+            details: `Il vous faut ${CREDITS_PER_MESSAGE} crÃ©dit(s). CrÃ©dits restants : ${profile.credits}`,
+        }, { status: 402 });
     }
 
     const groqApiKey = process.env.GROQ_API_KEY;
     const geminiApiKey = process.env.GEMINI_API_KEY;
     const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+    const zhipuApiKey = process.env.ZHIPU_API_KEY;
 
-    if (selectedMode === 'speed' && !groqApiKey) {
-        return NextResponse.json(
-            {
-                error: 'Configuration manquante',
-                details:
-                    'GROQ_API_KEY non configurée. Ajoutez-la dans .env.local pour activer le chat rapide.',
-            },
-            { status: 503 }
-        );
+    if (selectedMode === 'agentic' && !zhipuApiKey) {
+        return NextResponse.json({
+            error: 'Configuration manquante',
+            details: 'ZHIPU_API_KEY non configurÃ©e. Ajoutez-la dans .env.local pour activer le mode agentique.',
+        }, { status: 503 });
     }
 
     if (selectedMode === 'long' && !geminiApiKey) {
-        return NextResponse.json(
-            {
-                error: 'Configuration manquante',
-                details:
-                    'GEMINI_API_KEY non configurée. Ajoutez-la dans .env.local pour activer le mode contexte long.',
-            },
-            { status: 503 }
-        );
+        return NextResponse.json({
+            error: 'Configuration manquante',
+            details: 'GEMINI_API_KEY non configurÃ©e. Ajoutez-la dans .env.local pour activer le contexte long.',
+        }, { status: 503 });
     }
 
-    if (selectedMode === 'reasoning') {
-        if (!deepseekApiKey || !DEEPSEEK_API_BASE || !DEEPSEEK_MODEL) {
-            return NextResponse.json(
-                {
-                    error: 'Configuration manquante',
-                    details:
-                        'DEEPSEEK_API_KEY, DEEPSEEK_API_BASE ou DEEPSEEK_MODEL non configuré(e). Ajoutez-les dans .env.local pour activer le raisonnement.',
-                },
-                { status: 503 }
-            );
-        }
+    if (selectedMode === 'speed' && !groqApiKey) {
+        return NextResponse.json({
+            error: 'Configuration manquante',
+            details: 'GROQ_API_KEY non configurÃ©e. Ajoutez-la dans .env.local pour activer le mode rapide.',
+        }, { status: 503 });
     }
 
-    // Construire les messages pour Groq
     const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
 
-    // Ajouter l'historique si fourni (max 20 derniers messages)
     if (history && Array.isArray(history)) {
-        const recentHistory = history.slice(-20);
+        const recentHistory = history.slice(-12);
         for (const msg of recentHistory) {
-            if (
-                msg.role &&
-                msg.content &&
-                ['user', 'assistant'].includes(msg.role)
-            ) {
+            if (msg.role && msg.content && ['user', 'assistant'].includes(msg.role)) {
                 messages.push({ role: msg.role, content: msg.content });
             }
         }
@@ -199,7 +163,7 @@ export async function POST(request: NextRequest) {
         const tasks: ProviderTask<Response>[] = [];
 
         const buildTask = (
-            name: 'groq' | 'gemini' | 'deepseek',
+            name: 'groq' | 'gemini' | 'deepseek' | 'zhipu',
             baseUrl: string,
             apiKey: string,
             model: string
@@ -208,6 +172,18 @@ export async function POST(request: NextRequest) {
             run: () => runOpenAICompatibleChat({ provider: name, baseUrl, apiKey, model, messages }),
             canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
         });
+
+        if (selectedMode === 'agentic') {
+            if (zhipuApiKey) {
+                tasks.push(buildTask('zhipu', ZHIPU_CODE_API_BASE, zhipuApiKey, ZHIPU_MODEL));
+            }
+            if (deepseekApiKey && DEEPSEEK_API_BASE && DEEPSEEK_MODEL) {
+                tasks.push(buildTask('deepseek', DEEPSEEK_API_BASE, deepseekApiKey, DEEPSEEK_MODEL));
+            }
+            if (geminiApiKey) {
+                tasks.push(buildTask('gemini', GEMINI_API_BASE, geminiApiKey, GEMINI_MODEL));
+            }
+        }
 
         if (selectedMode === 'speed') {
             if (groqApiKey) {
@@ -227,23 +203,13 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        if (selectedMode === 'reasoning' && deepseekApiKey && DEEPSEEK_API_BASE && DEEPSEEK_MODEL) {
-            tasks.push(buildTask('deepseek', DEEPSEEK_API_BASE, deepseekApiKey, DEEPSEEK_MODEL));
-            if (geminiApiKey) {
-                tasks.push(buildTask('gemini', GEMINI_API_BASE, geminiApiKey, GEMINI_MODEL));
-            }
-            if (groqApiKey) {
-                tasks.push(buildTask('groq', GROQ_API_BASE, groqApiKey, GROQ_MODEL));
-            }
-        }
+        const providerResult = await runProviderChain<Response>(tasks, { purpose: 'code' });
 
-        const providerResult = await runProviderChain<Response>(tasks, { purpose: 'chat' });
-
-        const response = providerResult.result;
         const modelByProvider: Record<string, string> = {
             groq: GROQ_MODEL,
             gemini: GEMINI_MODEL,
             deepseek: DEEPSEEK_MODEL || 'unknown',
+            zhipu: ZHIPU_MODEL,
         };
         const usedModel = modelByProvider[providerResult.provider] || GROQ_MODEL;
         const routerMeta = {
@@ -253,7 +219,6 @@ export async function POST(request: NextRequest) {
             mode: selectedMode,
         };
 
-        // Déduire les crédits AVANT le streaming
         if (profile.credits !== -1) {
             await supabase
                 .from('profiles')
@@ -261,10 +226,9 @@ export async function POST(request: NextRequest) {
                 .eq('id', user.id);
         }
 
-        // Enregistrer la génération
         await supabase.from('generations').insert({
             user_id: user.id,
-            type: 'chat',
+            type: 'code',
             prompt: message.trim().substring(0, 500),
             result_url: null,
             metadata: {
@@ -278,7 +242,7 @@ export async function POST(request: NextRequest) {
             credits_used: CREDITS_PER_MESSAGE,
         });
 
-        // Streaming SSE
+        const response = providerResult.result;
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
 
@@ -297,27 +261,22 @@ export async function POST(request: NextRequest) {
                         if (done) break;
 
                         const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split('\n');
+                        const lines = chunk.split('\\n');
 
                         for (let line of lines) {
                             line = line.trim();
                             if (line.startsWith('data: ')) {
                                 const data = line.slice(6).trim();
                                 if (data === '[DONE]') {
-                                    controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                                    controller.enqueue(encoder.encode('data: [DONE]\\n\\n'));
                                     continue;
                                 }
 
                                 try {
                                     const parsed = JSON.parse(data);
-                                    const content =
-                                        parsed.choices?.[0]?.delta?.content;
+                                    const content = parsed.choices?.[0]?.delta?.content;
                                     if (content) {
-                                        controller.enqueue(
-                                            encoder.encode(
-                                                `data: ${JSON.stringify({ content })}\n\n`
-                                            )
-                                        );
+                                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\\n\\n`));
                                     }
                                 } catch {
                                     // Skip malformed JSON chunks
@@ -326,7 +285,7 @@ export async function POST(request: NextRequest) {
                         }
                     }
                 } catch (error) {
-                    console.error('Stream error:', error);
+                    console.error('Code stream error:', error);
                 } finally {
                     controller.close();
                 }
@@ -342,23 +301,16 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         if (error instanceof ProviderError && error.status === 429) {
-            return NextResponse.json(
-                {
-                    error: 'Trop de requêtes',
-                    details:
-                        'Limite de requêtes atteinte sur tous les services. Veuillez patienter quelques secondes.',
-                },
-                { status: 429 }
-            );
+            return NextResponse.json({
+                error: 'Trop de requÃªtes',
+                details: 'Limite atteinte sur tous les services. Veuillez patienter.',
+            }, { status: 429 });
         }
 
-        console.error('Chat API error:', error);
-        return NextResponse.json(
-            {
-                error: 'Erreur du service IA',
-                details: 'Le service de chat IA est temporairement indisponible.',
-            },
-            { status: 502 }
-        );
+        console.error('Code API error:', error);
+        return NextResponse.json({
+            error: 'Erreur du service IA',
+            details: 'Le service de code est temporairement indisponible.',
+        }, { status: 502 });
     }
 }

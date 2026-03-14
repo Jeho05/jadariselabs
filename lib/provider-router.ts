@@ -5,7 +5,14 @@ export type ProviderName =
     | 'huggingface'
     | 'groq'
     | 'gemini'
+    | 'deepseek'
+    | 'zhipu'
     | 'replicate'
+    | 'minimax'
+    | 'tavily'
+    | 'exa'
+    | 'brave'
+    | 'firecrawl'
     | 'fish'
     | 'bark';
 
