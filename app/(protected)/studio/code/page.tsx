@@ -117,7 +117,7 @@ export default function CodeStudioPage() {
                 setProfile({ ...profile, credits: profile.credits - 1 });
             }
         } catch {
-            setError('Erreur rÃ©seau. VÃ©rifiez votre connexion et rÃ©essayez.');
+            setError('Erreur réseau. Vérifiez votre connexion et réessayez.');
         } finally {
             setIsStreaming(false);
         }
@@ -134,8 +134,8 @@ export default function CodeStudioPage() {
 
     if (loading) {
         return (
-            <div className="code-studio">
-                <div className="code-studio-loading">
+            <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+                <div className="flex flex-col items-center">
                     <div className="skeleton h-16 w-16 rounded-full mb-4" />
                     <div className="skeleton h-6 w-48 mb-2 rounded-lg" />
                     <div className="skeleton h-4 w-64 rounded-lg" />
@@ -147,130 +147,180 @@ export default function CodeStudioPage() {
     const modeConfig = CODE_MODES.find((m) => m.id === mode) || CODE_MODES[0];
 
     return (
-        <div className="code-studio">
-            <div className="code-studio-bg">
-                <div className="code-studio-bg-orb orb-1" />
-                <div className="code-studio-bg-orb orb-2" />
-            </div>
+        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
+            <div
+                className="fixed inset-0 pointer-events-none opacity-[0.04]"
+                style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
+            />
+            
+            {/* Ambient glows behind cards */}
+            <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
+            <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
 
-            <div className="code-studio-content">
-                <div className="code-studio-header">
-                    <div className="code-studio-header-left">
-                        <div className="module-icon-premium savanna">
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col h-screen max-h-screen overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="module-icon-premium earth shadow-lg">
                             <IconCode size={28} />
                         </div>
                         <div>
-                            <h1>Assistant Code</h1>
-                            <p>Planification, dÃ©bogage et refactoring assistÃ©s.</p>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+                                Assistant Code
+                            </h1>
+                            <p className="text-[var(--color-text-secondary)] text-sm mt-1">
+                                Planification, débogage et refactoring assistés par IA.
+                            </p>
                         </div>
                     </div>
                     {profile && (
-                        <div className="code-studio-credits">
-                            <IconZap size={16} />
-                            <span>{profile.credits === -1 ? 'âˆž' : profile.credits} crÃ©dits</span>
+                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md border border-white shadow-sm">
+                            <IconZap size={18} className="text-[var(--color-earth)]" />
+                            <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits restants</span>
                         </div>
                     )}
                 </div>
 
-                <div className="code-studio-grid">
-                    <div className="code-studio-controls">
-                        <div className="code-studio-section">
-                            <label className="code-studio-label">Mode</label>
-                            <div className="code-studio-mode-grid">
-                                {CODE_MODES.map((m) => (
-                                    <button
-                                        key={m.id}
-                                        className={`code-studio-mode-btn ${mode === m.id ? 'active' : ''}`}
-                                        onClick={() => setMode(m.id)}
-                                        disabled={isStreaming}
-                                    >
-                                        <span className="code-studio-mode-label">{m.label}</span>
-                                        <span className="code-studio-mode-hint">{m.model} â€¢ {m.hint}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="code-studio-section">
-                            <label className="code-studio-label">Votre demande</label>
-                            <textarea
-                                className="code-studio-textarea"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="Ex: CrÃ©e une API Next.js avec un endpoint POST /tasks et validation Zod."
-                                rows={6}
-                                maxLength={6000}
-                                disabled={isStreaming}
-                            />
-                            <div className="code-studio-char-count">{input.length}/6000</div>
-                        </div>
-
-                        <button
-                            className="code-studio-generate-btn"
-                            onClick={handleGenerate}
-                            disabled={!input.trim() || isStreaming}
-                        >
-                            {isStreaming ? (
-                                <>
-                                    <IconLoader2 size={18} className="animate-spin" />
-                                    {modeConfig.label} en cours...
-                                </>
-                            ) : (
-                                <>
-                                    <IconCode size={18} />
-                                    GÃ©nÃ©rer une rÃ©ponse
-                                </>
-                            )}
-                        </button>
-
-                        {error && (
-                            <div className="code-studio-error">
-                                <IconAlertCircle size={18} />
-                                <span>{error}</span>
-                                <button onClick={() => setError(null)}>âœ•</button>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="code-studio-output-panel">
-                        {isStreaming && !output ? (
-                            <div className="code-studio-empty">
-                                <IconLoader2 size={24} className="animate-spin" />
-                                <p>RÃ©ponse en cours...</p>
-                            </div>
-                        ) : output ? (
-                            <>
-                                <div className="code-studio-output-header">
-                                    <span>{modeConfig.label} â€¢ {modeConfig.model}</span>
-                                    <div className="code-studio-output-actions">
-                                        <button className="btn-secondary" onClick={handleCopy}>
-                                            <IconCopy size={16} />
-                                            Copier
-                                        </button>
+                <div className="grid lg:grid-cols-5 gap-6 gap-y-8 flex-1 overflow-hidden min-h-0 pb-8">
+                    {/* Colonne de gauche (2/5) : Contrôles */}
+                    <div className="lg:col-span-2 flex flex-col gap-6 h-full overflow-y-auto hide-scrollbar pb-6">
+                        <div className="glass-card-premium rounded-[20px] p-6 space-y-7 shadow-sm border border-white/60">
+                            <div>
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
+                                    Modèle & Stratégie
+                                </label>
+                                <div className="space-y-3">
+                                    {CODE_MODES.map((m) => (
                                         <button
-                                            className="btn-secondary"
-                                            onClick={() => {
-                                                setOutput('');
-                                                setInput('');
-                                                setError(null);
-                                            }}
+                                            key={m.id}
+                                            className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex flex-col gap-1.5 ${
+                                                mode === m.id
+                                                    ? 'border-[var(--color-earth)] bg-white shadow-md transform -translate-y-[2px]'
+                                                    : 'border-transparent bg-white/50 hover:bg-white hover:border-gray-200'
+                                            }`}
+                                            onClick={() => setMode(m.id)}
+                                            disabled={isStreaming}
                                         >
-                                            <IconRefresh size={16} />
-                                            Nouveau
+                                            <div className="flex items-center justify-between w-full">
+                                                <span className={`font-bold text-[15px] ${mode === m.id ? 'text-[var(--color-earth-dark)]' : 'text-gray-800'}`}>
+                                                    {m.label}
+                                                </span>
+                                                {mode === m.id && <div className="w-2 h-2 rounded-full bg-[var(--color-earth)]" />}
+                                            </div>
+                                            <span className="text-[13px] text-[var(--color-text-muted)] font-medium">
+                                                {m.model} • {m.hint}
+                                            </span>
                                         </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
+                                    Vos instructions
+                                </label>
+                                <div className="relative">
+                                    <textarea
+                                        className="w-full p-4 pb-10 rounded-2xl border-2 border-transparent bg-white shadow-sm focus:outline-none focus:border-[var(--color-earth)] transition-colors resize-none text-[15px] leading-relaxed text-gray-800 placeholder-gray-400"
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder="Ex: Crée un composant React de datatable avec pagination TailwindCSS et Zustand..."
+                                        rows={6}
+                                        maxLength={6000}
+                                        disabled={isStreaming}
+                                    />
+                                    <div className="absolute bottom-3 right-4 text-[11px] font-medium text-gray-400">
+                                        {input.length}/6000
                                     </div>
                                 </div>
-                                <div className="code-studio-output-body">
-                                    <ChatMessageContent content={output} />
-                                </div>
-                            </>
-                        ) : (
-                            <div className="code-studio-empty">
-                                <IconCode size={24} />
-                                <p>Le rÃ©sultat apparaÃ®tra ici.</p>
                             </div>
-                        )}
-                        <div ref={outputRef} />
+
+                            <button
+                                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[16px] font-bold text-white transition-all hover:-translate-y-1"
+                                style={{ 
+                                    background: 'linear-gradient(135deg, var(--color-earth) 0%, var(--color-earth-dark) 100%)',
+                                    boxShadow: '0 8px 16px -4px rgba(123, 79, 46, 0.4)'
+                                }}
+                                onClick={handleGenerate}
+                                disabled={!input.trim() || isStreaming}
+                            >
+                                {isStreaming ? (
+                                    <>
+                                        <IconLoader2 size={20} className="animate-spin" />
+                                        <span>Génération {modeConfig.label}...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <IconCode size={20} />
+                                        <span>Générer le code</span>
+                                    </>
+                                )}
+                            </button>
+
+                            {error && (
+                                <div className="flex items-start gap-3 mt-4 text-sm text-[var(--color-terracotta-dark)] bg-[rgba(231,111,81,0.1)] border border-[rgba(231,111,81,0.2)] p-4 rounded-xl">
+                                    <IconAlertCircle size={20} className="shrink-0 mt-0.5" />
+                                    <span className="leading-snug">{error}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Colonne de droite (3/5) : Résultat */}
+                    <div className="lg:col-span-3 flex flex-col h-full bg-[#1E1E1E] rounded-[24px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] overflow-hidden border border-[#333]">
+                        {/* Header de l'éditeur */}
+                        <div className="bg-[#2D2D2D] px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-[#3A3A3A]">
+                            <div className="flex flex-col">
+                                <span className="text-white font-medium text-[14px]">{(output || isStreaming) ? 'Résultat de la génération' : 'Terminal en attente'}</span>
+                                {(output || isStreaming) && (
+                                    <span className="text-[#A0A0A0] text-[11px] mt-0.5">{modeConfig.model}</span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    className="p-2.5 rounded-lg text-[#A0A0A0] hover:text-white hover:bg-[#3A3A3A] transition-colors" 
+                                    onClick={handleCopy}
+                                    title="Copier tout le format markdown"
+                                >
+                                    <IconCopy size={16} />
+                                </button>
+                                <button
+                                    className="p-2.5 rounded-lg text-[#A0A0A0] hover:text-white hover:bg-[#3A3A3A] transition-colors flex items-center gap-2 text-sm font-medium"
+                                    onClick={() => {
+                                        setOutput('');
+                                        setInput('');
+                                        setError(null);
+                                    }}
+                                >
+                                    <IconRefresh size={16} />
+                                    <span className="hidden sm:inline">Effacer</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Corps de l'éditeur */}
+                        <div className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar scroll-smooth">
+                            {isStreaming && !output ? (
+                                <div className="flex flex-col items-center justify-center h-full gap-4 text-[#888]">
+                                    <IconLoader2 size={32} className="animate-spin text-[var(--color-gold)]" />
+                                    <p className="text-[15px] font-medium animate-pulse text-[#BBB]">Le modèle analyse votre demande...</p>
+                                </div>
+                            ) : output ? (
+                                <div className="prose prose-invert prose-pre:bg-[#151515] prose-pre:border prose-pre:border-[#333] max-w-none text-[15px] leading-relaxed">
+                                    <ChatMessageContent content={output} />
+                                    <div ref={outputRef} />
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full gap-4 text-[#555]">
+                                    <div className="w-16 h-16 rounded-full border border-[#444] bg-[#252525] flex items-center justify-center">
+                                        <IconCode size={28} className="text-[#666]" />
+                                    </div>
+                                    <p className="text-[15px] font-medium text-[#777]">Le résultat de votre requête s&apos;affichera ici.</p>
+                                    <p className="text-[13px] text-[#555] max-w-sm text-center mt-2">
+                                        Le code sera formaté avec coloration syntaxique.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

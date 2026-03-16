@@ -385,10 +385,8 @@ export default function VideoStudioPage() {
 
                   </div>
 
-                  <button onClick={() => { reset(); setPrompt(''); }} className="w-full btn-premium py-3">
-
+                  <button onClick={() => { reset(); setPrompt(''); }} className="w-full btn-primary py-3">
                     <IconRefresh size={18} className="inline mr-2" /> Nouvelle vidéo
-
                   </button>
 
                 </div>
@@ -398,15 +396,10 @@ export default function VideoStudioPage() {
                 <button
 
                   onClick={handleGenerate}
-
                   disabled={!prompt.trim() || (profile?.credits !== undefined && profile?.credits !== -1 && profile?.credits < requiredCredits)}
-
-                  className="w-full btn-premium py-4 disabled:opacity-50"
-
+                  className="w-full btn-primary py-4 disabled:opacity-50"
                 >
-
                   <IconSparkles size={20} className="inline mr-2" /> Générer
-
                 </button>
 
               )} {generationError && (

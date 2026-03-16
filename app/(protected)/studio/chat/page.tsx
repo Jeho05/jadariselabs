@@ -12,18 +12,11 @@ import {
     IconMenu,
     IconClose,
     IconSparkles,
+    IconAlertCircle,
+    IconLoader2,
 } from '@/components/icons';
 import ChatMessageContent from '@/components/chat-message-content';
 
-/**
- * Chat IA Studio — Interface ChatGPT-like
- * Features:
- * - Sidebar with conversation history
- * - Streaming AI responses
- * - Auto-scroll to bottom
- * - Real-time credit counter
- * - Responsive mobile (sidebar toggle)
- */
 type ChatMode = 'speed' | 'reasoning' | 'long';
 
 const CHAT_MODES: Array<{ id: ChatMode; label: string; model: string; hint: string }> = [
@@ -37,7 +30,6 @@ export default function ChatStudioPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
-    // State
     const [profile, setProfile] = useState<Profile | null>(null);
     const [conversations, setConversations] = useState<ChatConversation[]>([]);
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -49,7 +41,6 @@ export default function ChatStudioPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Fetch initial data
     useEffect(() => {
         const fetchData = async () => {
             const {
@@ -66,7 +57,6 @@ export default function ChatStudioPage() {
                 if (profileData) setProfile(profileData);
             }
 
-            // Fetch conversations
             try {
                 const res = await fetch('/api/chat/conversations');
                 if (res.ok) {
@@ -89,7 +79,7 @@ export default function ChatStudioPage() {
                     }
                 }
             } catch {
-                // Silent fail — conversations list not critical
+                // Silent fail
             }
 
             setLoading(false);
@@ -98,12 +88,10 @@ export default function ChatStudioPage() {
         fetchData();
     }, [supabase]);
 
-    // Auto-scroll to bottom when new messages
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Load conversation messages
     const loadConversation = useCallback(
         async (conversationId: string) => {
             setActiveConversationId(conversationId);
@@ -129,7 +117,6 @@ export default function ChatStudioPage() {
         [supabase]
     );
 
-    // Create new conversation
     const handleNewConversation = () => {
         setActiveConversationId(null);
         setMessages([]);
@@ -138,7 +125,6 @@ export default function ChatStudioPage() {
         inputRef.current?.focus();
     };
 
-    // Delete conversation
     const handleDeleteConversation = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -154,7 +140,6 @@ export default function ChatStudioPage() {
         }
     };
 
-    // Send message
     const handleSend = async () => {
         const trimmed = inputValue.trim();
         if (!trimmed || isStreaming) return;
@@ -163,7 +148,6 @@ export default function ChatStudioPage() {
         setInputValue('');
         setIsStreaming(true);
 
-        // Add user message
         const userMessage: ChatMessage = {
             role: 'user',
             content: trimmed,
@@ -173,7 +157,6 @@ export default function ChatStudioPage() {
         const updatedMessages = [...messages, userMessage];
         setMessages(updatedMessages);
 
-        // Add placeholder for assistant
         const assistantMessage: ChatMessage = {
             role: 'assistant',
             content: '',
@@ -199,13 +182,11 @@ export default function ChatStudioPage() {
                 setError(
                     errorData.details || errorData.error || 'Une erreur est survenue'
                 );
-                // Remove empty assistant message
                 setMessages(updatedMessages);
                 setIsStreaming(false);
                 return;
             }
 
-            // Read SSE stream
             const reader = res.body?.getReader();
             const decoder = new TextDecoder();
             let fullContent = '';
@@ -244,7 +225,6 @@ export default function ChatStudioPage() {
                 }
             }
 
-            // Final messages with complete content
             const finalMessages: ChatMessage[] = [
                 ...updatedMessages,
                 {
@@ -255,17 +235,14 @@ export default function ChatStudioPage() {
             ];
             setMessages(finalMessages);
 
-            // Update credits locally
             if (profile && profile.credits !== -1) {
                 setProfile({ ...profile, credits: profile.credits - 1 });
             }
 
-            // Save conversation
             const title =
                 trimmed.substring(0, 50) + (trimmed.length > 50 ? '...' : '');
 
             if (activeConversationId) {
-                // Update existing conversation
                 await fetch(
                     `/api/chat/conversations?id=${activeConversationId}`,
                     {
@@ -282,7 +259,6 @@ export default function ChatStudioPage() {
                     )
                 );
             } else {
-                // Create new conversation
                 const createRes = await fetch('/api/chat/conversations', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -306,7 +282,6 @@ export default function ChatStudioPage() {
         setIsStreaming(false);
     };
 
-    // Handle Enter key
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -314,7 +289,6 @@ export default function ChatStudioPage() {
         }
     };
 
-    // Format timestamp
     const formatTime = (timestamp: string) => {
         return new Date(timestamp).toLocaleTimeString('fr-FR', {
             hour: '2-digit',
@@ -326,246 +300,225 @@ export default function ChatStudioPage() {
 
     if (loading) {
         return (
-            <div className="chat-container">
-                <div className="chat-main">
-                    <div className="chat-empty">
-                        <div className="skeleton h-16 w-16 rounded-full mb-4" />
-                        <div className="skeleton h-6 w-48 mb-2 rounded-lg" />
-                        <div className="skeleton h-4 w-64 rounded-lg" />
-                    </div>
+            <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="skeleton h-16 w-16 rounded-full mb-4" />
+                    <div className="skeleton h-6 w-48 mb-2 rounded-lg" />
+                    <div className="skeleton h-4 w-64 rounded-lg" />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="chat-container">
-            {/* Sidebar */}
-            <aside className={`chat-sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="chat-sidebar-header">
-                    <h2 style={{ fontFamily: 'var(--font-heading)' }}>Conversations</h2>
-                    <button
-                        className="chat-sidebar-close"
-                        onClick={() => setSidebarOpen(false)}
-                    >
-                        <IconClose size={20} />
-                    </button>
-                </div>
+        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden flex flex-col h-screen max-h-screen">
+            <div
+                className="fixed inset-0 pointer-events-none opacity-[0.04]"
+                style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
+            />
+            
+            {/* Ambient glows behind cards */}
+            <div className="absolute top-[10%] left-[-10%] w-[30%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.1] pointer-events-none" />
 
-                <button className="chat-new-btn" onClick={handleNewConversation}>
-                    <IconNewChat size={18} />
-                    Nouvelle conversation
-                </button>
-
-                <div className="chat-conversations-list">
-                    {conversations.length === 0 ? (
-                        <p className="chat-no-conversations">
-                            Aucune conversation pour le moment
-                        </p>
-                    ) : (
-                        conversations.map((conv) => (
-                            <div
-                                key={conv.id}
-                                className={`chat-conversation-item ${activeConversationId === conv.id ? 'active' : ''
-                                    }`}
-                                onClick={() => loadConversation(conv.id)}
-                            >
-                                <IconChat size={16} />
-                                <span className="chat-conversation-title">
-                                    {conv.title}
-                                </span>
-                                <button
-                                    className="chat-conversation-delete"
-                                    onClick={(e) =>
-                                        handleDeleteConversation(conv.id, e)
-                                    }
-                                    title="Supprimer"
-                                >
-                                    <IconTrash size={14} />
-                                </button>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {/* Credits in sidebar */} {profile && (
-                    <div className="chat-sidebar-footer">
-                        <IconZap size={16} />
-                        <span>
-                            {profile.credits === -1 ? '∞ Illimité'
-                                : `${profile.credits} crédits`}
-                        </span>
-                    </div>
-                )}
-            </aside>
-
-            {/* Sidebar overlay (mobile) */} {sidebarOpen && (
-                <div
-                    className="chat-sidebar-overlay"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )} {/* Main chat area */}
-            <div className="chat-main">
-                {/* Chat header */}
-                <div className="chat-header">
-                    <button
-                        className="chat-menu-btn"
-                        onClick={() => setSidebarOpen(true)}
-                    >
-                        <IconMenu size={20} />
-                    </button>
-                    <div className="chat-header-info">
-                        <h3 style={{ fontFamily: 'var(--font-heading)' }}>
-                            JadaBot
-                        </h3>
-                        <span className="chat-header-model">{modeConfig.model}</span>
+            <div className="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 flex-1 flex flex-col overflow-hidden">
+                <div className="flex items-center justify-between gap-4 mb-4 shrink-0">
+                    <div className="flex items-center gap-4">
+                        <button className="lg:hidden p-2 bg-white rounded-xl border border-[var(--color-border)] shadow-sm" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                            <IconMenu size={20} className="text-[var(--color-earth-dark)]" />
+                        </button>
+                        <div className="module-icon-premium earth shadow-sm w-12 h-12">
+                            <IconChat size={24} />
+                        </div>
+                        <div>
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+                                JadaBot
+                            </h1>
+                            <p className="text-[var(--color-text-secondary)] text-xs mt-0.5">
+                                Votre assistant de conversation intelligent.
+                            </p>
+                        </div>
                     </div>
                     {profile && (
-                        <div className="chat-header-credits">
-                            <IconZap size={14} />
-                            {profile.credits === -1 ? '∞'
-                                : profile.credits}
+                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-[12px] bg-white/60 backdrop-blur-md border border-[var(--color-border)] shadow-sm">
+                            <IconZap size={16} className="text-[var(--color-earth)]" />
+                            <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} <span className="hidden sm:inline">crédits restants</span></span>
                         </div>
                     )}
                 </div>
 
-                {/* Mode selector */}
-                <div className="chat-mode-bar">
-                    {CHAT_MODES.map((m) => (
-                        <button
-                            key={m.id}
-                            className={`chat-mode-btn ${mode === m.id ? 'active' : ''}`}
-                            onClick={() => setMode(m.id)}
-                            disabled={isStreaming}
-                            type="button"
-                        >
-                            <span className="chat-mode-label">{m.label}</span>
-                            <span className="chat-mode-hint">{m.hint}</span>
-                        </button>
-                    ))}
-                </div>
-
-                {/* Messages area */}
-                <div className="chat-messages">
-                    {messages.length === 0 ? (
-                        <div className="chat-empty">
-                            <div className="chat-empty-icon">
-                                <IconSparkles size={48} />
-                            </div>
-                            <h2 style={{ fontFamily: 'var(--font-heading)' }}>
-                                Bienvenue sur JadaBot !
-                            </h2>
-                            <p>
-                                Votre assistant IA intelligent. Posez-moi une question,
-                                demandez de l&apos;aide pour écrire, traduire, coder, ou
-                                juste discuter.
-                            </p>
-                            <div className="chat-suggestions">
-                                {[
-                                    '💡 Aide-moi à écrire un texte marketing',
-                                    '🌍 Traduis ce texte en anglais',
-                                    '💻 Explique-moi comment créer un site web',
-                                    '📝 Résume cet article pour moi',
-                                ].map((suggestion) => (
-                                    <button
-                                        key={suggestion}
-                                        className="chat-suggestion-btn"
-                                        onClick={() => {
-                                            setInputValue(
-                                                suggestion.replace(/^[^\s]+\s/, '')
-                                            );
-                                            inputRef.current?.focus();
-                                        }}
-                                    >
-                                        {suggestion}
+                <div className="grid lg:grid-cols-4 gap-6 flex-1 overflow-hidden min-h-0 bg-white shadow-lg rounded-[24px] border border-gray-100 p-2">
+                    {/* Sidebar */}
+                    <div className={`${sidebarOpen ? 'fixed inset-y-0 left-0 z-50 w-80 bg-white p-4 shadow-2xl transition-transform translate-x-0' : 'hidden'} lg:relative lg:block lg:col-span-1 lg:bg-transparent lg:p-0 lg:shadow-none lg:translate-x-0 h-full overflow-hidden flex flex-col border-r border-[var(--color-border)]`}>
+                        <div className="p-4 flex flex-col h-full bg-[var(--color-cream)] rounded-2xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="font-bold text-gray-800 text-sm tracking-widest uppercase">Historique</h2>
+                                {sidebarOpen && (
+                                    <button className="lg:hidden p-1 text-gray-500 hover:text-gray-800" onClick={() => setSidebarOpen(false)}>
+                                        <IconClose size={20} />
                                     </button>
-                                ))}
+                                )}
+                            </div>
+
+                            <button 
+                                className="w-full btn-primary py-3 mb-4 rounded-[12px] flex items-center justify-center gap-2 text-sm"
+                                onClick={handleNewConversation}
+                            >
+                                <IconNewChat size={18} /> Nouvelle discussion
+                            </button>
+
+                            <div className="flex-1 overflow-y-auto space-y-1 hide-scrollbar pr-1">
+                                {conversations.length === 0 ? (
+                                    <p className="text-sm text-center text-gray-500 mt-4 italic">Vide</p>
+                                ) : (
+                                    conversations.map((conv) => (
+                                        <div
+                                            key={conv.id}
+                                            className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors text-sm ${activeConversationId === conv.id ? 'bg-[var(--color-earth)] text-white font-medium shadow-sm' : 'hover:bg-white/60 text-gray-700'}`}
+                                            onClick={() => loadConversation(conv.id)}
+                                        >
+                                            <div className="flex items-center gap-3 truncate">
+                                                <IconChat size={16} className={activeConversationId === conv.id ? 'text-white/80' : 'text-gray-400'} />
+                                                <span className="truncate">{conv.title}</span>
+                                            </div>
+                                            <button
+                                                className={`p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity ${activeConversationId === conv.id ? 'hover:bg-black/20 text-white' : 'hover:bg-red-50 hover:text-red-500 text-gray-400'}`}
+                                                onClick={(e) => handleDeleteConversation(conv.id, e)}
+                                                title="Supprimer"
+                                            >
+                                                <IconTrash size={14} />
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
-                    ) : (
-                        messages.map((msg, i) => (
-                            <div
-                                key={i}
-                                className={`chat-bubble ${msg.role}`}
-                            >
-                                {msg.role === 'assistant' && (
-                                    <div className="chat-bubble-avatar">
-                                        <IconSparkles size={16} />
-                                    </div>
-                                )}
-                                <div className="chat-bubble-content">
-                                    {msg.content ? (
-                                        <ChatMessageContent
-                                            content={msg.content}
-                                            isUser={msg.role === 'user'}
-                                        />
-                                    ) : (
-                                        <div className="chat-typing-indicator">
-                                            <span />
-                                            <span />
-                                            <span />
-                                        </div>
-                                    )} {msg.timestamp && msg.content && (
-                                        <span className="chat-bubble-time">
-                                            {formatTime(msg.timestamp)}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
+                    </div>
 
-                {/* Error */} {error && (
-                    <div className="chat-error">
-                        ⚠️ {error}
-                        <button onClick={() => setError(null)}>✕</button>
-                    </div>
-                )} {/* Input area */}
-                <div className="chat-input-container">
-                    <div className="chat-input-wrapper">
-                        <textarea
-                            ref={inputRef}
-                            className="chat-input"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder={
-                                isStreaming ? 'JadaBot réfléchit...'
-                                    : 'Écrivez votre message...'
-                            }
-                            disabled={isStreaming}
-                            rows={1}
-                            style={{
-                                height: 'auto',
-                                minHeight: '48px',
-                                maxHeight: '150px',
-                            }}
-                            onInput={(e) => {
-                                const target = e.target as HTMLTextAreaElement;
-                                target.style.height = 'auto';
-                                target.style.height =
-                                    Math.min(target.scrollHeight, 150) + 'px';
-                            }}
-                        />
-                        <button
-                            className="chat-send-btn"
-                            onClick={handleSend}
-                            disabled={!inputValue.trim() || isStreaming}
-                            title="Envoyer (Enter)"
-                        >
-                            {isStreaming ? (
-                                <div className="chat-send-loading" />
+                    {/* Main Chat Area */}
+                    <div className="lg:col-span-3 flex flex-col h-full w-full relative">
+                        {/* Mode Selectors */}
+                        <div className="px-4 py-3 border-b border-[var(--color-border)] hidden sm:flex justify-center gap-2 shrink-0">
+                            {CHAT_MODES.map((m) => (
+                                <button
+                                    key={m.id}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 border ${mode === m.id ? 'bg-[var(--color-earth)] text-white border-[var(--color-earth)] shadow-sm' : 'bg-transparent text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                                    onClick={() => setMode(m.id)}
+                                    disabled={isStreaming}
+                                    type="button"
+                                >
+                                    <span>{m.label}</span>
+                                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md ${mode === m.id ? 'bg-white/20' : 'bg-gray-100 text-gray-500'}`}>{m.model.split(' ')[0]}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scroll-smooth">
+                            {messages.length === 0 ? (
+                                <div className="h-full flex flex-col items-center justify-center opacity-0 animate-[fade-in_0.5s_ease-out_forwards]">
+                                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center text-white shadow-xl shadow-[var(--color-earth)]/20 mb-6">
+                                        <IconSparkles size={36} />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+                                        Comment puis-je vous aider ?
+                                    </h2>
+                                    <p className="text-gray-500 text-center max-w-md mb-8">
+                                        Votre assistant IA est prêt. Posez une question ou demandez de l&apos;aide pour générer, analyser ou traduire du contenu.
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl w-full">
+                                        {[
+                                            '💡 Aide-moi à écrire un titre accrocheur',
+                                            '🌍 Traduis ce texte en anglais',
+                                            "💻 Propose une structure d'application web",
+                                            '📝 Comment améliorer ma productivité ?',
+                                        ].map((suggestion) => (
+                                            <button
+                                                key={suggestion}
+                                                className="p-4 text-sm text-left bg-white border border-gray-100 hover:border-[var(--color-earth)] hover:shadow-md transition-all rounded-[16px] text-gray-700 font-medium"
+                                                onClick={() => {
+                                                    setInputValue(suggestion.replace(/^[^\s]+\s/, ''));
+                                                    inputRef.current?.focus();
+                                                }}
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             ) : (
-                                <IconSend size={18} />
+                                messages.map((msg, i) => (
+                                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`flex max-w-[85%] md:max-w-[75%] gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                            {msg.role === 'assistant' && (
+                                                <div className="w-10 h-10 shrink-0 rounded-[14px] bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center text-white shadow-md">
+                                                    <IconSparkles size={20} />
+                                                </div>
+                                            )}
+                                            
+                                            <div className={`p-4 sm:p-5 rounded-[20px] shadow-sm ${msg.role === 'user' ? 'bg-[var(--color-earth)] text-white rounded-br-[4px]' : 'bg-[#F9FAFB] border border-gray-100 rounded-bl-[4px] text-gray-800'}`}>
+                                                {msg.content ? (
+                                                    <div className={msg.role === 'user' ? 'text-[15px] leading-relaxed whitespace-pre-wrap' : 'prose prose-sm sm:prose-base prose-p:leading-relaxed max-w-none text-[15px]'}>
+                                                        <ChatMessageContent content={msg.content} isUser={msg.role === 'user'} />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-1.5 h-6">
+                                                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                    </div>
+                                                )}
+                                                {msg.timestamp && msg.content && (
+                                                    <div className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-gray-400'}`}>
+                                                        {formatTime(msg.timestamp)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
                             )}
-                        </button>
+                            <div ref={messagesEndRef} className="h-2" />
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="p-4 bg-white border-t border-[var(--color-border)] shrink-0">
+                            {error && (
+                                <div className="mb-3 px-4 py-2 bg-red-50 text-red-600 text-sm rounded-xl flex items-center justify-between border border-red-100">
+                                    <span className="flex items-center gap-2"><IconAlertCircle size={16} /> {error}</span>
+                                    <button onClick={() => setError(null)} className="text-red-400 hover:text-red-700"><IconClose size={16} /></button>
+                                </div>
+                            )}
+                            
+                            <div className="relative flex items-end gap-2 bg-[#F3F4F6] p-2 rounded-[24px]">
+                                <textarea
+                                    ref={inputRef}
+                                    className="w-full bg-transparent border-none py-3 px-4 focus:outline-none resize-none hide-scrollbar text-[15px] text-gray-800 placeholder-gray-500"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder={isStreaming ? 'Génération en cours...' : 'Envoyer un message à JadaBot...'}
+                                    disabled={isStreaming}
+                                    rows={1}
+                                    style={{ minHeight: '48px', maxHeight: '150px' }}
+                                    onInput={(e) => {
+                                        const target = e.target as HTMLTextAreaElement;
+                                        target.style.height = 'auto';
+                                        target.style.height = Math.min(target.scrollHeight, 150) + 'px';
+                                    }}
+                                />
+                                <button
+                                    className={`shrink-0 w-12 h-12 flex items-center justify-center rounded-[20px] transition-all ${!inputValue.trim() || isStreaming ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[var(--color-earth)] text-white hover:bg-[var(--color-earth-dark)] shadow-md hover:-translate-y-0.5'}`}
+                                    onClick={handleSend}
+                                    disabled={!inputValue.trim() || isStreaming}
+                                >
+                                    {isStreaming ? <IconLoader2 size={20} className="animate-spin" /> : <IconSend size={20} className={inputValue.trim() ? "translate-x-0.5" : ""} />}
+                                </button>
+                            </div>
+                            <div className="text-center mt-2 pb-1">
+                                <span className="text-[10px] text-gray-400 font-medium tracking-wide">JADARLSELABS • JADABOT EST PROPULSÉ PAR L&apos;INTELLIGENCE ARTIFICIELLE</span>
+                            </div>
+                        </div>
                     </div>
-                    <p className="chat-disclaimer">
-                        Mode actuel : {modeConfig.label} · {modeConfig.model}. Les réponses peuvent
-                        contenir des erreurs. 1 crédit par message.
-                    </p>
                 </div>
             </div>
         </div>

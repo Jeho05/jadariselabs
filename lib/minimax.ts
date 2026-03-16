@@ -22,7 +22,7 @@ export interface MinimaxFileInfo {
     download_url: string;
 }
 
-const DEFAULT_MINIMAX_BASE = 'https://api.minimax.io/v1';
+const DEFAULT_MINIMAX_BASE = 'https://api.minimax.chat/v1';
 
 function getMinimaxBase(): string {
     return process.env.MINIMAX_API_BASE || DEFAULT_MINIMAX_BASE;

@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 
 const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
-const ZHIPU_CODE_API_BASE = process.env.ZHIPU_CODE_API_BASE || 'https://open.bigmodel.cn/api/coding/paas/v4';
+const ZHIPU_API_BASE = process.env.ZHIPU_API_BASE || 'https://open.bigmodel.cn/api/paas/v4';
 
 const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
 
         if (selectedMode === 'agentic') {
             if (zhipuApiKey) {
-                tasks.push(buildTask('zhipu', ZHIPU_CODE_API_BASE, zhipuApiKey, ZHIPU_MODEL));
+                tasks.push(buildTask('zhipu', ZHIPU_API_BASE, zhipuApiKey, ZHIPU_MODEL));
             }
             if (deepseekApiKey && DEEPSEEK_API_BASE && DEEPSEEK_MODEL) {
                 tasks.push(buildTask('deepseek', DEEPSEEK_API_BASE, deepseekApiKey, DEEPSEEK_MODEL));

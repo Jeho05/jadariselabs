@@ -96,7 +96,7 @@ function LoginForm() {
                 <div className="relative z-10 flex flex-col h-full p-8 lg:p-12 justify-center">
                     {/* Logo */}
                     <Link href="/" className="inline-flex items-center gap-3 mb-12 group">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                        <div className="h-12 w-12 rounded-xl bg-[var(--color-earth-dark)] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                             <IconFlask size={26} className="text-white" />
                         </div>
                         <span className="text-white text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
