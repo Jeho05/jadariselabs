@@ -175,22 +175,22 @@ export async function POST(request: NextRequest) {
         const supabase = await createClient();
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
-            return NextResponse.json({ success: false, error: 'Non authentifiÃ©', trace_id: traceId }, { status: 401 });
+            return NextResponse.json({ success: false, error: 'Non authentifié', trace_id: traceId }, { status: 401 });
         }
 
         let body: { query?: string; provider?: SearchProvider | 'auto'; maxResults?: number; includeAnswer?: boolean };
         try {
             body = await request.json();
         } catch {
-            return NextResponse.json({ success: false, error: 'RequÃªte invalide', trace_id: traceId }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'Requête invalide', trace_id: traceId }, { status: 400 });
         }
 
         const query = body.query?.trim();
         if (!query) {
-            return NextResponse.json({ success: false, error: 'La requÃªte est vide', trace_id: traceId }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'La requête est vide', trace_id: traceId }, { status: 400 });
         }
         if (query.length > 500) {
-            return NextResponse.json({ success: false, error: 'RequÃªte trop longue (max 500 caractÃ¨res)', trace_id: traceId }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'Requête trop longue (max 500 caractères)', trace_id: traceId }, { status: 400 });
         }
 
         const maxResults = Math.min(Math.max(body.maxResults || 6, 1), 10);
@@ -203,14 +203,14 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (!profile) {
-            return NextResponse.json({ success: false, error: 'Profil non trouvÃ©', trace_id: traceId }, { status: 404 });
+            return NextResponse.json({ success: false, error: 'Profil non trouvé', trace_id: traceId }, { status: 404 });
         }
 
         if (profile.credits !== -1 && profile.credits < CREDITS_PER_SEARCH) {
             return NextResponse.json({
                 success: false,
-                error: 'CrÃ©dits insuffisants',
-                details: `Il vous faut ${CREDITS_PER_SEARCH} crÃ©dit(s). CrÃ©dits restants : ${profile.credits}`,
+                error: 'Crédits insuffisants',
+                details: `Il vous faut ${CREDITS_PER_SEARCH} crédit(s). Crédits restants : ${profile.credits}`,
                 trace_id: traceId,
             }, { status: 402 });
         }
@@ -261,7 +261,8 @@ export async function POST(request: NextRequest) {
         if (tasks.length === 0) {
             return NextResponse.json({
                 success: false,
-                error: 'Aucun fournisseur de recherche configurÃ©',
+                error: 'Aucun fournisseur de recherche configuré',
+                details: 'Ajoutez au moins une clé API de recherche dans .env.local : TAVILY_API_KEY (tavily.com), EXA_API_KEY (exa.ai), BRAVE_SEARCH_API_KEY (brave.com/search/api), ou FIRECRAWL_API_KEY (firecrawl.dev)',
                 trace_id: traceId,
             }, { status: 503 });
         }
@@ -324,7 +325,7 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         if (error instanceof ProviderError && error.status === 429) {
-            return NextResponse.json({ success: false, error: 'Trop de requÃªtes', trace_id: traceId }, { status: 429 });
+            return NextResponse.json({ success: false, error: 'Trop de requêtes', trace_id: traceId }, { status: 429 });
         }
 
         console.error('[SearchAPI] Error:', error);

@@ -193,6 +193,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // Fal.ai — prioritaire (free tier disponible)
       if (process.env.FAL_KEY) {
         providers.push({
           name: 'fal',
@@ -203,13 +204,23 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      providers.push({
-        name: 'replicate',
-        run: async () => {
-          const { predictionId } = await generateReplicateVideo(body.prompt.trim(), { model: replicateModel });
-          return { predictionId, modelUsed: replicateModel, providerModel: replicateModel };
-        },
-      });
+      // Replicate — fallback (nécessite des crédits payants)
+      if (process.env.REPLICATE_API_TOKEN) {
+        providers.push({
+          name: 'replicate',
+          run: async () => {
+            const { predictionId } = await generateReplicateVideo(body.prompt.trim(), { model: replicateModel });
+            return { predictionId, modelUsed: replicateModel, providerModel: replicateModel };
+          },
+        });
+      }
+
+      if (providers.length === 0) {
+        throw new Error(
+          'Aucun fournisseur vidéo configuré. ' +
+          'Ajoutez FAL_KEY (fal.ai, free tier) ou REPLICATE_API_TOKEN (replicate.com, payant) dans .env.local'
+        );
+      }
 
       const providerResult = await runProviderChain<VideoProviderResult>(providers, { purpose: 'video' });
 

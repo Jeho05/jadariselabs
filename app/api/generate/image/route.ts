@@ -10,6 +10,7 @@ import type { ImageModel } from '@/lib/huggingface';
 import { generateImagePollinations } from '@/lib/pollinations';
 import { generateFalImage } from '@/lib/fal';
 import { runProviderChain } from '@/lib/provider-router';
+import type { ProviderName } from '@/lib/provider-router';
 
 // Watermark via sharp
 async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
@@ -119,16 +120,23 @@ export async function POST(request: NextRequest) {
         let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
         try {
             if (profile.plan === 'free') {
-                // Arbirtage: Routage vers Pollinations.ai pour les utilisateurs gratuits (100% gratuit)
-                const providerResult = await runProviderChain<Buffer>(
-                    [
-                        {
-                            name: 'pollinations',
-                            run: () => generateImagePollinations(prompt, { width, height }),
-                        },
-                    ],
-                    { purpose: 'image' }
-                );
+                // Routage: Pollinations.ai (gratuit) → HuggingFace (fallback)
+                const freeProviders: Array<{ name: ProviderName; run: () => Promise<Buffer> }> = [
+                    {
+                        name: 'pollinations',
+                        run: () => generateImagePollinations(prompt, { width, height }),
+                    },
+                ];
+
+                // Ajouter HuggingFace comme fallback si la clé est configurée
+                if (process.env.HUGGINGFACE_API_KEY) {
+                    freeProviders.push({
+                        name: 'huggingface',
+                        run: () => generateImage(prompt, model, { width, height, negative_prompt: body.negative_prompt }),
+                    });
+                }
+
+                const providerResult = await runProviderChain<Buffer>(freeProviders, { purpose: 'image' });
                 imageBuffer = providerResult.result;
                 providerUsed = providerResult.provider;
                 routerMeta = {

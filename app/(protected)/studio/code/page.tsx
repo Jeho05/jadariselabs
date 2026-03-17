@@ -31,6 +31,7 @@ export default function CodeStudioPage() {
     const [loading, setLoading] = useState(true);
     const [mode, setMode] = useState<CodeMode>('agentic');
     const [input, setInput] = useState('');
+    const [systemInstruction, setSystemInstruction] = useState('');
     const [output, setOutput] = useState('');
     const [history, setHistory] = useState<CodeMessage[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
@@ -73,6 +74,7 @@ export default function CodeStudioPage() {
                     message: userMessage.content,
                     mode,
                     history: historyPayload,
+                    systemInstruction: systemInstruction.trim() || undefined,
                 }),
             });
 
@@ -212,6 +214,23 @@ export default function CodeStudioPage() {
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 flex items-center gap-2">
+                                    Instructions système
+                                    <span className="text-[10px] font-normal normal-case tracking-normal bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Optionnel</span>
+                                </label>
+                                <textarea
+                                    className="w-full p-4 rounded-2xl border-2 border-transparent bg-white/50 shadow-sm focus:outline-none focus:border-[var(--color-gold)] transition-colors resize-none text-[14px] leading-relaxed text-gray-700 placeholder-gray-400"
+                                    value={systemInstruction}
+                                    onChange={(e) => setSystemInstruction(e.target.value)}
+                                    placeholder="Ex: Tu es un expert React/TypeScript. Réponds toujours en français. Utilise les bonnes pratiques..."
+                                    rows={3}
+                                    maxLength={1000}
+                                    disabled={isStreaming}
+                                />
+                                <div className="text-right text-[11px] text-gray-400 mt-1">{systemInstruction.length}/1000</div>
                             </div>
 
                             <div>

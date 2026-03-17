@@ -1,6 +1,6 @@
 /**
  * Pollinations.ai Image Generation API Client
- * GÃ©nÃ©ration d'images gratuite et illimitÃ©e
+ * Génération d'images gratuite et illimitée
  */
 
 export interface PollinationsOptions {
@@ -12,7 +12,7 @@ export interface PollinationsOptions {
 }
 
 /**
- * GÃ©nÃ©ration d'image via Pollinations.ai (GET request)
+ * Génération d'image via Pollinations.ai (GET request)
  * @returns Buffer de l'image (JPEG)
  */
 export async function generateImagePollinations(
@@ -24,45 +24,59 @@ export async function generateImagePollinations(
         height = 512,
         seed = Math.floor(Math.random() * 1000000),
         nologo = true,
-        model = 'flux', // Use FLUX by default
+        model = 'flux',
     } = options;
 
     const encodedPrompt = encodeURIComponent(prompt.trim());
-    
-    // Construct the URL
-    // Format: https://image.pollinations.ai/prompt/{prompt}
-    // Note: Query parameters like width/height/model currently cause 500 errors on Pollinations API
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=${nologo}&model=${model}`;
 
-    const maxAttempts = 2;
+    const maxAttempts = 3;
     let lastStatus = 0;
     let lastErrorText = '';
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         let response: Response | undefined;
         try {
-            response = await fetch(url, { method: 'GET' });
+            response = await fetch(url, {
+                method: 'GET',
+                signal: AbortSignal.timeout(60000), // 60s timeout
+            });
         } catch (err) {
             lastStatus = 0;
             lastErrorText = err instanceof Error ? err.message : 'Unknown network error';
             if (attempt < maxAttempts - 1) {
-                await new Promise(resolve => setTimeout(resolve, 600 * (attempt + 1)));
+                await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
                 continue;
             }
-            throw new Error(`Erreur Pollinations.ai (network): ${lastErrorText.substring(0, 200)}`);
+            throw new Error(`Erreur Pollinations.ai (réseau): ${lastErrorText.substring(0, 200)}`);
         }
 
         if (response.ok) {
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('image')) {
+                // Pollinations sometimes returns HTML/JSON error wrapped in 200
+                const text = await response.text();
+                if (attempt < maxAttempts - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
+                    continue;
+                }
+                throw new Error(`Pollinations.ai a retourné un contenu non-image: ${text.substring(0, 100)}`);
+            }
+
             const arrayBuffer = await response.arrayBuffer();
             let buffer: Buffer = Buffer.from(arrayBuffer);
 
-            // Pollinations ignores size params (and they can cause 500s), so resize locally if needed.
-            if (width !== 512 || height !== 512) {
-                const sharp = (await import('sharp')).default;
-                buffer = await sharp(buffer)
-                    .resize(width, height, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-                    .png()
-                    .toBuffer();
+            // Resize locally if needed
+            if (width !== 1024 || height !== 1024) {
+                try {
+                    const sharp = (await import('sharp')).default;
+                    buffer = await sharp(buffer)
+                        .resize(width, height, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+                        .png()
+                        .toBuffer();
+                } catch {
+                    // If sharp fails, return as-is
+                }
             }
 
             return buffer;
@@ -76,7 +90,7 @@ export async function generateImagePollinations(
         }
 
         if (response.status >= 500 && attempt < maxAttempts - 1) {
-            await new Promise(resolve => setTimeout(resolve, 600 * (attempt + 1)));
+            await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
             continue;
         }
 
