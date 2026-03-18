@@ -110,3 +110,62 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ profile: updatedProfile });
 }
+
+/**
+ * DELETE /api/profile — Delete user account and all associated data
+ */
+export async function DELETE() {
+    try {
+        const supabase = await createClient();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Non authentifié' },
+                { status: 401 }
+            );
+        }
+
+        // Delete user's avatar files from storage
+        const { data: files } = await supabase.storage
+            .from('avatars')
+            .list(user.id);
+
+        if (files && files.length > 0) {
+            const filesToDelete = files.map((file) => `${user.id}/${file.name}`);
+            await supabase.storage.from('avatars').remove(filesToDelete);
+        }
+
+        // Delete profile (cascade will delete generations, subscriptions, payments)
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', user.id);
+
+        if (profileError) {
+            console.error('Profile deletion error:', profileError);
+            // Continue anyway to try deleting auth user
+        }
+
+        // Delete auth user
+        const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
+
+        if (authError) {
+            console.error('Auth user deletion error:', authError);
+            return NextResponse.json(
+                { error: 'Erreur lors de la suppression du compte' },
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Account deletion error:', error);
+        return NextResponse.json(
+            { error: 'Erreur serveur' },
+            { status: 500 }
+        );
+    }
+}

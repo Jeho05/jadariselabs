@@ -92,6 +92,19 @@ export const translations = {
     'profile.danger.confirm1': '⚠️ ATTENTION : Cette action est irréversible !\n\nToutes vos données, générations et conversations seront supprimées définitivement.\n\nVoulez-vous vraiment supprimer votre compte ?',
     'profile.danger.confirm2': 'Dernière confirmation : tapez OK pour supprimer définitivement votre compte.',
 
+    // Security
+    'profile.security.title': 'Sécurité',
+    'profile.security.changePassword': 'Changer le mot de passe',
+    'profile.security.currentPassword': 'Mot de passe actuel',
+    'profile.security.newPassword': 'Nouveau mot de passe',
+    'profile.security.confirmPassword': 'Confirmer le mot de passe',
+    'profile.security.passwordBtn': 'Mettre à jour le mot de passe',
+    'profile.security.updating': 'Mise à jour...',
+    'profile.security.passwordChanged': 'Mot de passe modifié avec succès !',
+    'profile.security.passwordError': 'Erreur lors du changement de mot de passe',
+    'profile.security.wrongPassword': 'Mot de passe actuel incorrect',
+    'profile.security.passwordTooShort': 'Le mot de passe doit contenir au moins 8 caractères',
+
     // === AUTH ===
     'auth.login.title': 'Se connecter',
     'auth.login.subtitle': 'Accédez à votre compte JadaRiseLabs',
@@ -253,6 +266,19 @@ export const translations = {
     'profile.danger.deleteBtn': 'Delete my account',
     'profile.danger.confirm1': '⚠️ WARNING: This action is irreversible!\n\nAll your data, generations and conversations will be permanently deleted.\n\nDo you really want to delete your account?',
     'profile.danger.confirm2': 'Final confirmation: type OK to permanently delete your account.',
+
+    // Security
+    'profile.security.title': 'Security',
+    'profile.security.changePassword': 'Change password',
+    'profile.security.currentPassword': 'Current password',
+    'profile.security.newPassword': 'New password',
+    'profile.security.confirmPassword': 'Confirm password',
+    'profile.security.passwordBtn': 'Update password',
+    'profile.security.updating': 'Updating...',
+    'profile.security.passwordChanged': 'Password changed successfully!',
+    'profile.security.passwordError': 'Error changing password',
+    'profile.security.wrongPassword': 'Current password is incorrect',
+    'profile.security.passwordTooShort': 'Password must be at least 8 characters',
 
     // === AUTH ===
     'auth.login.title': 'Login',

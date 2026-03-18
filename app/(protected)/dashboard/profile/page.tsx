@@ -33,6 +33,8 @@ import {
 
     IconInfinity,
 
+    IconLock,
+
 } from '@/components/icons';
 
 
@@ -100,6 +102,18 @@ export default function ProfilePage() {
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
     const [dragActive, setDragActive] = useState(false);
+
+
+
+    // Password change state
+
+    const [currentPassword, setCurrentPassword] = useState('');
+
+    const [newPassword, setNewPassword] = useState('');
+
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+    const [changingPassword, setChangingPassword] = useState(false);
 
 
 
@@ -447,6 +461,51 @@ export default function ProfilePage() {
 
 
 
+    // Change password
+    const handleChangePassword = async () => {
+        if (newPassword !== confirmNewPassword) {
+            setMessage({ type: 'error', text: t('auth.password.mismatch') });
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            setMessage({ type: 'error', text: t('profile.security.passwordTooShort') });
+            return;
+        }
+
+        setChangingPassword(true);
+        setMessage(null);
+
+        try {
+            const res = await fetch('/api/auth/password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setMessage({ type: 'error', text: data.error || t('profile.security.passwordError') });
+            } else {
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmNewPassword('');
+                setMessage({ type: 'success', text: t('profile.security.passwordChanged') });
+                setTimeout(() => setMessage(null), 3000);
+            }
+        } catch {
+            setMessage({ type: 'error', text: t('profile.networkError') });
+        }
+
+        setChangingPassword(false);
+    };
+
+
+
     const handleDeleteAccount = async () => {
 
         const confirmed = window.confirm(t('profile.danger.confirm1'));
@@ -461,9 +520,21 @@ export default function ProfilePage() {
 
 
 
-        await supabase.auth.signOut();
+        try {
+            const res = await fetch('/api/profile', {
+                method: 'DELETE',
+            });
 
-        window.location.href = '/';
+            if (res.ok) {
+                await supabase.auth.signOut();
+                window.location.href = '/';
+            } else {
+                const data = await res.json();
+                setMessage({ type: 'error', text: data.error || t('profile.networkError') });
+            }
+        } catch {
+            setMessage({ type: 'error', text: t('profile.networkError') });
+        }
 
     };
 
@@ -1052,6 +1123,112 @@ export default function ProfilePage() {
                         </div>
 
                     )}
+
+                </div>
+
+            </div>
+
+
+
+            {/* Security Section */}
+
+            <div className="profile-security-card glass-card">
+
+                <h3 style={{ fontFamily: 'var(--font-heading)' }}>
+
+                    <IconLock size={18} /> {t('profile.security.title')}
+
+                </h3>
+
+                <p className="profile-security-subtitle">{t('profile.security.changePassword')}</p>
+
+
+
+                <div className="profile-form">
+
+                    <div className="input-group">
+
+                        <label>{t('profile.security.currentPassword')}</label>
+
+                        <input
+
+                            type="password"
+
+                            className="input-field"
+
+                            value={currentPassword}
+
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+
+                            placeholder="••••••••"
+
+                        />
+
+                    </div>
+
+
+
+                    <div className="input-group">
+
+                        <label>{t('profile.security.newPassword')}</label>
+
+                        <input
+
+                            type="password"
+
+                            className="input-field"
+
+                            value={newPassword}
+
+                            onChange={(e) => setNewPassword(e.target.value)}
+
+                            placeholder="••••••••"
+
+                            minLength={8}
+
+                        />
+
+                    </div>
+
+
+
+                    <div className="input-group">
+
+                        <label>{t('profile.security.confirmPassword')}</label>
+
+                        <input
+
+                            type="password"
+
+                            className="input-field"
+
+                            value={confirmNewPassword}
+
+                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+
+                            placeholder="••••••••"
+
+                            minLength={8}
+
+                        />
+
+                    </div>
+
+
+
+                    <button
+
+                        className="btn-auth"
+
+                        onClick={handleChangePassword}
+
+                        disabled={changingPassword || !currentPassword || !newPassword || !confirmNewPassword}
+
+                    >
+
+                        {changingPassword ? t('profile.security.updating') : t('profile.security.passwordBtn')}
+
+                    </button>
 
                 </div>
 

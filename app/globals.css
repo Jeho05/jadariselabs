@@ -2208,6 +2208,28 @@ h6 {
   color: white;
 }
 
+/* Security Card */
+.profile-security-card {
+  padding: 1.5rem;
+  animation: slide-up-fade 0.5s ease-out backwards;
+  animation-delay: 0.3s;
+}
+
+.profile-security-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-security-subtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
 /* ============================================
    CHAT MODULE STYLES
    ============================================ */
