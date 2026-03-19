@@ -106,9 +106,9 @@ export async function generateAudio(
                 let lastError = '';
 
                 while (retries < maxRetries) {
-                    // Use the standard HF inference endpoint (not router which may 404)
+                    // Use the HF router endpoint
                     response = await fetch(
-                        'https://api-inference.huggingface.co/models/suno/bark',
+                        'https://router.huggingface.co/hf-inference/models/suno/bark',
                         {
                             method: 'POST',
                             headers: {
