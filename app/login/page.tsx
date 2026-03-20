@@ -89,7 +89,7 @@ function LoginForm() {
                         className="object-cover"
                         priority
                     />
-                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-earth)]/95 via-[var(--color-earth)]/80 to-[var(--color-gold)]/40" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/70 to-[var(--color-earth)]/50 backdrop-blur-sm" />
                 </div>
 
                 {/* Content */}
