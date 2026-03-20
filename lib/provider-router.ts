@@ -14,7 +14,7 @@ export type ProviderName =
     | 'brave'
     | 'firecrawl'
     | 'fish'
-    | 'bark';
+    | 'kokoro';
 
 export interface ProviderAttempt {
     provider: ProviderName;

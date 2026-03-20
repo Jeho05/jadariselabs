@@ -1,6 +1,6 @@
 /**
  * Audio Synthesis Client
- * Synthèse vocale via Fish Audio (prioritaire) ou Suno Bark (Hugging Face)
+ * Synthèse vocale via Fish Audio (prioritaire) ou Kokoro TTS (Hugging Face fallback)
  */
 
 import { runProviderChain, ProviderError } from '@/lib/provider-router';
@@ -16,7 +16,7 @@ export interface AudioGenerationResult {
     audio: Buffer;
     voice: BarkVoice;
     duration: number;
-    provider?: 'fish' | 'bark';
+    provider?: 'fish' | 'kokoro';
     router?: { provider: string; attempts: unknown[]; duration_ms: number };
 }
 
@@ -64,7 +64,7 @@ export async function generateAudio(
         return Math.ceil(wordCount / 2.5);
     };
 
-    const providers: Array<{ name: 'fish' | 'bark'; run: () => Promise<{ audio: Buffer; duration: number }> }> = [];
+    const providers: Array<{ name: 'fish' | 'kokoro'; run: () => Promise<{ audio: Buffer; duration: number }> }> = [];
 
     // Fish Audio — prioritaire (plus fiable)
     if (fishApiKey) {
@@ -93,22 +93,19 @@ export async function generateAudio(
         });
     }
 
-    // Bark via Hugging Face Inference API — fallback
+    // Kokoro TTS via Hugging Face Inference API — fallback (remplace Bark)
     if (hfApiKey) {
         providers.push({
-            name: 'bark',
+            name: 'kokoro',
             run: async () => {
-                const languagePrompt = getLanguagePrompt(text, voice);
-
                 let response: Response | undefined;
                 let retries = 0;
                 const maxRetries = 3;
                 let lastError = '';
 
                 while (retries < maxRetries) {
-                    // Use the HF router endpoint
                     response = await fetch(
-                        'https://router.huggingface.co/hf-inference/models/suno/bark',
+                        'https://router.huggingface.co/hf-inference/models/hexgrad/Kokoro-82M',
                         {
                             method: 'POST',
                             headers: {
@@ -116,10 +113,7 @@ export async function generateAudio(
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                inputs: languagePrompt,
-                                parameters: {
-                                    temperature: options.temperature || 0.7,
-                                },
+                                inputs: text,
                             }),
                         }
                     );
@@ -132,26 +126,26 @@ export async function generateAudio(
                     if (response.status === 503) {
                         retries++;
                         if (retries < maxRetries) {
-                            console.log(`[Bark] Modèle en chargement (503). Attente 15s... (Essai ${retries}/${maxRetries - 1})`);
+                            console.log(`[Kokoro] Modèle en chargement (503). Attente 15s... (Essai ${retries}/${maxRetries - 1})`);
                             await new Promise(resolve => setTimeout(resolve, 15000));
                             continue;
                         }
-                        throw new ProviderError('bark', 'Le modèle audio met trop de temps à charger. Réessayez dans quelques minutes.', response.status);
+                        throw new ProviderError('kokoro', 'Le modèle audio met trop de temps à charger. Réessayez dans quelques minutes.', response.status);
                     }
 
                     if (response.status === 404) {
-                        throw new ProviderError('bark', 'Le modèle Bark est temporairement indisponible sur HuggingFace.', response.status);
+                        throw new ProviderError('kokoro', 'Le modèle Kokoro TTS est temporairement indisponible sur HuggingFace.', response.status);
                     }
 
                     if (response.status === 429) {
-                        throw new ProviderError('bark', 'Trop de requêtes audio. Veuillez patienter.', response.status);
+                        throw new ProviderError('kokoro', 'Trop de requêtes audio. Veuillez patienter.', response.status);
                     }
 
-                    throw new ProviderError('bark', `Erreur Bark: ${errorText.substring(0, 200)}`, response.status);
+                    throw new ProviderError('kokoro', `Erreur Kokoro: ${errorText.substring(0, 200)}`, response.status);
                 }
 
                 if (!response || !response.ok) {
-                    throw new ProviderError('bark', `Erreur inattendue de l'API Audio: ${lastError.substring(0, 200)}`);
+                    throw new ProviderError('kokoro', `Erreur inattendue de l'API Audio: ${lastError.substring(0, 200)}`);
                 }
 
                 return {
@@ -168,20 +162,13 @@ export async function generateAudio(
         audio: providerResult.result.audio,
         voice,
         duration: providerResult.result.duration,
-        provider: providerResult.provider as 'fish' | 'bark',
+        provider: providerResult.provider as 'fish' | 'kokoro',
         router: {
             provider: providerResult.provider,
             attempts: providerResult.attempts,
             duration_ms: providerResult.latency_ms,
         },
     };
-}
-
-function getLanguagePrompt(text: string, voice: BarkVoice): string {
-    const prefixes: Record<BarkVoice, string> = {
-        fr: '[fr]', en: '[en]', de: '[de]', es: '[es]', it: '[it]', pt: '[pt]', zh: '[zh]',
-    };
-    return `${prefixes[voice]} ${text}`;
 }
 
 export function calculateAudioCredits(voice: BarkVoice, textLength: number): number {
