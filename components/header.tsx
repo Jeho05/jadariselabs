@@ -474,7 +474,7 @@ export default function Header() {
 
                                                 <div className="flex items-center gap-3">
 
-                                                    <div className={`w-12 h-12 rounded-xl overflow-hidden ${profile?.plan === 'pro' ? 'ring-2 ring-[var(--color-gold)]'
+                                                    <div className={`relative w-12 h-12 rounded-xl overflow-hidden ${profile?.plan === 'pro' ? 'ring-2 ring-[var(--color-gold)]'
 
                                                         : ''
 
@@ -698,7 +698,7 @@ export default function Header() {
 
                         <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[var(--color-border)]">
 
-                            <div className={`w-14 h-14 rounded-xl overflow-hidden ${profile?.plan === 'pro' ? 'ring-2 ring-[var(--color-gold)]' : ''
+                            <div className={`relative w-14 h-14 rounded-xl overflow-hidden ${profile?.plan === 'pro' ? 'ring-2 ring-[var(--color-gold)]' : ''
                                 }`}>
                                 {profile?.avatar_url ? (
 
