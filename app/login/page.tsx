@@ -95,13 +95,10 @@ function LoginForm() {
                 {/* Content */}
                 <div className="relative z-10 flex flex-col h-full p-8 lg:p-12 justify-center">
                     {/* Logo */}
-                    <Link href="/" className="inline-flex items-center gap-3 mb-12 group">
-                        <div className="h-12 w-12 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={48} height={48} className="object-contain" />
+                    <Link href="/" className="inline-flex items-center mb-12 group">
+                        <div className="relative transition-transform group-hover:scale-[1.02]">
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-14 sm:h-16 w-auto drop-shadow-lg" />
                         </div>
-                        <span className="text-white text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-                            JadaRiseLabs
-                        </span>
                     </Link>
 
                     {/* Title */}
@@ -157,16 +154,10 @@ function LoginForm() {
 
                 {/* Mobile Header */}
                 <div className="absolute top-6 left-6 lg:hidden">
-                    <Link href="/" className="inline-flex items-center gap-2 group">
-                        <div className="h-10 w-10 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={40} height={40} className="object-contain" />
+                    <Link href="/" className="inline-flex items-center group">
+                        <div className="relative transition-transform group-hover:scale-[1.02]">
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={200} height={133} className="object-contain h-12 w-auto" />
                         </div>
-                        <span
-                            className="font-bold text-[var(--color-earth)] text-lg group-hover:text-[var(--color-gold)] transition-colors"
-                            style={{ fontFamily: 'var(--font-heading)' }}
-                        >
-                            JadaRiseLabs
-                        </span>
                     </Link>
                 </div>
 

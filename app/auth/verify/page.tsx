@@ -28,16 +28,10 @@ function VerifyContent() {
             <div className="relative z-10 w-full max-w-md">
                 <div className="module-card-premium flex-col items-center text-center p-8">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 mb-8 group">
-                        <div className="h-12 w-12 rounded-xl overflow-hidden flex items-center justify-center">
-                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={48} height={48} className="object-contain" />
+                    <Link href="/" className="inline-flex items-center mb-8 group">
+                        <div className="relative transition-transform group-hover:scale-[1.02]">
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-14 w-auto drop-shadow-sm" />
                         </div>
-                        <span 
-                            className="font-bold text-xl group-hover:text-[var(--color-earth-light)] transition-colors"
-                            style={{ fontFamily: 'var(--font-heading)' }}
-                        >
-                            JadaRiseLabs
-                        </span>
                     </Link>
 
                     {/* Email Icon */}

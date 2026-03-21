@@ -212,26 +212,18 @@ export default function Header() {
                         {/* ── Logo ── */}
                         <Link
                             href={isAuthenticated ? '/dashboard' : '/'}
-                            className="flex items-center gap-2.5 group flex-shrink-0"
+                            className="flex items-center group flex-shrink-0"
                         >
-                            <div className="relative">
-                                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden group-hover:scale-105`}>
-                                    <Image
-                                        src="/logo-lion.png"
-                                        alt="JadaRiseLabs"
-                                        width={40}
-                                        height={40}
-                                        className="object-contain"
-                                        priority
-                                    />
-                                </div>
+                            <div className="relative transition-all duration-300 group-hover:scale-[1.02]">
+                                <Image
+                                    src="/logo-lion.png"
+                                    alt="JadaRiseLabs"
+                                    width={240}
+                                    height={160}
+                                    className="object-contain h-12 sm:h-14 w-auto"
+                                    priority
+                                />
                             </div>
-                            <span
-                                className="hidden sm:inline font-bold text-lg tracking-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors"
-                                style={{ fontFamily: 'var(--font-heading)' }}
-                            >
-                                {t('header.logo')}
-                            </span>
                         </Link>
 
                         {/* ── Desktop Nav (center) — only authenticated ── */}

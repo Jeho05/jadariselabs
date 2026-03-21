@@ -123,10 +123,9 @@ export default function PricingPage() {
     return (
         <div className="min-h-screen pb-20">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4">
-                        <Image src="/logo-lion.png" alt="JadaRiseLabs" width={64} height={64} className="object-contain" />
+                <div className="text-center mb-12 flex flex-col items-center">
+                    <div className="mb-8 drop-shadow-lg">
+                        <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-16 w-auto" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
                         Choisissez votre plan

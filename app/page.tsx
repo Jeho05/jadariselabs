@@ -202,13 +202,10 @@ export default function Home() {
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-4 md:px-12 lg:px-16">
-        <a href="/" className="flex items-center gap-3 group">
-          <div className="h-11 w-11 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-all duration-300">
-            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={44} height={44} className="object-contain" />
+        <a href="/" className="flex items-center group">
+          <div className="relative transition-all duration-300 group-hover:scale-[1.02]">
+            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-12 sm:h-16 w-auto" priority />
           </div>
-          <span className="font-[var(--font-heading)] font-bold text-xl text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors">
-            JadaRiseLabs
-          </span>
         </a>
         <nav className="hidden md:flex items-center gap-8">
           <a href="#modules" className="nav-link">
@@ -643,11 +640,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
-                  <Image src="/logo-lion.png" alt="JadaRiseLabs" width={40} height={40} className="object-contain" />
+              <div className="flex items-center mb-6">
+                <div className="relative">
+                  <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-12 w-auto grayscale mix-blend-multiply opacity-80" />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">JadaRiseLabs</span>
               </div>
               <p className="text-[var(--color-text-secondary)] max-w-sm mb-6 leading-relaxed">
                 Le premier laboratoire d&apos;intelligence artificielle complet pensé pour les créateurs et développeurs en Afrique de l&apos;Ouest.
