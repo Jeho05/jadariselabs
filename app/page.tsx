@@ -203,8 +203,8 @@ export default function Home() {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-4 md:px-12 lg:px-16">
         <a href="/" className="flex items-center gap-3 group">
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center shadow-lg shadow-[var(--color-earth)]/20 group-hover:shadow-[var(--color-gold)]/30 transition-all duration-300 group-hover:scale-105">
-            <IconFlask size={24} className="text-white" />
+          <div className="h-11 w-11 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-all duration-300">
+            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={44} height={44} className="object-contain" />
           </div>
           <span className="font-[var(--font-heading)] font-bold text-xl text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors">
             JadaRiseLabs
@@ -644,8 +644,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[var(--color-earth)] flex items-center justify-center shadow-sm">
-                  <IconSparkle size={20} className="text-white" />
+                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
+                  <Image src="/logo-lion.png" alt="JadaRiseLabs" width={40} height={40} className="object-contain" />
                 </div>
                 <span className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">JadaRiseLabs</span>
               </div>

@@ -215,8 +215,15 @@ export default function Header() {
                             className="flex items-center gap-2.5 group flex-shrink-0"
                         >
                             <div className="relative">
-                                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] shadow-md shadow-[var(--color-earth)]/15 group-hover:shadow-lg group-hover:shadow-[var(--color-gold)]/20 group-hover:scale-105`}>
-                                    <IconFlask size={20} className="text-white" />
+                                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden group-hover:scale-105`}>
+                                    <Image
+                                        src="/logo-lion.png"
+                                        alt="JadaRiseLabs"
+                                        width={40}
+                                        height={40}
+                                        className="object-contain"
+                                        priority
+                                    />
                                 </div>
                             </div>
                             <span

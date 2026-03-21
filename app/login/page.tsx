@@ -96,8 +96,8 @@ function LoginForm() {
                 <div className="relative z-10 flex flex-col h-full p-8 lg:p-12 justify-center">
                     {/* Logo */}
                     <Link href="/" className="inline-flex items-center gap-3 mb-12 group">
-                        <div className="h-12 w-12 rounded-xl bg-[var(--color-earth-dark)] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                            <IconFlask size={26} className="text-white" />
+                        <div className="h-12 w-12 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={48} height={48} className="object-contain" />
                         </div>
                         <span className="text-white text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
                             JadaRiseLabs
@@ -158,8 +158,8 @@ function LoginForm() {
                 {/* Mobile Header */}
                 <div className="absolute top-6 left-6 lg:hidden">
                     <Link href="/" className="inline-flex items-center gap-2 group">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                            <IconFlask size={20} className="text-white" />
+                        <div className="h-10 w-10 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={40} height={40} className="object-contain" />
                         </div>
                         <span
                             className="font-bold text-[var(--color-earth)] text-lg group-hover:text-[var(--color-gold)] transition-colors"
