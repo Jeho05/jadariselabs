@@ -207,7 +207,7 @@ export default function Header() {
                 }`}
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-14 sm:h-16">
+                    <div className="flex items-center justify-between h-20 sm:h-28">
 
                         {/* ── Logo ── */}
                         <Link
@@ -218,9 +218,9 @@ export default function Header() {
                                 <Image
                                     src="/logo-lion.png"
                                     alt="JadaRiseLabs"
-                                    width={240}
-                                    height={160}
-                                    className="object-contain h-12 sm:h-14 w-auto"
+                                    width={420}
+                                    height={280}
+                                    className="object-contain h-16 sm:h-24 w-auto"
                                     priority
                                 />
                             </div>
