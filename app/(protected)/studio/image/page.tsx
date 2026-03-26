@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
 import {
@@ -15,6 +16,21 @@ import {
 } from '@/components/icons';
 import ShareButtons from '@/components/share-buttons';
 import Link from 'next/link';
+
+// Dynamic import for Puter.js component (client-only)
+const PuterImageGenerator = dynamic(() => import('@/components/puter-image-generator'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex items-center justify-center p-12">
+            <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 rounded-full border-3 border-t-[#FF6B35] border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+                <p className="text-sm text-gray-500">Chargement du mode Pro...</p>
+            </div>
+        </div>
+    ),
+});
+
+type GenerationTab = 'standard' | 'puter';
 
 type ImageModel = 'flux-schnell' | 'sdxl' | 'sd35-medium';
 type ImageSize = '512x512' | '768x768' | '1024x1024';
@@ -54,6 +70,7 @@ export default function ImageStudioPage() {
     const [resultUrl, setResultUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [creditsUsed, setCreditsUsed] = useState(0);
+    const [activeTab, setActiveTab] = useState<GenerationTab>('standard');
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -156,6 +173,35 @@ export default function ImageStudioPage() {
                     )}
                 </div>
 
+                {/* Tab Switcher */}
+                <div className="flex gap-2 mb-6 p-1 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/60 shadow-sm max-w-md">
+                    <button
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[14px] font-bold transition-all ${
+                            activeTab === 'standard'
+                                ? 'bg-white shadow-md text-[var(--color-terracotta-dark,#C25A3C)]'
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-white/40'
+                        }`}
+                        onClick={() => setActiveTab('standard')}
+                    >
+                        <IconPalette size={18} /> Standard
+                        <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">crédits</span>
+                    </button>
+                    <button
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[14px] font-bold transition-all ${
+                            activeTab === 'puter'
+                                ? 'bg-white shadow-md text-[#FF6B35]'
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-white/40'
+                        }`}
+                        onClick={() => setActiveTab('puter')}
+                    >
+                        ⚡ Pro Gratuit
+                        <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">0 crédit</span>
+                    </button>
+                </div>
+
+                {activeTab === 'puter' ? (
+                    <PuterImageGenerator prompt={prompt} onPromptChange={setPrompt} />
+                ) : (
                 <div className="grid lg:grid-cols-2 gap-8">
                     {/* Left — Controls */}
                     <div className="space-y-6">
@@ -377,6 +423,7 @@ export default function ImageStudioPage() {
                         )}
                     </div>
                 </div>
+                )}
             </div>
         </div>
     );

@@ -5,6 +5,7 @@ export type ProviderName =
     | 'huggingface'
     | 'groq'
     | 'gemini'
+    | 'gemini-image'
     | 'deepseek'
     | 'zhipu'
     | 'replicate'
@@ -14,7 +15,8 @@ export type ProviderName =
     | 'brave'
     | 'firecrawl'
     | 'fish'
-    | 'kokoro';
+    | 'kokoro'
+    | 'puter';
 
 export interface ProviderAttempt {
     provider: ProviderName;

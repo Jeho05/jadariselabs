@@ -28,7 +28,7 @@ export async function generateImagePollinations(
     } = options;
 
     const encodedPrompt = encodeURIComponent(prompt.trim());
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=${nologo}&model=${model}`;
+    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=${nologo}&model=${model}&enhance=true`;
 
     const maxAttempts = 3;
     let lastStatus = 0;

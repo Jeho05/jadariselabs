@@ -9,6 +9,7 @@ import { generateImage, calculateImageCredits, IMAGE_MODELS } from '@/lib/huggin
 import type { ImageModel } from '@/lib/huggingface';
 import { generateImagePollinations } from '@/lib/pollinations';
 import { generateFalImage } from '@/lib/fal';
+import { generateGeminiImage } from '@/lib/gemini-image';
 import { runProviderChain } from '@/lib/provider-router';
 import type { ProviderName } from '@/lib/provider-router';
 
@@ -120,13 +121,22 @@ export async function POST(request: NextRequest) {
         let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
         try {
             if (profile.plan === 'free') {
-                // Routage: Pollinations.ai (gratuit) → HuggingFace (fallback)
-                const freeProviders: Array<{ name: ProviderName; run: () => Promise<Buffer> }> = [
-                    {
-                        name: 'pollinations',
-                        run: () => generateImagePollinations(prompt, { width, height }),
-                    },
-                ];
+                // Routage: Gemini (qualité) → Pollinations.ai (gratuit) → HuggingFace (fallback)
+                const freeProviders: Array<{ name: ProviderName; run: () => Promise<Buffer> }> = [];
+
+                // Gemini 2.0 Flash — meilleure qualité, 500 img/jour gratuit
+                if (process.env.GEMINI_API_KEY) {
+                    freeProviders.push({
+                        name: 'gemini-image',
+                        run: () => generateGeminiImage(prompt, { width, height }),
+                    });
+                }
+
+                // Pollinations.ai — gratuit illimité avec enhance
+                freeProviders.push({
+                    name: 'pollinations',
+                    run: () => generateImagePollinations(prompt, { width, height }),
+                });
 
                 // Ajouter HuggingFace comme fallback si la clé est configurée
                 if (process.env.HUGGINGFACE_API_KEY) {
