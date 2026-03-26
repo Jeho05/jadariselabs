@@ -128,14 +128,14 @@ export async function POST(request: NextRequest) {
                 if (process.env.GEMINI_API_KEY) {
                     freeProviders.push({
                         name: 'gemini-image',
-                        run: () => generateGeminiImage(prompt, { width, height }),
+                        run: () => generateGeminiImage(prompt, { width, height, negative_prompt: body.negative_prompt }),
                     });
                 }
 
                 // Pollinations.ai — gratuit illimité avec enhance
                 freeProviders.push({
                     name: 'pollinations',
-                    run: () => generateImagePollinations(prompt, { width, height }),
+                    run: () => generateImagePollinations(prompt, { width, height, negative_prompt: body.negative_prompt }),
                 });
 
                 // Ajouter HuggingFace comme fallback si la clé est configurée

@@ -48,7 +48,7 @@ interface PuterImageGeneratorProps {
 
 export default function PuterImageGenerator({ prompt, onPromptChange }: PuterImageGeneratorProps) {
     const [puterReady, setPuterReady] = useState(false);
-    const [model, setModel] = useState<PuterModel>('dall-e-3');
+    const [model, setModel] = useState<PuterModel>('black-forest-labs/FLUX.1-schnell');
     const [generating, setGenerating] = useState(false);
     const [resultUrl, setResultUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -97,11 +97,17 @@ export default function PuterImageGenerator({ prompt, onPromptChange }: PuterIma
             const options: { model: string; quality?: string } = { model };
             
             // Add quality setting for supported models
-            if (selectedModel && 'quality' in selectedModel && selectedModel.quality) {
+            if (selectedModel && selectedModel.quality) {
                 options.quality = selectedModel.quality;
             }
 
-            const imgElement = await window.puter.ai.txt2img(prompt.trim(), options);
+            // Prompt Enhancer: automatically append high-quality markers if the prompt is basic
+            let finalPrompt = prompt.trim();
+            if (finalPrompt.length < 100 && !finalPrompt.includes('masterpiece') && !finalPrompt.includes('photorealistic')) {
+                finalPrompt += ", masterpiece, highly detailed, photorealistic, 8k resolution, cinematic lighting, sharp focus";
+            }
+
+            const imgElement = await window.puter.ai.txt2img(finalPrompt, options);
             
             // Extract the image src from the returned <img> element
             if (imgElement && imgElement.src) {

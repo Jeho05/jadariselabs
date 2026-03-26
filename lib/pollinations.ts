@@ -9,6 +9,7 @@ export interface PollinationsOptions {
     seed?: number;
     nologo?: boolean;
     model?: string;
+    negative_prompt?: string;
 }
 
 /**
@@ -24,10 +25,16 @@ export async function generateImagePollinations(
         height = 512,
         seed = Math.floor(Math.random() * 1000000),
         nologo = true,
-        model = 'flux',
+        model = 'flux-realism',
+        negative_prompt,
     } = options;
 
-    const encodedPrompt = encodeURIComponent(prompt.trim());
+    let finalPrompt = prompt.trim();
+    if (negative_prompt && negative_prompt.trim()) {
+        finalPrompt += ` | Avoid: ${negative_prompt.trim()}`;
+    }
+
+    const encodedPrompt = encodeURIComponent(finalPrompt);
     const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=${nologo}&model=${model}&enhance=true`;
 
     const maxAttempts = 3;

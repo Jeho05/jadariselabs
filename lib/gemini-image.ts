@@ -9,6 +9,7 @@
 export interface GeminiImageOptions {
     width?: number;
     height?: number;
+    negative_prompt?: string;
 }
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -28,7 +29,13 @@ export async function generateGeminiImage(
         throw new Error('GEMINI_API_KEY is not configured. Ajoutez-la dans .env.local');
     }
 
-    const enhancedPrompt = `Generate a high-quality image: ${prompt}. The image should be detailed, well-composed, and visually stunning.`;
+    // Advanced Prompt Engineering for Gemini 2.0 Flash Image Generation
+    const baseStyle = "masterpiece, highly detailed, photorealistic, 8k resolution, cinematic lighting, sharp focus, stunning composition, professional photography";
+    let enhancedPrompt = `${prompt}. Style: ${baseStyle}.`;
+    
+    if (options.negative_prompt && options.negative_prompt.trim()) {
+        enhancedPrompt += ` EXPLICITLY DO NOT INCLUDE: ${options.negative_prompt.trim()}.`;
+    }
 
     const url = `${GEMINI_API_BASE}/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${apiKey}`;
 
