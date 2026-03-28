@@ -16,7 +16,7 @@ export default function ProtectedLayout({
     return (
         <div className="min-h-screen bg-cream flex flex-col">
             <Header />
-            <main className="flex-1 pt-16 lg:pt-20 pb-20 lg:pb-0">{children}</main>
+            <main className="flex-1 pt-28 lg:pt-36 pb-20 lg:pb-0">{children}</main>
             <MobileBottomNav />
         </div>
     );

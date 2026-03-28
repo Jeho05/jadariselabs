@@ -159,7 +159,7 @@ export default function CodeStudioPage() {
             <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
             <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
 
-            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col h-screen max-h-screen overflow-hidden">
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col lg:h-[calc(100vh-9rem)] lg:max-h-[calc(100vh-9rem)] overflow-visible lg:overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="module-icon-premium earth shadow-lg">
@@ -285,7 +285,7 @@ export default function CodeStudioPage() {
                     </div>
 
                     {/* Colonne de droite (3/5) : Résultat */}
-                    <div className="lg:col-span-3 flex flex-col h-full bg-[#1E1E1E] rounded-[24px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] overflow-hidden border border-[#333]">
+                    <div className="lg:col-span-3 flex flex-col min-h-[400px] lg:h-full bg-[#1E1E1E] rounded-[24px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] overflow-hidden border border-[#333]">
                         {/* Header de l'éditeur */}
                         <div className="bg-[#2D2D2D] px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-[#3A3A3A]">
                             <div className="flex flex-col">

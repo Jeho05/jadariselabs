@@ -377,7 +377,7 @@ export default function Header() {
                     {/* Menu Panel */}
                     <div
                         ref={mobileMenuRef}
-                        className="fixed top-[56px] sm:top-[64px] left-0 right-0 z-50 lg:hidden bg-white/95 backdrop-blur-xl border-b border-black/[0.06] shadow-xl shadow-black/5 max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] overflow-y-auto"
+                        className="fixed top-[112px] sm:top-[144px] left-0 right-0 z-50 lg:hidden bg-white/95 backdrop-blur-xl border-b border-black/[0.06] shadow-xl shadow-black/5 max-h-[calc(100vh-112px)] sm:max-h-[calc(100vh-144px)] overflow-y-auto"
                         style={{ animation: 'slideDown 0.25s ease-out' }}
                     >
                         <div className="max-w-lg mx-auto px-5 py-5">

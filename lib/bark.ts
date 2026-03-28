@@ -93,65 +93,84 @@ export async function generateAudio(
         });
     }
 
-    // Kokoro TTS via Hugging Face Inference API — fallback (remplace Bark)
+    // HuggingFace TTS fallback — tries multiple models in sequence
     if (hfApiKey) {
         providers.push({
             name: 'kokoro',
             run: async () => {
-                let response: Response | undefined;
-                let retries = 0;
-                const maxRetries = 3;
+                // List of HF TTS models to try, in priority order
+                const hfModels = [
+                    'facebook/mms-tts-fra',
+                    'espnet/kan-bayashi_ljspeech_vits',
+                ];
+
                 let lastError = '';
 
-                while (retries < maxRetries) {
-                    response = await fetch(
-                        'https://router.huggingface.co/hf-inference/models/facebook/mms-tts-fra',
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${hfApiKey}`,
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                inputs: text,
-                            }),
+                for (const model of hfModels) {
+                    let response: Response | undefined;
+                    let retries = 0;
+                    const maxRetries = 2;
+
+                    while (retries < maxRetries) {
+                        try {
+                            response = await fetch(
+                                `https://api-inference.huggingface.co/models/${model}`,
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Authorization': `Bearer ${hfApiKey}`,
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        inputs: text,
+                                    }),
+                                }
+                            );
+
+                            if (response.ok) {
+                                console.log(`[Audio HF] Succès avec le modèle: ${model}`);
+                                return {
+                                    audio: Buffer.from(await response.arrayBuffer()),
+                                    duration: estimateDuration(text),
+                                };
+                            }
+
+                            const errorText = await response.text();
+                            lastError = errorText;
+
+                            if (response.status === 503) {
+                                retries++;
+                                if (retries < maxRetries) {
+                                    console.log(`[Audio HF] Modèle ${model} en chargement (503). Attente 10s... (Essai ${retries}/${maxRetries})`);
+                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    continue;
+                                }
+                                // Model is loading too long, try next model
+                                console.log(`[Audio HF] Modèle ${model} indisponible, tentative du suivant...`);
+                                break;
+                            }
+
+                            if (response.status === 404 || response.status === 422) {
+                                console.log(`[Audio HF] Modèle ${model} non trouvé (${response.status}), tentative du suivant...`);
+                                break; // Try next model
+                            }
+
+                            if (response.status === 429) {
+                                throw new ProviderError('kokoro', 'Trop de requêtes audio. Veuillez patienter.', response.status);
+                            }
+
+                            // Other error, try next model
+                            console.log(`[Audio HF] Erreur ${response.status} avec ${model}: ${errorText.substring(0, 100)}`);
+                            break;
+                        } catch (err) {
+                            if (err instanceof ProviderError) throw err;
+                            lastError = String(err);
+                            break;
                         }
-                    );
-
-                    if (response.ok) break;
-
-                    const errorText = await response.text();
-                    lastError = errorText;
-
-                    if (response.status === 503) {
-                        retries++;
-                        if (retries < maxRetries) {
-                            console.log(`[Kokoro] Modèle en chargement (503). Attente 15s... (Essai ${retries}/${maxRetries - 1})`);
-                            await new Promise(resolve => setTimeout(resolve, 15000));
-                            continue;
-                        }
-                        throw new ProviderError('kokoro', 'Le modèle audio met trop de temps à charger. Réessayez dans quelques minutes.', response.status);
                     }
-
-                    if (response.status === 404) {
-                        throw new ProviderError('kokoro', 'Le modèle audio de secours est temporairement indisponible sur HuggingFace.', response.status);
-                    }
-
-                    if (response.status === 429) {
-                        throw new ProviderError('kokoro', 'Trop de requêtes audio. Veuillez patienter.', response.status);
-                    }
-
-                    throw new ProviderError('kokoro', `Erreur Kokoro: ${errorText.substring(0, 200)}`, response.status);
                 }
 
-                if (!response || !response.ok) {
-                    throw new ProviderError('kokoro', `Erreur inattendue de l'API Audio: ${lastError.substring(0, 200)}`);
-                }
-
-                return {
-                    audio: Buffer.from(await response.arrayBuffer()),
-                    duration: estimateDuration(text),
-                };
+                throw new ProviderError('kokoro', `Aucun modèle audio HuggingFace disponible actuellement. Réessayez plus tard. (${lastError.substring(0, 150)})`, 503);
             },
         });
     }
