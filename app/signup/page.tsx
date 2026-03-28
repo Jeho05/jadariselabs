@@ -167,7 +167,7 @@ export default function SignupPage() {
                     {/* Logo */}
                     <Link href="/" className="inline-flex items-center mb-12 group">
                         <div className="relative transition-transform group-hover:scale-[1.02]">
-                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-14 sm:h-16 w-auto drop-shadow-lg" />
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-20 sm:h-28 w-auto drop-shadow-lg" />
                         </div>
                     </Link>
 
@@ -236,7 +236,7 @@ export default function SignupPage() {
                 <div className="absolute top-6 left-6 lg:hidden">
                     <Link href="/" className="inline-flex items-center group">
                         <div className="relative transition-transform group-hover:scale-[1.02]">
-                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={200} height={133} className="object-contain h-12 w-auto" />
+                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={200} height={133} className="object-contain h-16 w-auto drop-shadow-sm" />
                         </div>
                     </Link>
                 </div>

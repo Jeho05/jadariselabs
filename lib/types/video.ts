@@ -7,7 +7,7 @@
 export type PlanType = 'free' | 'starter' | 'pro';
 
 // Video generation models
-export type VideoModel = 'wan-video/wan-2.1-1.3b' | 'minimax/video-01';
+export type VideoModel = 'wan-video/wan-2.1-1.3b' | 'google/veo-3.1' | 'minimax/video-01';
 
 export type VideoQuality = 'standard' | 'high' | 'ultra';
 
@@ -122,14 +122,26 @@ export const VIDEO_MODELS: Record<VideoModel, VideoModelInfo> = {
   'wan-video/wan-2.1-1.3b': {
     name: 'wan-video/wan-2.1-1.3b',
     version: '1.0',
-    displayName: 'Wan 2.1 (1.3B)',
-    description: 'Modèle de génération vidéo de haute qualité',
-    creditsPerSecond: 2,
+    displayName: 'Wan 2.1 (1.3B) - Gratuit',
+    description: 'Modèle de génération vidéo open-source haute efficacité',
+    creditsPerSecond: 0,
     maxDuration: 5,
     supportedFeatures: ['text-to-video'],
     qualityLevels: ['standard', 'high'],
     aspectRatios: ['16:9', '1:1', '9:16'],
     avgGenerationTime: 120,
+  },
+  'google/veo-3.1': {
+    name: 'google/veo-3.1',
+    version: '3.1',
+    displayName: 'Google Veo 3.1 - Gratuit',
+    description: 'Qualité 1080p et 4K avec audio synchronisé natif',
+    creditsPerSecond: 0,
+    maxDuration: 8,
+    supportedFeatures: ['text-to-video', 'audio', '4k'],
+    qualityLevels: ['standard', 'high', 'ultra'],
+    aspectRatios: ['16:9'],
+    avgGenerationTime: 60,
   },
   'minimax/video-01': {
     name: 'minimax/video-01',

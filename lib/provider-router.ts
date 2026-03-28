@@ -16,7 +16,9 @@ export type ProviderName =
     | 'firecrawl'
     | 'fish'
     | 'kokoro'
-    | 'puter';
+    | 'puter'
+    | 'gradio'
+    | 'veo';
 
 export interface ProviderAttempt {
     provider: ProviderName;

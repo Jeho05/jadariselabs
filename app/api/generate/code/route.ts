@@ -261,14 +261,14 @@ export async function POST(request: NextRequest) {
                         if (done) break;
 
                         const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split('\\n');
+                        const lines = chunk.split('\n');
 
                         for (let line of lines) {
                             line = line.trim();
                             if (line.startsWith('data: ')) {
                                 const data = line.slice(6).trim();
                                 if (data === '[DONE]') {
-                                    controller.enqueue(encoder.encode('data: [DONE]\\n\\n'));
+                                    controller.enqueue(encoder.encode('data: [DONE]\n\n'));
                                     continue;
                                 }
 
@@ -276,7 +276,7 @@ export async function POST(request: NextRequest) {
                                     const parsed = JSON.parse(data);
                                     const content = parsed.choices?.[0]?.delta?.content;
                                     if (content) {
-                                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\\n\\n`));
+                                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
                                     }
                                 } catch {
                                     // Skip malformed JSON chunks

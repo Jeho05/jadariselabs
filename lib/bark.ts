@@ -105,7 +105,7 @@ export async function generateAudio(
 
                 while (retries < maxRetries) {
                     response = await fetch(
-                        'https://router.huggingface.co/hf-inference/models/hexgrad/Kokoro-82M',
+                        'https://router.huggingface.co/hf-inference/models/facebook/mms-tts-fra',
                         {
                             method: 'POST',
                             headers: {
@@ -134,7 +134,7 @@ export async function generateAudio(
                     }
 
                     if (response.status === 404) {
-                        throw new ProviderError('kokoro', 'Le modèle Kokoro TTS est temporairement indisponible sur HuggingFace.', response.status);
+                        throw new ProviderError('kokoro', 'Le modèle audio de secours est temporairement indisponible sur HuggingFace.', response.status);
                     }
 
                     if (response.status === 429) {

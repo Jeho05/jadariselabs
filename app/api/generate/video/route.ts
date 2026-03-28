@@ -12,6 +12,9 @@ import type { ReplicateVideoModel } from '@/lib/replicate';
 import { generateFalVideo, checkFalPrediction } from '@/lib/fal';
 import { createMinimaxVideoTask, getMinimaxVideoTask, retrieveMinimaxFile } from '@/lib/minimax';
 import { runProviderChain } from '@/lib/provider-router';
+import { generateGradioVideo } from '@/lib/gradio';
+import { generateVeoVideo } from '@/lib/veo';
+import { enhanceVideoPrompt } from '@/lib/gemini-enhancer';
 
 // POST - Create video generation
 export async function POST(request: NextRequest) {
@@ -166,16 +169,48 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id);
     }
 
-    // Arbitrage: MiniMax (Hailuo) -> Fal.ai -> Replicate
+    // Prompt Rewriting Logic
+    let finalPrompt = body.prompt.trim();
+    try {
+      if (process.env.GEMINI_API_KEY) {
+        finalPrompt = await enhanceVideoPrompt(finalPrompt);
+      }
+    } catch (e) {
+      console.warn('[VideoAPI] Prompt enhancement failed, using original', e);
+    }
+
+    // Arbitrage: Gradio -> Veo -> MiniMax (Hailuo) -> Fal.ai -> Replicate
     let predictionId: string | undefined = undefined;
-    let providerUsed: 'minimax' | 'fal' | 'replicate' | undefined = undefined;
+    let providerUsed: 'gradio' | 'veo' | 'minimax' | 'fal' | 'replicate' | undefined = undefined;
     let modelUsed: VideoModel | undefined = undefined;
     let providerModel: string | undefined = undefined;
     let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
 
     try {
       type VideoProviderResult = { predictionId: string; modelUsed: VideoModel; providerModel?: string };
-      const providers: Array<{ name: 'minimax' | 'fal' | 'replicate'; run: () => Promise<VideoProviderResult> }> = [];
+      const providers: Array<{ name: 'gradio' | 'veo' | 'minimax' | 'fal' | 'replicate'; run: () => Promise<VideoProviderResult> }> = [];
+
+      // 1. Hugging Face ZeroGPU (Gratuit)
+      if (process.env.HUGGINGFACE_API_KEY && requestedModel === 'wan-video/wan-2.1-1.3b') {
+        providers.push({
+          name: 'gradio',
+          run: async () => {
+            const { predictionId, url } = await generateGradioVideo({ prompt: finalPrompt, model: 'Wan-AI/Wan2.1' });
+            return { predictionId: url || predictionId, modelUsed: requestedModel, providerModel: 'Wan-AI/Wan2.1' };
+          },
+        });
+      }
+
+      // 2. Google Veo 3.1 (Google AI Studio Free Tier) 
+      if (process.env.GEMINI_API_KEY && requestedModel === 'google/veo-3.1') {
+        providers.push({
+          name: 'veo',
+          run: async () => {
+            const { predictionId, url } = await generateVeoVideo({ prompt: finalPrompt, quality: quality, aspectRatio: aspectRatio });
+            return { predictionId: url || predictionId, modelUsed: requestedModel, providerModel: 'veo-3.1' };
+          },
+        });
+      }
 
       if (process.env.MINIMAX_API_KEY && requestedModel === 'minimax/video-01') {
         const minimaxModel = process.env.MINIMAX_MODEL || 'video-01';
@@ -225,7 +260,7 @@ export async function POST(request: NextRequest) {
       const providerResult = await runProviderChain<VideoProviderResult>(providers, { purpose: 'video' });
 
       predictionId = providerResult.result.predictionId;
-      providerUsed = providerResult.provider as 'minimax' | 'fal' | 'replicate';
+      providerUsed = providerResult.provider as 'gradio' | 'veo' | 'minimax' | 'fal' | 'replicate';
       modelUsed = providerResult.result.modelUsed;
       providerModel = providerResult.result.providerModel;
       routerMeta = {
@@ -322,7 +357,23 @@ export async function GET(request: NextRequest) {
           const provider = generation.metadata?.provider || 'replicate';
           const predictionId = generation.metadata.predictionId as string;
 
-          if (provider === 'minimax') {
+          if (provider === 'gradio' || provider === 'veo') {
+             // Gradio et Veo sont gérés de manière synchrone dans notre implémentation
+             // La predictionId est en fait l'URL complétée
+             if (predictionId.startsWith('http')) {
+               await supabase
+                 .from('generations')
+                 .update({
+                   status: 'completed',
+                   result_url: predictionId,
+                   completed_at: new Date().toISOString(),
+                 })
+                 .eq('id', generation.id);
+
+               generation.status = 'completed';
+               generation.result_url = predictionId;
+             }
+          } else if (provider === 'minimax') {
             const task = await getMinimaxVideoTask(predictionId);
             if (task.status === 'Success' && task.file_id) {
               const fileInfo = await retrieveMinimaxFile(task.file_id);
