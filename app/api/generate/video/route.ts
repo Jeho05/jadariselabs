@@ -284,10 +284,14 @@ export async function POST(request: NextRequest) {
         .eq('id', generationData.id);
 
       console.error('[VideoAPI] Generation error:', apiError);
+      let details = apiError instanceof Error ? apiError.message : 'Impossible de démarrer la création de la vidéo.';
+      if (details.includes('Insufficient credit')) {
+        details = 'Les fournisseurs vidéo gratuits (HuggingFace/Veo) sont indisponibles ou occupés. Le fournisseur de secours (Replicate) a échoué par manque de crédits sur la plateforme. Veuillez réessayer plus tard.';
+      }
       return NextResponse.json({
         success: false,
-        error: 'Erreur de création vidéo',
-        details: apiError instanceof Error ? apiError.message : 'Impossible de démarrer la création de la vidéo.',
+        error: 'Indisponibilité des fournisseurs',
+        details,
         trace_id: traceId
       }, { status: 500 });
     }

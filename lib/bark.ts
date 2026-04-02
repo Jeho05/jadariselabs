@@ -114,7 +114,7 @@ export async function generateAudio(
                     while (retries < maxRetries) {
                         try {
                             response = await fetch(
-                                `https://api-inference.huggingface.co/models/${model}`,
+                                `https://router.huggingface.co/hf-inference/models/${model}`,
                                 {
                                     method: 'POST',
                                     headers: {

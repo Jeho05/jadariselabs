@@ -239,10 +239,16 @@ export default function CodeStudioPage() {
                                 </label>
                                 <div className="relative">
                                     <textarea
-                                        className="w-full p-4 pb-10 rounded-2xl border-2 border-transparent bg-white shadow-sm focus:outline-none focus:border-[var(--color-earth)] transition-colors resize-none text-[15px] leading-relaxed text-gray-800 placeholder-gray-400"
+                                        className="w-full p-4 pb-10 rounded-2xl border-2 border-gray-100 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus:outline-none focus:border-[var(--color-earth)] focus:ring-4 focus:ring-[var(--color-earth)]/10 transition-all resize-none text-[15px] leading-relaxed text-gray-800 placeholder-gray-400"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
-                                        placeholder="Ex: Crée un composant React de datatable avec pagination TailwindCSS et Zustand..."
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleGenerate();
+                                            }
+                                        }}
+                                        placeholder="Décrivez votre problème ou demandez du code... (Entrée pour envoyer, Maj+Entrée pour saut de ligne)"
                                         rows={6}
                                         maxLength={6000}
                                         disabled={isStreaming}
