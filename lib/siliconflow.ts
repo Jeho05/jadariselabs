@@ -30,7 +30,7 @@ export async function runSiliconFlowChat({
   mode?: SiliconFlowMode;
   stream?: boolean;
 }): Promise<Response> {
-  const apiKey = process.env.SILICONFLOW_API_KEY;
+  const apiKey = process.env.SILICONFLOW_API_KEY?.trim();
   if (!apiKey) {
     throw new ProviderError('siliconflow', 'SILICONFLOW_API_KEY non configurée', 503);
   }
@@ -73,7 +73,7 @@ export async function generateSiliconFlowImage(
   prompt: string,
   options: { width?: number; height?: number } = {}
 ): Promise<Buffer> {
-  const apiKey = process.env.SILICONFLOW_API_KEY;
+  const apiKey = process.env.SILICONFLOW_API_KEY?.trim();
   if (!apiKey) {
     throw new ProviderError('siliconflow', 'SILICONFLOW_API_KEY non configurée', 503);
   }

@@ -35,7 +35,7 @@ export async function generateQwenTTS(
   langCode: string = 'fr',
   options: QwenTTSOptions = {}
 ): Promise<{ audio: Buffer; duration: number }> {
-  const apiKey = process.env.DASHSCOPE_API_KEY;
+  const apiKey = process.env.DASHSCOPE_API_KEY?.trim();
   if (!apiKey) {
     throw new ProviderError('qwen-tts', 'DASHSCOPE_API_KEY non configurée', 503);
   }

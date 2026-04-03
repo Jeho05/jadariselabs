@@ -30,8 +30,8 @@ export async function runIFlytekChat({
   mode?: IFlytekMode;
   stream?: boolean;
 }): Promise<Response> {
-  const apiKey = process.env.IFLYTEK_API_KEY;
-  const apiSecret = process.env.IFLYTEK_API_SECRET;
+  const apiKey = process.env.IFLYTEK_API_KEY?.trim();
+  const apiSecret = process.env.IFLYTEK_API_SECRET?.trim();
 
   if (!apiKey || !apiSecret) {
     throw new ProviderError('iflytek', 'IFLYTEK_API_KEY ou IFLYTEK_API_SECRET non configurée', 503);
