@@ -1,9 +1,10 @@
 /**
  * Audio Synthesis Client
- * Synthèse vocale via Fish Audio (prioritaire) ou Kokoro TTS (Hugging Face fallback)
+ * Synthèse vocale via Qwen3-TTS (prioritaire) → Fish Audio → Kokoro TTS (HuggingFace)
  */
 
 import { runProviderChain, ProviderError } from '@/lib/provider-router';
+import { generateQwenTTS } from '@/lib/qwen-tts';
 
 export type BarkVoice = 'fr' | 'en' | 'de' | 'es' | 'it' | 'pt' | 'zh';
 
@@ -16,7 +17,7 @@ export interface AudioGenerationResult {
     audio: Buffer;
     voice: BarkVoice;
     duration: number;
-    provider?: 'fish' | 'kokoro';
+    provider?: 'qwen-tts' | 'fish' | 'kokoro';
     router?: { provider: string; attempts: unknown[]; duration_ms: number };
 }
 
@@ -42,6 +43,7 @@ export async function generateAudio(
     options: AudioGenerationOptions = {}
 ): Promise<AudioGenerationResult> {
     const voice = options.voice || 'fr';
+    const dashscopeApiKey = process.env.DASHSCOPE_API_KEY;
     const fishApiKey = process.env.FISH_AUDIO_API_KEY;
     const hfApiKey = process.env.HUGGINGFACE_API_KEY;
 
@@ -52,10 +54,10 @@ export async function generateAudio(
         throw new Error("Le texte est trop long (max 500 caractères)");
     }
 
-    if (!fishApiKey && !hfApiKey) {
+    if (!dashscopeApiKey && !fishApiKey && !hfApiKey) {
         throw new Error(
             'Aucun fournisseur audio configuré. ' +
-            'Ajoutez FISH_AUDIO_API_KEY (fish.audio, gratuit) ou HUGGINGFACE_API_KEY dans .env.local'
+            'Ajoutez DASHSCOPE_API_KEY (Qwen3-TTS, gratuit), FISH_AUDIO_API_KEY ou HUGGINGFACE_API_KEY dans .env.local'
         );
     }
 
@@ -64,7 +66,18 @@ export async function generateAudio(
         return Math.ceil(wordCount / 2.5);
     };
 
-    const providers: Array<{ name: 'fish' | 'kokoro'; run: () => Promise<{ audio: Buffer; duration: number }> }> = [];
+    const providers: Array<{ name: 'qwen-tts' | 'fish' | 'kokoro'; run: () => Promise<{ audio: Buffer; duration: number }> }> = [];
+
+    // Qwen3-TTS (Alibaba Cloud) — PRIORITAIRE (qualité ElevenLabs, gratuit)
+    if (dashscopeApiKey) {
+        providers.push({
+            name: 'qwen-tts',
+            run: async () => {
+                return await generateQwenTTS(text, voice);
+            },
+        });
+    }
+
 
     // Fish Audio — prioritaire (plus fiable)
     if (fishApiKey) {
@@ -181,7 +194,7 @@ export async function generateAudio(
         audio: providerResult.result.audio,
         voice,
         duration: providerResult.result.duration,
-        provider: providerResult.provider as 'fish' | 'kokoro',
+        provider: providerResult.provider as 'qwen-tts' | 'fish' | 'kokoro',
         router: {
             provider: providerResult.provider,
             attempts: providerResult.attempts,

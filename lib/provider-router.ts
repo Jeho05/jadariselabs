@@ -18,7 +18,11 @@ export type ProviderName =
     | 'kokoro'
     | 'puter'
     | 'gradio'
-    | 'veo';
+    | 'veo'
+    | 'siliconflow'
+    | 'iflytek'
+    | 'qwen-tts'
+    | 'dashscope-image';
 
 export interface ProviderAttempt {
     provider: ProviderName;

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { runProviderChain, ProviderError } from '@/lib/provider-router';
 import type { ProviderTask } from '@/lib/provider-router';
+import { runSiliconFlowChat } from '@/lib/siliconflow';
+import { runIFlytekChat } from '@/lib/iflytek';
 
 /**
  * POST /api/generate/chat — Chat IA multi-modèles (Groq/Gemini/DeepSeek)
@@ -13,8 +15,12 @@ import type { ProviderTask } from '@/lib/provider-router';
 
 const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
+const SILICONFLOW_API_BASE = 'https://api.siliconflow.com/v1';
+const IFLYTEK_API_BASE = 'https://spark-api-open.xf-yun.com/v1';
 const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const SILICONFLOW_MODEL = 'Qwen/Qwen3-8B';
+const IFLYTEK_MODEL = 'generalv3.5';
 const DEEPSEEK_API_BASE = process.env.DEEPSEEK_API_BASE;
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL;
 const CREDITS_PER_MESSAGE = 1;
@@ -47,7 +53,7 @@ async function runOpenAICompatibleChat({
     model,
     messages,
 }: {
-    provider: 'groq' | 'gemini' | 'deepseek';
+    provider: 'groq' | 'gemini' | 'deepseek' | 'siliconflow' | 'iflytek';
     baseUrl: string;
     apiKey: string;
     model: string;
@@ -140,41 +146,23 @@ export async function POST(request: NextRequest) {
     const groqApiKey = process.env.GROQ_API_KEY;
     const geminiApiKey = process.env.GEMINI_API_KEY;
     const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+    const siliconflowApiKey = process.env.SILICONFLOW_API_KEY;
+    const iflytekApiKey = process.env.IFLYTEK_API_KEY;
+    const iflytekApiSecret = process.env.IFLYTEK_API_SECRET;
 
-    if (selectedMode === 'speed' && !groqApiKey) {
+    // Au moins un provider doit être configuré
+    const hasAnyProvider = groqApiKey || geminiApiKey || siliconflowApiKey || iflytekApiKey;
+    if (!hasAnyProvider) {
         return NextResponse.json(
             {
                 error: 'Configuration manquante',
                 details:
-                    'GROQ_API_KEY non configurée. Ajoutez-la dans .env.local pour activer le chat rapide.',
+                    'Aucun fournisseur chat configuré. Ajoutez au moins une clé API dans .env.local.',
             },
             { status: 503 }
         );
     }
 
-    if (selectedMode === 'long' && !geminiApiKey) {
-        return NextResponse.json(
-            {
-                error: 'Configuration manquante',
-                details:
-                    'GEMINI_API_KEY non configurée. Ajoutez-la dans .env.local pour activer le mode contexte long.',
-            },
-            { status: 503 }
-        );
-    }
-
-    if (selectedMode === 'reasoning') {
-        if (!deepseekApiKey || !DEEPSEEK_API_BASE || !DEEPSEEK_MODEL) {
-            return NextResponse.json(
-                {
-                    error: 'Configuration manquante',
-                    details:
-                        'DEEPSEEK_API_KEY, DEEPSEEK_API_BASE ou DEEPSEEK_MODEL non configuré(e). Ajoutez-les dans .env.local pour activer le raisonnement.',
-                },
-                { status: 503 }
-            );
-        }
-    }
 
     // Construire les messages pour Groq
     const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
@@ -199,7 +187,7 @@ export async function POST(request: NextRequest) {
         const tasks: ProviderTask<Response>[] = [];
 
         const buildTask = (
-            name: 'groq' | 'gemini' | 'deepseek',
+            name: 'groq' | 'gemini' | 'deepseek' | 'siliconflow' | 'iflytek',
             baseUrl: string,
             apiKey: string,
             model: string
@@ -209,6 +197,16 @@ export async function POST(request: NextRequest) {
             canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
         });
 
+        // Helper to add SiliconFlow + iFlytek as fallbacks
+        const addFreeFallbacks = () => {
+            if (siliconflowApiKey) {
+                tasks.push(buildTask('siliconflow', SILICONFLOW_API_BASE, siliconflowApiKey, SILICONFLOW_MODEL));
+            }
+            if (iflytekApiKey && iflytekApiSecret) {
+                tasks.push(buildTask('iflytek', IFLYTEK_API_BASE, `${iflytekApiKey}:${iflytekApiSecret}`, IFLYTEK_MODEL));
+            }
+        };
+
         if (selectedMode === 'speed') {
             if (groqApiKey) {
                 tasks.push(buildTask('groq', GROQ_API_BASE, groqApiKey, GROQ_MODEL));
@@ -216,6 +214,7 @@ export async function POST(request: NextRequest) {
             if (geminiApiKey) {
                 tasks.push(buildTask('gemini', GEMINI_API_BASE, geminiApiKey, GEMINI_MODEL));
             }
+            addFreeFallbacks();
         }
 
         if (selectedMode === 'long') {
@@ -225,15 +224,25 @@ export async function POST(request: NextRequest) {
             if (groqApiKey) {
                 tasks.push(buildTask('groq', GROQ_API_BASE, groqApiKey, GROQ_MODEL));
             }
+            addFreeFallbacks();
         }
 
-        if (selectedMode === 'reasoning' && deepseekApiKey && DEEPSEEK_API_BASE && DEEPSEEK_MODEL) {
-            tasks.push(buildTask('deepseek', DEEPSEEK_API_BASE, deepseekApiKey, DEEPSEEK_MODEL));
+        if (selectedMode === 'reasoning') {
+            // SiliconFlow DeepSeek-R1 en premier pour le reasoning (gratuit)
+            if (siliconflowApiKey) {
+                tasks.push(buildTask('siliconflow', SILICONFLOW_API_BASE, siliconflowApiKey, 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'));
+            }
+            if (deepseekApiKey && DEEPSEEK_API_BASE && DEEPSEEK_MODEL) {
+                tasks.push(buildTask('deepseek', DEEPSEEK_API_BASE, deepseekApiKey, DEEPSEEK_MODEL));
+            }
             if (geminiApiKey) {
                 tasks.push(buildTask('gemini', GEMINI_API_BASE, geminiApiKey, GEMINI_MODEL));
             }
             if (groqApiKey) {
                 tasks.push(buildTask('groq', GROQ_API_BASE, groqApiKey, GROQ_MODEL));
+            }
+            if (iflytekApiKey && iflytekApiSecret) {
+                tasks.push(buildTask('iflytek', IFLYTEK_API_BASE, `${iflytekApiKey}:${iflytekApiSecret}`, IFLYTEK_MODEL));
             }
         }
 
@@ -244,6 +253,8 @@ export async function POST(request: NextRequest) {
             groq: GROQ_MODEL,
             gemini: GEMINI_MODEL,
             deepseek: DEEPSEEK_MODEL || 'unknown',
+            siliconflow: SILICONFLOW_MODEL,
+            iflytek: IFLYTEK_MODEL,
         };
         const usedModel = modelByProvider[providerResult.provider] || GROQ_MODEL;
         const routerMeta = {

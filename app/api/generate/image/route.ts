@@ -10,6 +10,7 @@ import type { ImageModel } from '@/lib/huggingface';
 import { generateImagePollinations } from '@/lib/pollinations';
 import { generateFalImage } from '@/lib/fal';
 import { generateGeminiImage } from '@/lib/gemini-image';
+import { generateSiliconFlowImage } from '@/lib/siliconflow';
 import { runProviderChain } from '@/lib/provider-router';
 import type { ProviderName } from '@/lib/provider-router';
 
@@ -129,6 +130,14 @@ export async function POST(request: NextRequest) {
                     freeProviders.push({
                         name: 'gemini-image',
                         run: () => generateGeminiImage(prompt, { width, height, negative_prompt: body.negative_prompt }),
+                    });
+                }
+
+                // SiliconFlow — Stable Diffusion 3.5 gratuit
+                if (process.env.SILICONFLOW_API_KEY) {
+                    freeProviders.push({
+                        name: 'siliconflow',
+                        run: () => generateSiliconFlowImage(prompt, { width, height }),
                     });
                 }
 
