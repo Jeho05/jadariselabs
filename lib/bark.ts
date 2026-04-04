@@ -188,6 +188,40 @@ export async function generateAudio(
         });
     }
 
+    // ULTIMATE FALLBACK: Google Translate TTS (100% gratuit, pas de clé API)
+    providers.push({
+        name: 'kokoro', // On garde l'identifiant pour ne pas casser le ProviderRouter
+        run: async () => {
+            console.log("[Audio] Tentative du fallback ultime : Google TTS");
+            try {
+                // Chunk text into max 200 chars slices to comply with Google TTS limits
+                const chunks = text.match(/.{1,200}(?:\s|$)/g) || [text];
+                const buffers: Buffer[] = [];
+                
+                for (let i = 0; i < chunks.length; i++) {
+                    const chunk = chunks[i].trim();
+                    if (!chunk) continue;
+                    
+                    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${voice}&client=tw-ob&q=${encodeURIComponent(chunk)}`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error(`Google TTS ERREUR ${res.status}`);
+                    
+                    buffers.push(Buffer.from(await res.arrayBuffer()));
+                    // Petit délai pour ne pas spammer
+                    if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 200));
+                }
+                
+                return {
+                    audio: Buffer.concat(buffers),
+                    duration: estimateDuration(text)
+                };
+            } catch(e) {
+                console.error("[Audio Google TTS] Echec:", e);
+                throw new ProviderError('kokoro', `Tous les services TTS sont actuellement indisponibles.`, 503);
+            }
+        }
+    });
+
     const providerResult = await runProviderChain<{ audio: Buffer; duration: number }>(providers, { purpose: 'audio' });
 
     return {
