@@ -42,6 +42,7 @@ async function runOpenAICompatibleChat({
     model,
     messages,
     maxTokens = 4096,
+    responseFormat,
 }: {
     provider: 'groq' | 'gemini';
     baseUrl: string;
@@ -49,21 +50,27 @@ async function runOpenAICompatibleChat({
     model: string;
     messages: Array<{ role: string; content: string }>;
     maxTokens?: number;
+    responseFormat?: { type: 'json_object' };
 }): Promise<Response> {
+    const payload: any = {
+        model,
+        messages,
+        stream: true,
+        temperature: 0.4, // Low temp for strict JSON adherence
+        max_tokens: maxTokens,
+        top_p: 0.9,
+    };
+    if (responseFormat) {
+        payload.response_format = responseFormat;
+    }
+
     const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            model,
-            messages,
-            stream: true,
-            temperature: 0.4, // Low temp for strict JSON adherence
-            max_tokens: maxTokens,
-            top_p: 0.9,
-        }),
+        body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -198,6 +205,7 @@ export async function POST(request: NextRequest) {
         // 7. Build provider chain
         const tasks: ProviderTask<Response>[] = [];
         const maxTokens = generateBoth ? 6144 : 4096;
+        const responseFormat = (documentType === 'cv' || generateBoth) ? { type: 'json_object' as const } : undefined;
 
         if (geminiApiKey && GEMINI_MODEL) {
             tasks.push({
@@ -209,6 +217,7 @@ export async function POST(request: NextRequest) {
                     model: GEMINI_MODEL,
                     messages,
                     maxTokens,
+                    responseFormat,
                 }),
                 canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
             });
@@ -224,6 +233,7 @@ export async function POST(request: NextRequest) {
                     model: GROQ_MODEL,
                     messages,
                     maxTokens,
+                    responseFormat,
                 }),
                 canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
             });
