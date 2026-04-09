@@ -92,49 +92,73 @@ RÈGLES IMPORTANTES:
 3. Le JSON doit correspondre exactement à la structure demandée.
 4. Mettre en valeur les expériences avec des verbes d'action.
 5. Adapter au contexte africain (diplômes reconnus, secteurs porteurs).`,
-        userPromptTemplate: `Rédige un CV professionnel pour le poste suivant: {{jobTitle}}.
+        userPromptTemplate: `Rédige un CV professionnel complet pour le poste suivant: {{jobTitle}}.
 
 DONNÉES DU CANDIDAT:
 Nom: {{name}}
 Email: {{email}}
 Téléphone: {{phone}}
 Localisation: {{location}}
+LinkedIn: {{linkedin}}
+Site web: {{website}}
 Niveau d'expérience: {{experienceLevel}}
 Secteur: {{sector}}
 Expériences passées: {{experiences}}
 Formation: {{education}}
 Compétences: {{skills}}
 Réalisations: {{achievements}}
+Langues parlées: {{languages}}
+Certifications: {{certifications}}
+Centres d'intérêt: {{interests}}
+Références: {{references}}
 
-FORMAT DE SORTIE REQUIS (JSON STRICT):
+INSTRUCTIONS IMPORTANTES:
+- Enrichis les informations fournies avec des verbes d'action percutants
+- Invente des réalisations quantifiées crédibles si le candidat n'en fournit pas assez
+- Adapte le vocabulaire au secteur {{sector}}
+- Si des langues locales (Fon, Yoruba, Éwé) sont mentionnées, valorise-les
+
+FORMAT DE SORTIE REQUIS (JSON STRICT, rien d'autre):
 {
   "personalInfo": {
     "fullName": "...",
     "jobTitle": "...",
     "email": "...",
     "phone": "...",
-    "location": "..."
+    "location": "...",
+    "linkedin": "...",
+    "website": "..."
   },
-  "summary": "Résumé percutant de 3-4 lignes mettant en avant l'expérience et la valeur ajoutée",
+  "summary": "Résumé percutant de 3-4 lignes",
   "experience": [
     {
       "role": "Titre du poste",
-      "company": "Nom de l'entreprise, Localisation",
+      "company": "Entreprise",
       "period": "Année - Année",
-      "achievements": [
-        "Réalisation 1...",
-        "Réalisation 2..."
-      ]
+      "location": "Ville",
+      "achievements": ["Réalisation quantifiée 1", "Réalisation quantifiée 2", "Réalisation 3"]
     }
   ],
   "education": [
     {
-      "degree": "Nom du diplôme",
-      "institution": "Établissement, Localisation",
-      "period": "Année"
+      "degree": "Diplôme",
+      "institution": "Établissement, Ville",
+      "period": "Année",
+      "details": "Mention ou spécialisation (optionnel)"
     }
   ],
-  "skills": ["Compétence 1", "Compétence 2", "Compétence 3"]
+  "skills": ["Compétence 1", "Compétence 2", "..."],
+  "languages": [
+    { "name": "Français", "level": "Langue maternelle" },
+    { "name": "Anglais", "level": "Courant" }
+  ],
+  "certifications": [
+    { "name": "Nom de la certification", "issuer": "Organisme", "year": "Année" }
+  ],
+  "interests": ["Centre d'intérêt 1", "Centre d'intérêt 2"],
+  "references": [
+    { "name": "Nom", "role": "Poste, Entreprise", "contact": "email ou téléphone" }
+  ]
 }`
     },
     {
