@@ -25,6 +25,12 @@ import {
     IconFile,
     IconCode,
     IconSearch,
+    // Phase 1 new modules
+    IconText,
+    IconFileText,
+    IconMegaphone,
+    IconBriefcase,
+    IconLanguages,
 } from '@/components/icons';
 
 /**
@@ -206,6 +212,52 @@ export default function DashboardPage() {
             color: 'gold',
             tag: 'BÊTA',
             gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]',
+        },
+        // === NEW PHASE 1 MODULES ===
+        {
+            icon: IconText,
+            title: 'Générateur universel',
+            description: 'Textes pour tous usages avec mode rapide/expert',
+            href: '/studio/text',
+            color: 'savanna',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
+        },
+        {
+            icon: IconFileText,
+            title: 'Documents IA',
+            description: 'Résumé et analyse de PDF et documents',
+            href: '/studio/document',
+            color: 'earth',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]',
+        },
+        {
+            icon: IconMegaphone,
+            title: 'Social Media',
+            description: 'Posts viraux pour TikTok, Facebook, WhatsApp',
+            href: '/studio/social',
+            color: 'terracotta',
+            tag: 'VIRAL',
+            gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]',
+        },
+        {
+            icon: IconBriefcase,
+            title: 'Carrière',
+            description: 'CV et lettres de motivation professionnelles',
+            href: '/studio/career',
+            color: 'gold',
+            tag: 'NOUVEAU',
+            gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]',
+        },
+        {
+            icon: IconLanguages,
+            title: 'Traduction locale',
+            description: 'Français ↔ Fon ↔ Yoruba — Unique en Afrique',
+            href: '/studio/translate',
+            color: 'savanna',
+            tag: 'UNIQUE',
+            gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
         },
     ];
 
@@ -459,6 +511,11 @@ export default function DashboardPage() {
                                             case 'code': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                             case 'search': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'ocr': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
+                                            case 'text': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
+                                            case 'document': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
+                                            case 'social': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
+                                            case 'career': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
+                                            case 'translate': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             default: return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                         }
                                     };
@@ -471,6 +528,11 @@ export default function DashboardPage() {
                                             case 'code': return 'Assistant Code';
                                             case 'search': return 'Recherche Web';
                                             case 'ocr': return 'OCR Documentaire';
+                                            case 'text': return 'Générateur universel';
+                                            case 'document': return 'Documents IA';
+                                            case 'social': return 'Social Media';
+                                            case 'career': return 'Carrière';
+                                            case 'translate': return 'Traduction locale';
                                             default: return type;
                                         }
                                     };
@@ -525,6 +587,11 @@ export default function DashboardPage() {
                                         case 'code': return { icon: IconCode, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                         case 'search': return { icon: IconSearch, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'ocr': return { icon: IconFile, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
+                                        case 'text': return { icon: IconText, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
+                                        case 'document': return { icon: IconFileText, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
+                                        case 'social': return { icon: IconMegaphone, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
+                                        case 'career': return { icon: IconBriefcase, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
+                                        case 'translate': return { icon: IconLanguages, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         default: return { icon: IconPalette, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                     }
                                 };

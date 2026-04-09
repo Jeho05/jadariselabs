@@ -89,7 +89,12 @@ export default function ChatStudioPage() {
     }, [supabase]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const messagesContainer = messagesEndRef.current?.parentElement;
+        if (!messagesContainer) return;
+        const isNearBottom = messagesContainer.scrollTop + messagesContainer.clientHeight >= messagesContainer.scrollHeight - 100;
+        if (isNearBottom) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [messages]);
 
     const loadConversation = useCallback(

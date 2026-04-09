@@ -1007,3 +1007,318 @@ export function IconHeart({ className = '', size = 24 }: IconProps) {
     );
 }
 
+// ============================================
+// NEW MODULE ICONS (Phase 1)
+// ============================================
+
+// Text / Type (Universal Text Generator)
+export function IconText({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M4 7V5h16v2" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 5v14" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M9 21h6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// FileText / Document (Document Summarizer)
+export function IconFileText({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M14 2v6h6" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M16 13H8" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M16 17H8" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M10 9H8" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Megaphone / Social (Social Media Generator)
+export function IconMegaphone({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M3 11l18-5v12L3 14v-3z" fill="url(#gradient-terracotta)" opacity="0.15" />
+            <path d="M3 11l18-5v12L3 14v-3z" stroke="url(#gradient-terracotta)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M11.6 14.8l-2.4 5.6a1 1 0 001.4 1.2l2.4-1.6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Briefcase / Career (CV & Cover Letter)
+export function IconBriefcase({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <rect x="2" y="7" width="20" height="14" rx="2" fill="url(#gradient-gold)" opacity="0.15" />
+            <rect x="2" y="7" width="20" height="14" rx="2" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Languages / Translate (Local Translation)
+export function IconLanguages({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <circle cx="12" cy="12" r="10" stroke="url(#gradient-savanna)" strokeWidth="2" fill="none" />
+            <path d="M2 12h20" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 2a15.3 15.3 0 010 20" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 2a15.3 15.3 0 000 20" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Pen / Writing
+export function IconPen({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// Target / Marketing
+export function IconTarget({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <circle cx="12" cy="12" r="10" stroke="url(#gradient-terracotta)" strokeWidth="2" fill="none" />
+            <circle cx="12" cy="12" r="6" stroke="url(#gradient-gold)" strokeWidth="2" fill="none" />
+            <circle cx="12" cy="12" r="2" fill="url(#gradient-savanna)" />
+        </svg>
+    );
+}
+
+// Film / Video Scripts
+export function IconFilm({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <rect x="2" y="2" width="20" height="20" rx="2.18" stroke="url(#gradient-earth)" strokeWidth="2" fill="none" />
+            <path d="M7 2v20" stroke="url(#gradient-gold)" strokeWidth="2" />
+            <path d="M17 2v20" stroke="url(#gradient-gold)" strokeWidth="2" />
+            <path d="M2 12h20" stroke="url(#gradient-gold)" strokeWidth="2" />
+            <path d="M2 7h5" stroke="url(#gradient-terracotta)" strokeWidth="2" />
+            <path d="M2 17h5" stroke="url(#gradient-terracotta)" strokeWidth="2" />
+            <path d="M17 17h5" stroke="url(#gradient-terracotta)" strokeWidth="2" />
+            <path d="M17 7h5" stroke="url(#gradient-terracotta)" strokeWidth="2" />
+        </svg>
+    );
+}
+
+// Settings2 / Expert Mode
+export function IconSettings2({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M4 21v-7" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M4 10V3" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 21v-9" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 8V3" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M20 21v-5" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M20 12V3" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M1 14h6" stroke="url(#gradient-earth)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M9 8h6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M17 16h6" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Lightbulb / Ideas
+export function IconLightbulb({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M9 18h6" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M10 22h4" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a2 2 0 002 2h4a2 2 0 002-2v-2.26A6.98 6.98 0 0019 9a7 7 0 00-7-7z" fill="url(#gradient-gold)" opacity="0.15" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// Repeat / Multi-output
+export function IconRepeat({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <Gradients />
+            <path d="M17 1l4 4-4 4" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 11V9a4 4 0 014-4h14" stroke="url(#gradient-savanna)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M7 23l-4-4 4-4" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M21 13v2a4 4 0 01-4 4H3" stroke="url(#gradient-gold)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+// LinkedIn
+export function IconLinkedin({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Tag / Labels
+export function IconTag({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <circle cx="7" cy="7" r="1" fill="currentColor" />
+        </svg>
+    );
+}
+
+// Wand2 / Magic Wand 2
+export function IconWand2({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M21 2l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M13 10l8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M15 6l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M15 12l-5 5-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 17l-2 5-2-2 5-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Instagram (Social Media)
+export function IconInstagram({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="2" fill="none" />
+            <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
+            <circle cx="18" cy="6" r="1" fill="currentColor" />
+        </svg>
+    );
+}
+
+// BookOpen (Reading/Translation)
+export function IconBookOpen({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// Volume2 (Audio/Speech)
+export function IconVolume2({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Mic (Microphone)
+export function IconMic({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M12 2a3 3 0 013 3v7a3 3 0 11-6 0V5a3 3 0 013-3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M19 10v2a7 7 0 01-14 0v-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 19v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M8 22h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Building (Company/Career)
+export function IconBuilding({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M3 21h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 21V7l8-4 8 4v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Document (File)
+export function IconDocument({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M14 2v6h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// MessageCircle (WhatsApp/Social)
+export function IconMessageCircle({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 014 11.5a8.5 8.5 0 018.5-8.5 8.5 8.5 0 018.5 8.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// TikTok
+export function IconTikTok({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M9 12a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M15 8v8a4 4 0 01-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M15 8a4 4 0 004-4v0h-4v0a4 4 0 00-4 4v0a4 4 0 004 4h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// Facebook
+export function IconFacebook({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// GraduationCap
+export function IconGraduationCap({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 12v5c3 3 9 3 12 0v-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// Award
+export function IconAward({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+// Phone
+export function IconPhone({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+// MapPin
+export function IconMapPin({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+

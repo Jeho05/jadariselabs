@@ -14,9 +14,9 @@ export default function ProtectedLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-cream flex flex-col">
+        <div className="min-h-screen bg-cream flex flex-col overflow-hidden">
             <Header />
-            <main className="flex-1 pt-28 lg:pt-36 pb-20 lg:pb-0">{children}</main>
+            <main className="flex-1 pt-28 lg:pt-36 pb-20 lg:pb-0 overflow-hidden flex flex-col min-h-0">{children}</main>
             <MobileBottomNav />
         </div>
     );

@@ -8,6 +8,8 @@ interface GradioVideoRequest {
   resolution?: string;
 }
 
+const GRADIO_TIMEOUT_MS = 30000; // 30 seconds timeout
+
 export async function generateGradioVideo(request: GradioVideoRequest) {
   const modelToUse = request.model || 'Wan-AI/Wan2.1';
   
@@ -16,45 +18,55 @@ export async function generateGradioVideo(request: GradioVideoRequest) {
   }
 
   try {
-    const client = await Client.connect(modelToUse, {
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Gradio timeout: la génération a pris trop de temps (30s). Veuillez réessayer.')), GRADIO_TIMEOUT_MS);
+    });
+
+    // Connect to Gradio space
+    const connectPromise = Client.connect(modelToUse, {
       token: process.env.HUGGINGFACE_API_KEY as `hf_${string}`,
     });
 
+    const client = await Promise.race([connectPromise, timeoutPromise]);
+
     if (modelToUse === 'Wan-AI/Wan2.1') {
-      // Pour Wan-AI/Wan2.1, the /predict endpoint usually takes [prompt, negative_prompt, seed, resolution, etc.]
-      // On the latest space it's often simpler but we need to assume standard payload based on typical gradio inputs.
-      // Based on docs: prompt: string, resolution: string, etc.
-      // We'll pass prompt directly and let gradio handle defaults for the rest.
-      // We use submit instead of predict to get an async job we can check.
-      const job = await client.submit('/predict', {
-        prompt: request.prompt,
-        // The space dictates these, assuming these exist based on the docs payload.
-      });
-      // the job gives an event emitter, but to keep our architecture stateless and polling-friendly,
-      // it's tricky because gradio SDK uses websockets for submit. 
-      // If we await the result directly, it might timeout the vercel function.
-      // Vercel function timeout is usually 10-60s or more without streaming.
-      
-      // But Gradio V4 supports prediction endpoint returning an event stream.
-      // Wait, standard `predict()` waits for completion.
-      // The strategy doc says "L'API répond immédiatement avec un identifiant de tâche (task_id)".
-      // With Gradio client, we can return the endpoint queue hash if we interact with the REST API, 
-      // or we can just await the prediction if we are within a long-running instance or allow vercel to wait.
-      const result = await client.predict('/predict', {
+      // Use predict with timeout
+      const predictPromise = client.predict('/predict', {
         prompt: request.prompt,
         seed: -1,
-        // resolution might just be "480x832" or something
       });
+
+      const result = await Promise.race([predictPromise, timeoutPromise]);
       
+      const videoUrl = Array.isArray(result.data) && result.data[0] 
+        ? result.data[0].url || result.data[0].path 
+        : null;
+
+      if (!videoUrl) {
+        throw new Error('Gradio n\'a pas retourné d\'URL vidéo valide');
+      }
+
       return {
         predictionId: `gradio_${Date.now()}`, 
-        url: Array.isArray(result.data) && result.data[0] ? result.data[0].url || result.data[0].path : null,
+        url: videoUrl,
       };
     }
     
     throw new Error(`Model ${modelToUse} not configured manually in gradio.ts yet.`);
   } catch (error) {
     console.error('[Gradio] Error:', error);
+    
+    // Provide clearer error messages
+    if (error instanceof Error) {
+      if (error.message.includes('timeout')) {
+        throw new Error('Gradio timeout: le service est occupé. Réessayez avec un autre provider.');
+      }
+      if (error.message.includes('fetch')) {
+        throw new Error('Gradio indisponible: erreur de connexion au service HuggingFace.');
+      }
+    }
+    
     throw error;
   }
 }

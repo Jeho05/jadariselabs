@@ -54,7 +54,13 @@ export default function CodeStudioPage() {
     }, [supabase]);
 
     useEffect(() => {
-        outputRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (!output) return;
+        const container = outputRef.current?.parentElement;
+        if (!container) return;
+        const isNearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
+        if (isNearBottom) {
+            outputRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [output]);
 
     const handleGenerate = async () => {
@@ -159,7 +165,7 @@ export default function CodeStudioPage() {
             <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
             <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
 
-            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col lg:h-[calc(100vh-9rem)] lg:max-h-[calc(100vh-9rem)] overflow-visible lg:overflow-hidden">
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col flex-1 min-h-0">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="module-icon-premium earth shadow-lg">

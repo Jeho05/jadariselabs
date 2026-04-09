@@ -1,6 +1,6 @@
 /**
- * Video Generation API - Replicate
- * Replicate API calls with Supabase storage
+ * Video Generation API - Multi-Provider Fallback
+ * Fal.ai -> MiniMax -> Gradio -> Replicate
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,7 +13,6 @@ import { generateFalVideo, checkFalPrediction } from '@/lib/fal';
 import { createMinimaxVideoTask, getMinimaxVideoTask, retrieveMinimaxFile } from '@/lib/minimax';
 import { runProviderChain } from '@/lib/provider-router';
 import { generateGradioVideo } from '@/lib/gradio';
-import { generateVeoVideo } from '@/lib/veo';
 import { enhanceVideoPrompt } from '@/lib/gemini-enhancer';
 
 // POST - Create video generation
@@ -179,40 +178,31 @@ export async function POST(request: NextRequest) {
       console.warn('[VideoAPI] Prompt enhancement failed, using original', e);
     }
 
-    // Arbitrage: Gradio -> Veo -> MiniMax (Hailuo) -> Fal.ai -> Replicate
+    // Arbitrage: Fal.ai -> MiniMax (Hailuo) -> Gradio -> Replicate
+    // Ordre optimisé: gratuits/rapides d'abord, payants en dernier recours
     let predictionId: string | undefined = undefined;
-    let providerUsed: 'gradio' | 'veo' | 'minimax' | 'fal' | 'replicate' | undefined = undefined;
+    let providerUsed: 'gradio' | 'minimax' | 'fal' | 'replicate' | undefined = undefined;
     let modelUsed: VideoModel | undefined = undefined;
     let providerModel: string | undefined = undefined;
     let routerMeta: { provider: string; attempts: unknown[]; duration_ms: number } | undefined;
 
     try {
       type VideoProviderResult = { predictionId: string; modelUsed: VideoModel; providerModel?: string };
-      const providers: Array<{ name: 'gradio' | 'veo' | 'minimax' | 'fal' | 'replicate'; run: () => Promise<VideoProviderResult> }> = [];
+      const providers: Array<{ name: 'gradio' | 'minimax' | 'fal' | 'replicate'; run: () => Promise<VideoProviderResult> }> = [];
 
-      // 1. Hugging Face ZeroGPU (Gratuit)
-      if (process.env.HUGGINGFACE_API_KEY && requestedModel === 'wan-video/wan-2.1-1.3b') {
+      // 1. Fal.ai - prioritaire (free tier, rapide, fiable)
+      if (process.env.FAL_KEY) {
         providers.push({
-          name: 'gradio',
+          name: 'fal',
           run: async () => {
-            const { predictionId, url } = await generateGradioVideo({ prompt: finalPrompt, model: 'Wan-AI/Wan2.1' });
-            return { predictionId: url || predictionId, modelUsed: requestedModel, providerModel: 'Wan-AI/Wan2.1' };
+            const { predictionId } = await generateFalVideo(body.prompt.trim());
+            return { predictionId, modelUsed: replicateModel, providerModel: 'fal-ai/wan2.1' };
           },
         });
       }
 
-      // 2. Google Veo 3.1 (Google AI Studio Free Tier) 
-      if (process.env.GEMINI_API_KEY && requestedModel === 'google/veo-3.1') {
-        providers.push({
-          name: 'veo',
-          run: async () => {
-            const { predictionId, url } = await generateVeoVideo({ prompt: finalPrompt, quality: quality, aspectRatio: aspectRatio });
-            return { predictionId: url || predictionId, modelUsed: requestedModel, providerModel: 'veo-3.1' };
-          },
-        });
-      }
-
-      if (process.env.MINIMAX_API_KEY && requestedModel === 'minimax/video-01') {
+      // 2. MiniMax/Hailuo - bonne qualité, quota gratuit
+      if (process.env.MINIMAX_API_KEY) {
         const minimaxModel = process.env.MINIMAX_MODEL || 'video-01';
         providers.push({
           name: 'minimax',
@@ -223,23 +213,23 @@ export async function POST(request: NextRequest) {
               duration,
               resolution,
             });
-            return { predictionId: task.taskId, modelUsed: requestedModel, providerModel: minimaxModel };
+            return { predictionId: task.taskId, modelUsed: 'minimax/video-01', providerModel: minimaxModel };
           },
         });
       }
 
-      // Fal.ai — prioritaire (free tier disponible)
-      if (process.env.FAL_KEY) {
+      // 3. HuggingFace Gradio - gratuit mais lent/timeout fréquent
+      if (process.env.HUGGINGFACE_API_KEY) {
         providers.push({
-          name: 'fal',
+          name: 'gradio',
           run: async () => {
-            const { predictionId } = await generateFalVideo(body.prompt.trim());
-            return { predictionId, modelUsed: replicateModel, providerModel: replicateModel };
+            const { predictionId, url } = await generateGradioVideo({ prompt: finalPrompt, model: 'Wan-AI/Wan2.1' });
+            return { predictionId: url || predictionId, modelUsed: 'wan-video/wan-2.1-1.3b', providerModel: 'Wan-AI/Wan2.1' };
           },
         });
       }
 
-      // Replicate — fallback (nécessite des crédits payants)
+      // 4. Replicate - dernier recours (payant, nécessite des crédits)
       if (process.env.REPLICATE_API_TOKEN) {
         providers.push({
           name: 'replicate',
@@ -260,7 +250,7 @@ export async function POST(request: NextRequest) {
       const providerResult = await runProviderChain<VideoProviderResult>(providers, { purpose: 'video' });
 
       predictionId = providerResult.result.predictionId;
-      providerUsed = providerResult.provider as 'gradio' | 'veo' | 'minimax' | 'fal' | 'replicate';
+      providerUsed = providerResult.provider as 'gradio' | 'minimax' | 'fal' | 'replicate';
       modelUsed = providerResult.result.modelUsed;
       providerModel = providerResult.result.providerModel;
       routerMeta = {
@@ -361,8 +351,8 @@ export async function GET(request: NextRequest) {
           const provider = generation.metadata?.provider || 'replicate';
           const predictionId = generation.metadata.predictionId as string;
 
-          if (provider === 'gradio' || provider === 'veo') {
-             // Gradio et Veo sont gérés de manière synchrone dans notre implémentation
+          if (provider === 'gradio') {
+             // Gradio est géré de manière synchrone dans notre implémentation
              // La predictionId est en fait l'URL complétée
              if (predictionId.startsWith('http')) {
                await supabase

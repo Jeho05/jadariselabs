@@ -1,0 +1,437 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { runProviderChain, ProviderError } from '@/lib/provider-router';
+import type { ProviderTask } from '@/lib/provider-router';
+
+/**
+ * POST /api/generate/career — Générateur de CV et lettres de motivation
+ * Streaming SSE response
+ *
+ * Body: {
+ *   documentType: 'cv' | 'cover-letter',
+ *   templateId: string,
+ *   formData: {
+ *     name, email, phone, jobTitle, companyName, sector, experienceLevel,
+ *     experiences, education, skills, achievements, motivation, strengths...
+ *   }
+ * }
+ */
+
+const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
+
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+const GEMINI_MODEL = process.env.GEMINI_API_KEY ? 'gemini-2.5-flash' : null;
+
+const CREDITS_CV = 3;
+const CREDITS_COVER_LETTER = 2;
+const CREDITS_PACK = 4; // CV + Lettre
+
+function calculateCredits(documentType: string, isPack: boolean): number {
+    if (isPack) return CREDITS_PACK;
+    return documentType === 'cv' ? CREDITS_CV : CREDITS_COVER_LETTER;
+}
+
+function getSystemPrompt(documentType: string): string {
+    const basePrompt = `Tu es CareerGen, expert en rédaction de documents professionnels pour le marché de l'emploi en Afrique de l'Ouest.
+Tu connais les standards locaux, les attentes des recruteurs, et les meilleures pratiques.`;
+
+    if (documentType === 'cv') {
+        return `${basePrompt}
+Spécialité CV:
+- Format européen adapté aux standards africains
+- Verbes d'action impactants
+- Réalisations quantifiées
+- 2 pages maximum
+- Adaptation au contexte local (diplômes, langues)`;
+    }
+
+    return `${basePrompt}
+Spécialité Lettres de motivation:
+- Personnalisation réelle pour chaque entreprise
+- Connexion expérience ↔ besoin du poste
+- Ton respectueux mais confiant
+- 3-4 paragraphes maximum
+- Appel à l'action clair`;
+}
+
+function buildPrompt(documentType: string, formData: Record<string, string>): string {
+    const {
+        name,
+        email,
+        phone,
+        jobTitle,
+        companyName,
+        sector,
+        experienceLevel,
+        experiences = '',
+        education = '',
+        skills = '',
+        achievements = '',
+        motivation = '',
+        strengths = '',
+        address = '',
+        companyAddress = '',
+    } = formData;
+
+    if (documentType === 'cv') {
+        return `Rédige un CV professionnel pour ce profil.
+
+INFORMATIONS:
+- Nom: ${name}
+- Contact: ${email}, ${phone}
+- Poste visé: ${jobTitle}
+- Secteur: ${sector}
+- Niveau: ${experienceLevel}
+
+EXPÉRIENCES:
+${experiences || 'À développer selon le niveau'}
+
+FORMATION:
+${education || 'À compléter'}
+
+COMPÉTENCES:
+${skills || 'À identifier selon le secteur'}
+
+RÉALISATIONS:
+${achievements || 'À développer'}
+
+INSTRUCTIONS:
+1. Format: Sections claires (Profil, Expériences, Formation, Compétences)
+2. Style: Professionnel, verbes d'action, résultats quantifiés
+3. Adaptation: Contexte ${sector} en Afrique de l'Ouest
+4. Longueur: 2 pages maximum
+5. Langue: Français professionnel
+
+Réponds avec le CV formaté en texte structuré.`;
+    }
+
+    // Cover letter
+    return `Rédige une lettre de motivation pour ce candidat.
+
+DESTINATAIRE:
+${companyName ? `Entreprise: ${companyName}` : 'Entreprise non spécifiée'}
+${companyAddress ? `Adresse: ${companyAddress}` : ''}
+
+CANDIDAT:
+- Nom: ${name}
+- Adresse: ${address || 'Non spécifiée'}
+- Contact: ${email}, ${phone}
+- Poste visé: ${jobTitle}
+
+PROFIL:
+Niveau: ${experienceLevel}
+Secteur: ${sector}
+Points forts: ${strengths || 'À développer'}
+Motivation: ${motivation || 'Intérêt pour le poste'}
+
+STRUCTURE:
+1. Formule d'appel personnalisée
+2. Paragraphe 1: Accroche - Intérêt spécifique pour ce poste/entreprise
+3. Paragraphe 2: Valeur ajoutée - Lien entre expérience et besoin
+4. Paragraphe 3: Contribution - Ce que j'apporte concrètement
+5. Paragraphe 4: Disponibilité + appel à l'action
+6. Formule de politesse
+
+Ton: Professionnel, confiant mais respectueux. Réponds avec la lettre formatée.`;
+}
+
+async function runOpenAICompatibleChat({
+    provider,
+    baseUrl,
+    apiKey,
+    model,
+    messages,
+    maxTokens = 4096,
+}: {
+    provider: 'groq' | 'gemini';
+    baseUrl: string;
+    apiKey: string;
+    model: string;
+    messages: Array<{ role: string; content: string }>;
+    maxTokens?: number;
+}): Promise<Response> {
+    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model,
+            messages,
+            stream: true,
+            temperature: 0.6, // Plus conservateur pour documents professionnels
+            max_tokens: maxTokens,
+            top_p: 0.9,
+        }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new ProviderError(provider, errorText.substring(0, 200), response.status);
+    }
+
+    return response;
+}
+
+export async function POST(request: NextRequest) {
+    const supabase = await createClient();
+    const traceId = `car_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+    try {
+        // 1. Auth check
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+            return NextResponse.json({ error: 'Non authentifié', trace_id: traceId }, { status: 401 });
+        }
+
+        // 2. Parse body
+        let body;
+        try {
+            body = await request.json();
+        } catch {
+            return NextResponse.json({ error: 'Body JSON invalide', trace_id: traceId }, { status: 400 });
+        }
+
+        const {
+            documentType,
+            templateId,
+            formData,
+            generateBoth = false,
+        } = body;
+
+        // 3. Validation
+        if (!documentType || !['cv', 'cover-letter'].includes(documentType)) {
+            return NextResponse.json({ error: 'Type de document invalide', trace_id: traceId }, { status: 400 });
+        }
+
+        if (!formData || typeof formData !== 'object') {
+            return NextResponse.json({ error: 'Données du formulaire manquantes', trace_id: traceId }, { status: 400 });
+        }
+
+        const requiredFields = ['name', 'email', 'jobTitle'];
+        for (const field of requiredFields) {
+            if (!formData[field] || formData[field].trim() === '') {
+                return NextResponse.json({
+                    error: 'Champs requis manquants',
+                    details: `Le champ ${field} est obligatoire`,
+                    trace_id: traceId,
+                }, { status: 400 });
+            }
+        }
+
+        // 4. Check credits
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, plan, credits')
+            .eq('id', user.id)
+            .single();
+
+        if (profileError || !profile) {
+            return NextResponse.json({ error: 'Profil non trouvé', trace_id: traceId }, { status: 404 });
+        }
+
+        const creditsRequired = calculateCredits(documentType, generateBoth);
+
+        if (profile.credits !== -1 && profile.credits < creditsRequired) {
+            return NextResponse.json({
+                error: 'Crédits insuffisants',
+                details: `Cette génération nécessite ${creditsRequired} crédits. Vous avez ${profile.credits} crédits.`,
+                trace_id: traceId,
+            }, { status: 402 });
+        }
+
+        // 5. Build prompts
+        const systemPrompt = getSystemPrompt(documentType);
+        const userPrompt = buildPrompt(documentType, formData);
+
+        let finalPrompt = userPrompt;
+        if (generateBoth) {
+            const coverPrompt = buildPrompt('cover-letter', formData);
+            finalPrompt = `Génère un CV ET une lettre de motivation pour ce profil.
+
+=== PARTIE 1: CV ===
+${userPrompt}
+
+=== PARTIE 2: LETTRE DE MOTIVATION ===
+${coverPrompt}
+
+FORMAT DE RÉPONSE:
+[CV]
+...
+---
+[LETTRE DE MOTIVATION]
+...`;
+        }
+
+        const messages = [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: finalPrompt },
+        ];
+
+        // 6. Configure providers
+        const groqApiKey = process.env.GROQ_API_KEY;
+        const geminiApiKey = process.env.GEMINI_API_KEY;
+
+        const hasAnyProvider = groqApiKey || geminiApiKey;
+        if (!hasAnyProvider) {
+            return NextResponse.json({
+                error: 'Configuration manquante',
+                details: 'Aucun fournisseur IA configuré.',
+                trace_id: traceId,
+            }, { status: 503 });
+        }
+
+        // 7. Build provider chain
+        const tasks: ProviderTask<Response>[] = [];
+        const maxTokens = generateBoth ? 6144 : 4096;
+
+        if (geminiApiKey && GEMINI_MODEL) {
+            tasks.push({
+                name: 'gemini',
+                run: () => runOpenAICompatibleChat({
+                    provider: 'gemini',
+                    baseUrl: GEMINI_API_BASE,
+                    apiKey: geminiApiKey,
+                    model: GEMINI_MODEL,
+                    messages,
+                    maxTokens,
+                }),
+                canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
+            });
+        }
+
+        if (groqApiKey) {
+            tasks.push({
+                name: 'groq',
+                run: () => runOpenAICompatibleChat({
+                    provider: 'groq',
+                    baseUrl: GROQ_API_BASE,
+                    apiKey: groqApiKey,
+                    model: GROQ_MODEL,
+                    messages,
+                    maxTokens,
+                }),
+                canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
+            });
+        }
+
+        // 8. Execute generation
+        const providerResult = await runProviderChain<Response>(tasks, { purpose: 'career' });
+        const response = providerResult.result;
+
+        // 9. Deduct credits before streaming
+        if (profile.credits !== -1) {
+            await supabase
+                .from('profiles')
+                .update({ credits: profile.credits - creditsRequired })
+                .eq('id', user.id);
+        }
+
+        // 10. Record generation
+        await supabase.from('generations').insert({
+            user_id: user.id,
+            type: 'career',
+            prompt: `Document: ${documentType} pour ${formData.jobTitle}`,
+            result_url: null,
+            metadata: {
+                document_type: documentType,
+                template_id: templateId,
+                job_title: formData.jobTitle,
+                company_name: formData.companyName,
+                sector: formData.sector,
+                generate_both: generateBoth,
+                provider: providerResult.provider,
+                router: {
+                    provider: providerResult.provider,
+                    attempts: providerResult.attempts,
+                    duration_ms: providerResult.latency_ms,
+                },
+            },
+            credits_used: creditsRequired,
+        });
+
+        // 11. Stream response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        const stream = new ReadableStream({
+            async start(controller) {
+                if (!reader) {
+                    controller.close();
+                    return;
+                }
+
+                const encoder = new TextEncoder();
+
+                // Send metadata first
+                const meta = {
+                    trace_id: traceId,
+                    credits_used: creditsRequired,
+                    remaining_credits: profile.credits === -1 ? -1 : profile.credits - creditsRequired,
+                    provider: providerResult.provider,
+                    document_type: documentType,
+                    generate_both: generateBoth,
+                };
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ meta })}
+
+`));
+
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value, { stream: true });
+                        const lines = chunk.split('\n');
+
+                        for (let line of lines) {
+                            line = line.trim();
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6).trim();
+                                if (data === '[DONE]') {
+                                    controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                                    continue;
+                                }
+
+                                try {
+                                    const parsed = JSON.parse(data);
+                                    const content = parsed.choices?.[0]?.delta?.content;
+                                    if (content) {
+                                        controller.enqueue(
+                                            encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
+                                        );
+                                    }
+                                } catch {
+                                    // Skip malformed JSON chunks
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Stream error:', error);
+                } finally {
+                    controller.close();
+                }
+            },
+        });
+
+        return new Response(stream, {
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                Connection: 'keep-alive',
+            },
+        });
+
+    } catch (error) {
+        console.error('[CareerAPI] Error:', error);
+        
+        return NextResponse.json({
+            error: 'Erreur du service IA',
+            details: error instanceof Error ? error.message : 'Erreur inconnue',
+            trace_id: traceId,
+        }, { status: 502 });
+    }
+}

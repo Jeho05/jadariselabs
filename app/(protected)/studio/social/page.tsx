@@ -1,0 +1,588 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import type { Profile } from '@/lib/types';
+import {
+    IconMegaphone,
+    IconZap,
+    IconLoader2,
+    IconAlertCircle,
+    IconCopy,
+    IconRefresh,
+    IconSparkles,
+    IconTikTok,
+    IconFacebook,
+    IconMessageCircle,
+    IconLinkedin,
+    IconInstagram,
+    IconRepeat,
+    IconTrendingUp,
+    IconClock,
+    IconCheck,
+} from '@/components/icons';
+import ChatMessageContent from '@/components/chat-message-content';
+import {
+    PLATFORM_CONFIG,
+    SOCIAL_TEMPLATES,
+    SUGGESTED_HASHTAGS,
+    type PlatformType,
+    getTemplatesByPlatform,
+} from '@/lib/prompts/social-templates';
+
+type PlatformKey = PlatformType;
+
+const PLATFORMS: Array<{ id: PlatformKey; name: string; icon: React.ComponentType<{ size?: number; className?: string }>; color: string; bestTimes: string }> = [
+    { id: 'tiktok', name: 'TikTok', icon: IconTikTok, color: 'from-pink-500 to-purple-600', bestTimes: '12h • 19h • 21h' },
+    { id: 'facebook', name: 'Facebook', icon: IconFacebook, color: 'from-blue-500 to-blue-700', bestTimes: '9h • 13h • 15h' },
+    { id: 'whatsapp', name: 'WhatsApp', icon: IconMessageCircle, color: 'from-green-500 to-green-600', bestTimes: '9h • 12h • 17h' },
+    { id: 'linkedin', name: 'LinkedIn', icon: IconLinkedin, color: 'from-blue-600 to-blue-800', bestTimes: '8h • 12h • 17h' },
+    { id: 'instagram', name: 'Instagram', icon: IconInstagram, color: 'from-purple-500 to-pink-500', bestTimes: '11h • 14h • 19h' },
+];
+
+const TONE_OPTIONS = [
+    { value: 'professionnel', label: 'Professionnel', emoji: '💼' },
+    { value: 'authentique', label: 'Authentique', emoji: '🤝' },
+    { value: 'dynamique', label: 'Dynamique', emoji: '⚡' },
+    { value: 'humoristique', label: 'Humoristique', emoji: '😄' },
+    { value: 'inspirant', label: 'Inspirant', emoji: '✨' },
+];
+
+const SECTOR_OPTIONS = [
+    { value: 'general', label: 'Général', emoji: '🌐' },
+    { value: 'business', label: 'Business', emoji: '💼' },
+    { value: 'creative', label: 'Créatif', emoji: '🎨' },
+    { value: 'education', label: 'Éducation', emoji: '📚' },
+    { value: 'tech', label: 'Tech', emoji: '💻' },
+    { value: 'food', label: 'Food/Restauration', emoji: '🍽️' },
+    { value: 'fashion', label: 'Mode/Fashion', emoji: '👗' },
+    { value: 'beauty', label: 'Beauté', emoji: '💄' },
+];
+
+export default function SocialStudioPage() {
+    const supabase = createClient();
+    const outputRef = useRef<HTMLDivElement>(null);
+
+    const [profile, setProfile] = useState<Profile | null>(null);
+    const [loading, setLoading] = useState(true);
+    
+    // Platform & options
+    const [selectedPlatform, setSelectedPlatform] = useState<PlatformKey>('tiktok');
+    const [topic, setTopic] = useState('');
+    const [context, setContext] = useState('');
+    const [tone, setTone] = useState('professionnel');
+    const [sector, setSector] = useState('general');
+    const [multiVariant, setMultiVariant] = useState(false);
+    
+    // Generation state
+    const [isStreaming, setIsStreaming] = useState(false);
+    const [output, setOutput] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                if (data) setProfile(data);
+            }
+            setLoading(false);
+        };
+        fetchProfile();
+    }, [supabase]);
+
+    useEffect(() => {
+        if (!output) return;
+        const container = outputRef.current?.parentElement;
+        if (!container) return;
+        container.scrollTop = container.scrollHeight;
+    }, [output]);
+
+    const platformConfig = PLATFORM_CONFIG[selectedPlatform];
+    const platformInfo = PLATFORMS.find(p => p.id === selectedPlatform);
+
+    const calculateCredits = () => {
+        return multiVariant ? 2 : 1;
+    };
+
+    const handleGenerate = async () => {
+        if (!topic.trim() || isStreaming) return;
+
+        const creditsNeeded = calculateCredits();
+        if (profile && profile.credits !== -1 && profile.credits < creditsNeeded) {
+            setError(`Crédits insuffisants. Il vous faut ${creditsNeeded} crédit(s).`);
+            return;
+        }
+
+        setIsStreaming(true);
+        setError(null);
+        setOutput('');
+        setCopied(false);
+
+        try {
+            const res = await fetch('/api/generate/social', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    platform: selectedPlatform,
+                    topic: topic.trim(),
+                    context: context.trim(),
+                    tone,
+                    sector,
+                    multiVariant,
+                }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                setError(data.details || data.error || 'Une erreur est survenue');
+                setIsStreaming(false);
+                return;
+            }
+
+            const reader = res.body?.getReader();
+            const decoder = new TextDecoder();
+            let fullContent = '';
+
+            if (reader) {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') continue;
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.meta) {
+                                    if (profile && parsed.meta.remaining_credits !== undefined) {
+                                        setProfile({ ...profile, credits: parsed.meta.remaining_credits });
+                                    }
+                                }
+                                if (parsed.content) {
+                                    fullContent += parsed.content;
+                                    setOutput(fullContent);
+                                }
+                            } catch {
+                                // ignore malformed chunk
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {
+            setError('Erreur réseau. Vérifiez votre connexion et réessayez.');
+        } finally {
+            setIsStreaming(false);
+        }
+    };
+
+    const handleCopy = async () => {
+        if (!output) return;
+        try {
+            await navigator.clipboard.writeText(output);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // no-op
+        }
+    };
+
+    const getSuggestedHashtags = () => {
+        return SUGGESTED_HASHTAGS[sector] || SUGGESTED_HASHTAGS.general;
+    };
+
+    const getViralSuggestions = () => {
+        const suggestions: Record<string, string[]> = {
+            tiktok: [
+                'Comment j\'ai doublé mes ventes en 30 jours',
+                'Le secret des entrepreneurs africains',
+                'Ce que personne ne vous dit sur le business',
+                'Tuto: Créer du contenu viral',
+                'Day in the life: entrepreneur à Cotonou',
+            ],
+            facebook: [
+                'Quel est le plus grand défi de votre business?',
+                '3 leçons que j\'ai apprises en entrepreneuriat',
+                'Le marché africain change: voici comment s\'adapter',
+                'Témoignage client: transformation incroyable',
+            ],
+            whatsapp: [
+                'Nouvelle collection disponible!',
+                'Offre spéciale cette semaine',
+                'Votre devis personnalisé est prêt',
+                'Rappel: Rendez-vous demain',
+            ],
+            linkedin: [
+                'Ce que 5 ans d\'entrepreneuriat m\'ont appris',
+                'L\'Afrique est le futur de l\'innovation',
+                'Comment recruter les meilleurs talents en Afrique',
+                'Le pouvoir du networking local',
+            ],
+            instagram: [
+                'Behind the scenes de notre équipe',
+                'Transformation: avant/après',
+                'Ce que signifie vraiment "Made in Africa"',
+                'Storytime: comment tout a commencé',
+            ],
+        };
+        return suggestions[selectedPlatform] || suggestions.tiktok;
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="skeleton h-16 w-16 rounded-full mb-4" />
+                    <div className="skeleton h-6 w-48 mb-2 rounded-lg" />
+                    <div className="skeleton h-4 w-64 rounded-lg" />
+                </div>
+            </div>
+        );
+    }
+
+    const creditsNeeded = calculateCredits();
+
+    return (
+        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
+            {/* Background */}
+            <div className="fixed inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }} />
+            <div className="absolute top-[10%] right-[-10%] w-[30%] h-[40%] bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-[10%] left-[-5%] w-[25%] h-[35%] bg-gradient-to-br from-blue-500/10 to-green-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="module-icon-premium terracotta shadow-lg">
+                            <IconMegaphone size={28} />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+                                Social Media
+                            </h1>
+                            <p className="text-[var(--color-text-secondary)] text-sm mt-1">
+                                Posts viraux pour TikTok, Facebook, WhatsApp, LinkedIn
+                            </p>
+                        </div>
+                    </div>
+                    {profile && (
+                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md border border-white shadow-sm">
+                            <IconZap size={18} className="text-[var(--color-terracotta)]" />
+                            <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Platform Selector */}
+                <div className="grid grid-cols-5 gap-2 mb-6">
+                    {PLATFORMS.map((platform) => {
+                        const Icon = platform.icon;
+                        const isSelected = selectedPlatform === platform.id;
+                        return (
+                            <button
+                                key={platform.id}
+                                onClick={() => { setSelectedPlatform(platform.id); setOutput(''); }}
+                                disabled={isStreaming}
+                                className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${
+                                    isSelected
+                                        ? `border-[var(--color-terracotta)] bg-gradient-to-br ${platform.color} text-white`
+                                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-600'
+                                }`}
+                            >
+                                <Icon size={20} />
+                                <span className="text-xs font-medium hidden sm:block">{platform.name}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Best Times Banner */}
+                {platformInfo && (
+                    <div className="mb-6 p-3 bg-white/50 rounded-xl flex items-center gap-2 text-sm">
+                        <IconClock size={16} className="text-[var(--color-gold)]" />
+                        <span className="text-gray-600">Meilleurs horaires pour {platformInfo.name}:</span>
+                        <span className="font-medium text-gray-800">{platformInfo.bestTimes}</span>
+                        <span className="text-gray-400 ml-1">(heure locale)</span>
+                    </div>
+                )}
+
+                <div className="grid lg:grid-cols-2 gap-6">
+                    {/* Left Panel - Configuration */}
+                    <div className="space-y-6">
+                        {/* Topic Input */}
+                        <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <IconTrendingUp size={18} className="text-[var(--color-terracotta)]" />
+                                Votre sujet / offre
+                            </h3>
+                            
+                            <textarea
+                                value={topic}
+                                onChange={(e) => setTopic(e.target.value)}
+                                placeholder={`Décrivez ce que vous voulez promouvoir...\nEx: "Lancement de ma nouvelle collection de bijoux faits main"`}
+                                rows={4}
+                                maxLength={500}
+                                disabled={isStreaming}
+                                className="w-full p-4 rounded-xl border-2 border-gray-100 bg-white focus:outline-none focus:border-[var(--color-terracotta)] focus:ring-4 focus:ring-[var(--color-terracotta)]/10 transition-all resize-none text-[15px] leading-relaxed mb-4"
+                            />
+
+                            <textarea
+                                value={context}
+                                onChange={(e) => setContext(e.target.value)}
+                                placeholder="Contexte additionnel (optionnel): prix, date, contraintes spécifiques..."
+                                rows={2}
+                                maxLength={300}
+                                disabled={isStreaming}
+                                className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/50 focus:outline-none focus:border-[var(--color-terracotta)] transition-all resize-none text-sm"
+                            />
+                        </div>
+
+                        {/* Options */}
+                        <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <IconSparkles size={18} className="text-[var(--color-gold)]" />
+                                Personnalisation
+                            </h3>
+
+                            {/* Tone */}
+                            <div className="mb-4">
+                                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Ton de voix</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {TONE_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => setTone(opt.value)}
+                                            disabled={isStreaming}
+                                            className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                                                tone === opt.value
+                                                    ? 'bg-[var(--color-terracotta)] text-white'
+                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            {opt.emoji} {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Sector */}
+                            <div className="mb-4">
+                                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Secteur d&apos;activité</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {SECTOR_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => setSector(opt.value)}
+                                            disabled={isStreaming}
+                                            className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                                                sector === opt.value
+                                                    ? 'bg-[var(--color-savanna)] text-white'
+                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            {opt.emoji} {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Multi-variant */}
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Format de sortie</label>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setMultiVariant(false)}
+                                        disabled={isStreaming}
+                                        className={`flex-1 p-3 rounded-xl border-2 text-center transition-all ${
+                                            !multiVariant
+                                                ? 'border-[var(--color-terracotta)] bg-[var(--color-terracotta)]/5'
+                                                : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <p className="font-medium text-sm">Une version</p>
+                                        <p className="text-xs text-gray-500">1 crédit</p>
+                                    </button>
+                                    <button
+                                        onClick={() => setMultiVariant(true)}
+                                        disabled={isStreaming}
+                                        className={`flex-1 p-3 rounded-xl border-2 text-center transition-all ${
+                                            multiVariant
+                                                ? 'border-[var(--color-terracotta)] bg-[var(--color-terracotta)]/5'
+                                                : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-center gap-1">
+                                            <IconRepeat size={14} />
+                                            <p className="font-medium text-sm">3 variantes</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500">2 crédits</p>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Suggestions */}
+                        <div className="glass-card-premium rounded-[20px] p-6">
+                            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <IconTrendingUp size={18} className="text-[var(--color-gold)]" />
+                                Idées virales pour {platformInfo?.name}
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {getViralSuggestions().map((suggestion) => (
+                                    <button
+                                        key={suggestion}
+                                        onClick={() => setTopic(suggestion)}
+                                        disabled={isStreaming}
+                                        className="px-3 py-2 bg-white/50 hover:bg-white border border-gray-200 hover:border-[var(--color-terracotta)] rounded-full text-xs text-gray-600 hover:text-gray-800 transition-all text-left"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Hashtags Reference */}
+                        <div className="p-4 bg-white/30 rounded-xl">
+                            <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Hashtags suggérés ({sector})</p>
+                            <div className="flex flex-wrap gap-1">
+                                {getSuggestedHashtags().map((tag) => (
+                                    <span key={tag} className="px-2 py-1 bg-white/50 rounded text-xs text-gray-600">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Generate Button */}
+                        <button
+                            onClick={handleGenerate}
+                            disabled={!topic.trim() || isStreaming}
+                            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[16px] font-bold text-white transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
+                            style={{
+                                background: 'linear-gradient(135deg, var(--color-terracotta) 0%, var(--color-terracotta-dark) 100%)',
+                                boxShadow: '0 8px 16px -4px rgba(231, 111, 81, 0.4)',
+                            }}
+                        >
+                            {isStreaming ? (
+                                <>
+                                    <IconLoader2 size={20} className="animate-spin" />
+                                    <span>Création en cours...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <IconSparkles size={20} />
+                                    <span>Générer le post ({creditsNeeded} crédit{creditsNeeded > 1 ? 's' : ''})</span>
+                                </>
+                            )}
+                        </button>
+
+                        {error && (
+                            <div className="flex items-start gap-3 text-sm text-red-600 bg-red-50 border border-red-100 p-4 rounded-xl">
+                                <IconAlertCircle size={20} className="shrink-0 mt-0.5" />
+                                <span>{error}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right Panel - Output */}
+                    <div className="flex flex-col min-h-[500px] bg-white rounded-[24px] shadow-lg overflow-hidden border border-gray-100">
+                        {/* Header */}
+                        <div className="bg-gray-50 px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${platformInfo?.color} flex items-center justify-center text-white`}>
+                                    {platformInfo && <platformInfo.icon size={16} />}
+                                </div>
+                                <span className="text-gray-700 font-medium text-sm">
+                                    {output || isStreaming ? 'Votre post' : 'Aperçu'}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {output && (
+                                    <button
+                                        onClick={handleCopy}
+                                        className={`p-2 rounded-lg transition-colors ${
+                                            copied 
+                                                ? 'text-green-600 bg-green-100' 
+                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                        title="Copier"
+                                    >
+                                        {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => { setOutput(''); setCopied(false); }}
+                                    disabled={!output}
+                                    className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                    title="Effacer"
+                                >
+                                    <IconRefresh size={16} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar">
+                            {isStreaming && !output ? (
+                                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
+                                    <IconLoader2 size={32} className="animate-spin text-[var(--color-terracotta)]" />
+                                    <div className="text-center">
+                                        <p className="text-sm font-medium">Création de votre post viral...</p>
+                                        <p className="text-xs text-gray-400 mt-1">Optimisé pour {platformInfo?.name}</p>
+                                    </div>
+                                </div>
+                            ) : output ? (
+                                <div className="prose prose-sm sm:prose-base max-w-none text-[15px] leading-relaxed whitespace-pre-wrap">
+                                    <ChatMessageContent content={output} />
+                                    <div ref={outputRef} />
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
+                                    <div className="w-16 h-16 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center">
+                                        <IconMegaphone size={28} className="text-gray-300" />
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-500">Votre post apparaîtra ici</p>
+                                    <p className="text-xs text-gray-400 max-w-xs text-center">
+                                        Configurez votre contenu et cliquez sur Générer
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Platform Tips Footer */}
+                        {output && (
+                            <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
+                                <div className="flex items-center gap-4 text-xs text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                        <IconCheck size={12} />
+                                        {output.length} caractères
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <IconCheck size={12} />
+                                        Optimisé {platformInfo?.name}
+                                    </span>
+                                    {platformConfig && output.length > platformConfig.maxChars && (
+                                        <span className="text-amber-600 font-medium">
+                                            ⚠️ Dépasse la limite ({platformConfig.maxChars} max)
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

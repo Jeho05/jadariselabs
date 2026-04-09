@@ -140,6 +140,7 @@ export async function runProviderChain<T>(
     const attempts: ProviderAttempt[] = [];
     const overallStart = Date.now();
     let lastError: ProviderError | undefined;
+    let skippedDueToCircuit = 0;
 
     for (const task of tasks) {
         if (!shouldAllowProvider(task.name)) {
@@ -150,6 +151,7 @@ export async function runProviderChain<T>(
                 skipped: true,
                 skip_reason: 'circuit_open',
             });
+            skippedDueToCircuit += 1;
             continue;
         }
 
@@ -193,6 +195,42 @@ export async function runProviderChain<T>(
 
     if (lastError) {
         throw lastError;
+    }
+
+    // If every provider was skipped due to an open circuit, try the first provider once.
+    // This is more robust in serverless environments (like Vercel) where in-memory circuit state
+    // can incorrectly block all providers across bursts of requests.
+    if (skippedDueToCircuit === tasks.length && tasks.length > 0) {
+        const task = tasks[0];
+        const start = Date.now();
+        try {
+            const result = await task.run();
+            const latency = Date.now() - start;
+            recordSuccess(task.name);
+            attempts.push({
+                provider: task.name,
+                ok: true,
+                latency_ms: latency,
+            });
+            return {
+                result,
+                provider: task.name,
+                attempts,
+                latency_ms: Date.now() - overallStart,
+            };
+        } catch (error) {
+            const latency = Date.now() - start;
+            const providerError = toProviderError(task.name, error);
+            attempts.push({
+                provider: task.name,
+                ok: false,
+                status: providerError.status,
+                error: providerError.message,
+                latency_ms: latency,
+            });
+            recordFailure(task.name);
+            throw providerError;
+        }
     }
 
     throw new ProviderError(
