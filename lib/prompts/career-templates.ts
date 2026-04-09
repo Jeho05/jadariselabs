@@ -113,11 +113,11 @@ Centres d'intérêt: {{interests}}
 Références: {{references}}
 
 INSTRUCTIONS IMPORTANTES:
-- Reste STRICTEMENT FIDELE aux informations fournies par l'utilisateur.
-- N'INVENTE AUCUNE expérience, compétence, ou réalisation que le candidat n'a pas mentionnée.
-- Ton rôle est UNIQUEMENT de structurer, formater et corriger les fautes de syntaxe.
-- Adapte la mise en forme au secteur {{sector}} sans extrapoler ni mentir.
-- Si des langues locales (Fon, Yoruba, Éwé...) sont mentionnées, inclus-les telles quelles.
+- RÈGLE ABSOLUE ET DÉFINITIVE : Tu ne dois RIEN changer aux textes fournis par l'utilisateur.
+- AUCUNE reformulation, AUCUNE correction de syntaxe, AUCUN ajout, AUCUN résumé.
+- Ton UNIQUE travail est de prendre les textes en vrac (ex: les gros blocs de texte des expériences et formations) et de les DÉCOUPER pour les placer dans les bonnes cases du JSON.
+- Tu fais un "COPIER-COLLER" exact des mots du candidat dans les valeurs du JSON.
+- N'adapte PAS le contenu. Si l'utilisateur a écrit une phrase maladroite, tu la laisses telle quelle.
 
 FORMAT DE SORTIE REQUIS (JSON STRICT, rien d'autre):
 {
