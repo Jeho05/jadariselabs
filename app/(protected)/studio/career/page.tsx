@@ -211,36 +211,56 @@ export default function CareerStudioPage() {
 
         try {
             setIsGeneratingPDF(true);
+
+            // Capture at high resolution with explicit dimensions
             const canvas = await html2canvas(cvElement, {
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
                 logging: false,
+                width: 794,
+                windowWidth: 794,
             });
-            const imgData = canvas.toDataURL('image/png');
 
             const pdf = new jsPDF({ format: 'a4', unit: 'mm', orientation: 'portrait' });
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgWidth = pdfWidth;
-            const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+            const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
+            const pdfHeight = pdf.internal.pageSize.getHeight();  // 297mm
 
-            // Handle multi-page if content overflows
-            if (imgHeight <= pdfHeight) {
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            // Calculate proportional image height in mm
+            const imgHeightMM = (canvas.height * pdfWidth) / canvas.width;
+
+            if (imgHeightMM <= pdfHeight) {
+                // Fits on one page
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, imgHeightMM);
             } else {
-                let remainingHeight = imgHeight;
-                let position = 0;
-                while (remainingHeight > 0) {
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    remainingHeight -= pdfHeight;
-                    if (remainingHeight > 0) {
-                        pdf.addPage();
-                        position -= pdfHeight;
+                // Multi-page: slice the canvas into page-sized chunks
+                const pageCanvasHeight = Math.floor((pdfHeight / imgHeightMM) * canvas.height);
+                let yOffset = 0;
+                let pageNum = 0;
+
+                while (yOffset < canvas.height) {
+                    const sliceHeight = Math.min(pageCanvasHeight, canvas.height - yOffset);
+
+                    // Create a slice canvas for this page
+                    const pageCanvas = document.createElement('canvas');
+                    pageCanvas.width = canvas.width;
+                    pageCanvas.height = sliceHeight;
+                    const ctx = pageCanvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
                     }
+
+                    const sliceHeightMM = (sliceHeight * pdfWidth) / canvas.width;
+
+                    if (pageNum > 0) pdf.addPage();
+                    pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, sliceHeightMM);
+
+                    yOffset += sliceHeight;
+                    pageNum++;
                 }
             }
+
             const safeName = name.replace(/\s+/g, '_') || 'CV';
             pdf.save(`CV_${safeName}_JadaRise.pdf`);
         } catch (err) {
@@ -720,10 +740,8 @@ export default function CareerStudioPage() {
                                 <div className="w-full">
                                     {(activeTab === 'cv' && showCVTab) ? (
                                         parsedCV ? (
-                                            <div className="w-full flex justify-center py-8 px-4">
-                                                <div style={{ width: '794px', transform: 'scale(0.85)', transformOrigin: 'top center' }}>
-                                                    <CVTemplateProfessional data={parsedCV} photoPreview={photoPreview} />
-                                                </div>
+                                            <div className="w-full overflow-x-auto py-6 px-2 flex justify-center">
+                                                <CVTemplateProfessional data={parsedCV} photoPreview={photoPreview} />
                                             </div>
                                         ) : (
                                             <div className="p-8 text-center">
