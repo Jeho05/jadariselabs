@@ -113,10 +113,11 @@ Centres d'intérêt: {{interests}}
 Références: {{references}}
 
 INSTRUCTIONS IMPORTANTES:
-- Enrichis les informations fournies avec des verbes d'action percutants
-- Invente des réalisations quantifiées crédibles si le candidat n'en fournit pas assez
-- Adapte le vocabulaire au secteur {{sector}}
-- Si des langues locales (Fon, Yoruba, Éwé) sont mentionnées, valorise-les
+- Reste STRICTEMENT FIDELE aux informations fournies par l'utilisateur.
+- N'INVENTE AUCUNE expérience, compétence, ou réalisation que le candidat n'a pas mentionnée.
+- Ton rôle est UNIQUEMENT de structurer, formater et corriger les fautes de syntaxe.
+- Adapte la mise en forme au secteur {{sector}} sans extrapoler ni mentir.
+- Si des langues locales (Fon, Yoruba, Éwé...) sont mentionnées, inclus-les telles quelles.
 
 FORMAT DE SORTIE REQUIS (JSON STRICT, rien d'autre):
 {
@@ -173,7 +174,8 @@ DONNÉES:
 Nom: {{name}}, Email: {{email}}, Tél: {{phone}}, Ville: {{location}}
 Expériences: {{experiences}}, Formation: {{education}}, Compétences: {{skills}}, Réalisations: {{achievements}}
 
-Tu dois utiliser un style dynamique, original (verbes percutants).
+Tu dois formater ces informations dans un style dynamique.
+RÈGLE ABSOLUE : N'invente aucune information. Reste strictement fidèle aux données ci-dessus. Ne rajoute pas d'expériences ni de compétences non fournies.
 RETOURNE CE JSON EXACT:
 {
   "personalInfo": { "fullName": "...", "jobTitle": "...", "email": "...", "phone": "...", "location": "..." },
@@ -193,7 +195,7 @@ RETOURNE CE JSON EXACT:
 Profil: {{name}}, {{experienceLevel}} en {{sector}}.
 Infos: {{email}}, {{phone}}, {{location}}.
 Expériences: {{experiences}}, Formation: {{education}}, Compétences: {{skills}}.
-
+RÈGLE ABSOLUE : N'invente rien. Reste 100% fidèle. Condense les informations sans déformer ni ajouter des expériences imaginaires.
 RETOURNE UNIQUEMENT CE JSON:
 {
   "personalInfo": { "fullName": "...", "jobTitle": "...", "email": "...", "phone": "...", "location": "..." },
