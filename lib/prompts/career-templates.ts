@@ -87,105 +87,97 @@ export const CAREER_TEMPLATES: CareerTemplate[] = [
         systemPrompt: `Tu es un expert en rédaction de CV pour le marché de l'emploi en Afrique de l'Ouest (Bénin, Togo, Côte d'Ivoire, Sénégal).
 
 RÈGLES IMPORTANTES:
-1. Format européen adapté aux standards locaux
-2. Mettre en valeur les expériences pertinentes pour le poste visé
-3. Utiliser des verbes d'action impactants
-4. Quantifier les réalisations quand possible
-5. Adapter au contexte africain (diplômes reconnus, langues locales)
-6. Maximum 2 pages
-7. Sections claires et cohérentes`,
-        userPromptTemplate: `Rédige un CV professionnel pour le poste suivant.
+1. Tu DOIS ABSOLUMENT retourner le résultat en format JSON strict.
+2. N'ajoute pas de texte avant ou après le JSON.
+3. Le JSON doit correspondre exactement à la structure demandée.
+4. Mettre en valeur les expériences avec des verbes d'action.
+5. Adapter au contexte africain (diplômes reconnus, secteurs porteurs).`,
+        userPromptTemplate: `Rédige un CV professionnel pour le poste suivant: {{jobTitle}}.
 
-POSTE VISÉ: {{jobTitle}}
+DONNÉES DU CANDIDAT:
+Nom: {{name}}
+Email: {{email}}
+Téléphone: {{phone}}
+Localisation: {{location}}
+Niveau d'expérience: {{experienceLevel}}
+Secteur: {{sector}}
+Expériences passées: {{experiences}}
+Formation: {{education}}
+Compétences: {{skills}}
+Réalisations: {{achievements}}
 
-INFORMATIONS CANDIDAT:
-- Nom: {{name}}
-- Email: {{email}}
-- Téléphone: {{phone}}
-- Localisation: {{location}}
-- Expérience: {{experienceLevel}}
-- Secteur: {{sector}}
-- Expériences passées: {{experiences}}
-- Formation: {{education}}
-- Compétences clés: {{skills}}
-- Langues: {{languages}}
-- Réalisations marquantes: {{achievements}}
-
-FORMAT DE SORTIE:
-
-[NOM PRÉNOM]
-[Email] | [Téléphone] | [LinkedIn optionnel] | [Localisation]
-
-PROFIL PROFESSIONNEL
-Résumé de 3-4 lignes mettant en avant l'expérience et la valeur ajoutée pour le poste.
-
-EXPÉRIENCES PROFESSIONNELLES
-(De la plus récente à la plus ancienne)
-
-Pour chaque expérience:
-[Date] - [Poste] | [Entreprise], [Localisation]
-• Réalisation 1 (quantifiée si possible)
-• Réalisation 2
-• Réalisation 3
-
-FORMATION
-[Date] - [Diplôme] | [Établissement], [Localisation]
-Mentionner les équivalences si diplôme étranger
-
-COMPÉTENCES CLÉS
-• [Compétence technique 1] • [Compétence technique 2]
-• [Soft skill 1] • [Soft skill 2]
-
-LANGUES
-• Français: [niveau]
-• Anglais: [niveau] (si applicable)
-• Langues locales: [si pertinent]
-
-RÉFÉRENCES
-Sur demande` ,
+FORMAT DE SORTIE REQUIS (JSON STRICT):
+{
+  "personalInfo": {
+    "fullName": "...",
+    "jobTitle": "...",
+    "email": "...",
+    "phone": "...",
+    "location": "..."
+  },
+  "summary": "Résumé percutant de 3-4 lignes mettant en avant l'expérience et la valeur ajoutée",
+  "experience": [
+    {
+      "role": "Titre du poste",
+      "company": "Nom de l'entreprise, Localisation",
+      "period": "Année - Année",
+      "achievements": [
+        "Réalisation 1...",
+        "Réalisation 2..."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Nom du diplôme",
+      "institution": "Établissement, Localisation",
+      "period": "Année"
+    }
+  ],
+  "skills": ["Compétence 1", "Compétence 2", "Compétence 3"]
+}`
     },
     {
         id: 'cv-modern',
         documentType: 'cv',
         name: 'CV Moderne/Startup',
         description: 'Style dynamique pour startups et tech',
-        systemPrompt: 'Expert CV pour startups et entreprises innovantes en Afrique. Style dynamique, mettre en avant la créativité et l\'adaptabilité.',
-        userPromptTemplate: `Crée un CV moderne et impactant pour ce profil:
+        systemPrompt: 'Expert CV pour startups et entreprises innovantes en Afrique. Tu DOIS ABSOLUMENT retourner le résultat en JSON strict selon la structure demandée.',
+        userPromptTemplate: `Crée un CV moderne et impactant pour ce profil: {{jobTitle}} ({{experienceLevel}} en {{sector}}).
 
-Poste: {{jobTitle}}
-Profil: {{experienceLevel}} en {{sector}}
+DONNÉES:
+Nom: {{name}}, Email: {{email}}, Tél: {{phone}}, Ville: {{location}}
+Expériences: {{experiences}}, Formation: {{education}}, Compétences: {{skills}}, Réalisations: {{achievements}}
 
-Données:
-{{name}} | {{email}} | {{phone}} | {{location}}
-
-Expériences: {{experiences}}
-Formation: {{education}}
-Compétences: {{skills}}
-Réalisations: {{achievements}}
-
-STYLE: Dynamique, sections originales possibles ("Projets", "Passions"), tons professionnel mais accessible.`
+Tu dois utiliser un style dynamique, original (verbes percutants).
+RETOURNE CE JSON EXACT:
+{
+  "personalInfo": { "fullName": "...", "jobTitle": "...", "email": "...", "phone": "...", "location": "..." },
+  "summary": "...",
+  "experience": [{ "role": "...", "company": "...", "period": "...", "achievements": ["..."] }],
+  "education": [{ "degree": "...", "institution": "...", "period": "..." }],
+  "skills": ["..."]
+}`
     },
     {
         id: 'cv-minimal',
         documentType: 'cv',
         name: 'CV Minimaliste',
         description: 'Design épuré et concis',
-        systemPrompt: 'Expert CV minimaliste. Maximum d\'impact avec minimum de texte. Privilégier la clarté et la lisibilité.',
-        userPromptTemplate: `Rédige un CV minimaliste et concis.
+        systemPrompt: 'Expert CV minimaliste. Maximum d\'impact avec minimum de texte. Tu DOIS ABSOLUMENT retourner le résultat en JSON strict.',
+        userPromptTemplate: `Rédige un CV ultra-concis. Poste: {{jobTitle}}.
+Profil: {{name}}, {{experienceLevel}} en {{sector}}.
+Infos: {{email}}, {{phone}}, {{location}}.
+Expériences: {{experiences}}, Formation: {{education}}, Compétences: {{skills}}.
 
-Poste: {{jobTitle}}
-Profil: {{name}}, {{experienceLevel}}
-
-Infos:
-- {{email}}
-- {{phone}}
-- {{location}}
-
-Expériences clés: {{experiences}}
-Formation: {{education}}
-Top 3 compétences: {{skills}}
-
-FORMAT: Ultra-concis, phrases courtes, espacement important.`
+RETOURNE UNIQUEMENT CE JSON:
+{
+  "personalInfo": { "fullName": "...", "jobTitle": "...", "email": "...", "phone": "...", "location": "..." },
+  "summary": "Résumé de 2 lignes max.",
+  "experience": [{ "role": "...", "company": "...", "period": "...", "achievements": ["1 bullet point ultra-concis"] }],
+  "education": [{ "degree": "...", "institution": "...", "period": "..." }],
+  "skills": ["..."]
+}`
     },
 
     // === LETTRES DE MOTIVATION ===

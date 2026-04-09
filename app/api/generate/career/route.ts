@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { runProviderChain, ProviderError } from '@/lib/provider-router';
 import type { ProviderTask } from '@/lib/provider-router';
+import { getTemplatesByType, buildCareerPrompt } from '@/lib/prompts/career-templates';
 
 /**
  * POST /api/generate/career — Générateur de CV et lettres de motivation
@@ -32,109 +33,7 @@ function calculateCredits(documentType: string, isPack: boolean): number {
     return documentType === 'cv' ? CREDITS_CV : CREDITS_COVER_LETTER;
 }
 
-function getSystemPrompt(documentType: string): string {
-    const basePrompt = `Tu es CareerGen, expert en rédaction de documents professionnels pour le marché de l'emploi en Afrique de l'Ouest.
-Tu connais les standards locaux, les attentes des recruteurs, et les meilleures pratiques.`;
-
-    if (documentType === 'cv') {
-        return `${basePrompt}
-Spécialité CV:
-- Format européen adapté aux standards africains
-- Verbes d'action impactants
-- Réalisations quantifiées
-- 2 pages maximum
-- Adaptation au contexte local (diplômes, langues)`;
-    }
-
-    return `${basePrompt}
-Spécialité Lettres de motivation:
-- Personnalisation réelle pour chaque entreprise
-- Connexion expérience ↔ besoin du poste
-- Ton respectueux mais confiant
-- 3-4 paragraphes maximum
-- Appel à l'action clair`;
-}
-
-function buildPrompt(documentType: string, formData: Record<string, string>): string {
-    const {
-        name,
-        email,
-        phone,
-        jobTitle,
-        companyName,
-        sector,
-        experienceLevel,
-        experiences = '',
-        education = '',
-        skills = '',
-        achievements = '',
-        motivation = '',
-        strengths = '',
-        address = '',
-        companyAddress = '',
-    } = formData;
-
-    if (documentType === 'cv') {
-        return `Rédige un CV professionnel pour ce profil.
-
-INFORMATIONS:
-- Nom: ${name}
-- Contact: ${email}, ${phone}
-- Poste visé: ${jobTitle}
-- Secteur: ${sector}
-- Niveau: ${experienceLevel}
-
-EXPÉRIENCES:
-${experiences || 'À développer selon le niveau'}
-
-FORMATION:
-${education || 'À compléter'}
-
-COMPÉTENCES:
-${skills || 'À identifier selon le secteur'}
-
-RÉALISATIONS:
-${achievements || 'À développer'}
-
-INSTRUCTIONS:
-1. Format: Sections claires (Profil, Expériences, Formation, Compétences)
-2. Style: Professionnel, verbes d'action, résultats quantifiés
-3. Adaptation: Contexte ${sector} en Afrique de l'Ouest
-4. Longueur: 2 pages maximum
-5. Langue: Français professionnel
-
-Réponds avec le CV formaté en texte structuré.`;
-    }
-
-    // Cover letter
-    return `Rédige une lettre de motivation pour ce candidat.
-
-DESTINATAIRE:
-${companyName ? `Entreprise: ${companyName}` : 'Entreprise non spécifiée'}
-${companyAddress ? `Adresse: ${companyAddress}` : ''}
-
-CANDIDAT:
-- Nom: ${name}
-- Adresse: ${address || 'Non spécifiée'}
-- Contact: ${email}, ${phone}
-- Poste visé: ${jobTitle}
-
-PROFIL:
-Niveau: ${experienceLevel}
-Secteur: ${sector}
-Points forts: ${strengths || 'À développer'}
-Motivation: ${motivation || 'Intérêt pour le poste'}
-
-STRUCTURE:
-1. Formule d'appel personnalisée
-2. Paragraphe 1: Accroche - Intérêt spécifique pour ce poste/entreprise
-3. Paragraphe 2: Valeur ajoutée - Lien entre expérience et besoin
-4. Paragraphe 3: Contribution - Ce que j'apporte concrètement
-5. Paragraphe 4: Disponibilité + appel à l'action
-6. Formule de politesse
-
-Ton: Professionnel, confiant mais respectueux. Réponds avec la lettre formatée.`;
-}
+// Logic moved to lib/prompts/career-templates.ts
 
 async function runOpenAICompatibleChat({
     provider,
@@ -243,26 +142,36 @@ export async function POST(request: NextRequest) {
         }
 
         // 5. Build prompts
-        const systemPrompt = getSystemPrompt(documentType);
-        const userPrompt = buildPrompt(documentType, formData);
+        // 5. Build prompts
+        let systemPrompt = '';
+        let userPrompt = '';
+        let finalPrompt = '';
 
-        let finalPrompt = userPrompt;
         if (generateBoth) {
-            const coverPrompt = buildPrompt('cover-letter', formData);
-            finalPrompt = `Génère un CV ET une lettre de motivation pour ce profil.
+            // Generate both sequentially in one prompt
+            const cvTemplates = getTemplatesByType('cv');
+            const clTemplates = getTemplatesByType('cover-letter');
+            
+            const cvTpl = cvTemplates.find(t => t.id === templateId) || cvTemplates[0];
+            const clTpl = clTemplates[0];
 
-=== PARTIE 1: CV ===
-${userPrompt}
+            systemPrompt = `${cvTpl.systemPrompt}\n\nIMPORTANT: Produit les documents dans le format exact ci-dessous: Tu dois générer un objet JSON complet contenant DEUX clés principales: "cv" (qui contient l'objet JSON du CV selon la structure demandée) et "coverLetter" (qui contient une chaîne de texte markdown de la lettre de motivation). \n\nFORMAT ATTENDU:\n{\n  "cv": { /* objet JSON du CV */ },\n  "coverLetter": "## Lettre de Motivation\\n..."\n}`;
+            const cvPrompt = buildCareerPrompt(cvTpl, formData);
+            const clPrompt = buildCareerPrompt(clTpl, formData);
+            
+            finalPrompt = `GÉNÈRE LES DEUX DOCUMENTS SÉPARÉMENT ET RETOURNE STRICTEMENT CE FORMAT JSON FINAL UNIQUE : { "cv": { <json_du_cv_ici> }, "coverLetter": "<lettre_ici>" }
+            
+--- REQUIS POUR LE CV ---
+${cvPrompt}
 
-=== PARTIE 2: LETTRE DE MOTIVATION ===
-${coverPrompt}
-
-FORMAT DE RÉPONSE:
-[CV]
-...
----
-[LETTRE DE MOTIVATION]
-...`;
+--- REQUIS POUR LA LETTRE DE MOTIVATION ---
+${clPrompt}`;
+        } else {
+            const templates = getTemplatesByType(documentType as 'cv' | 'cover-letter');
+            const tpl = templates.find(t => t.id === templateId) || templates[0];
+            systemPrompt = tpl.systemPrompt;
+            userPrompt = buildCareerPrompt(tpl, formData);
+            finalPrompt = userPrompt;
         }
 
         const messages = [

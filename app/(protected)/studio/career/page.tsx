@@ -50,6 +50,10 @@ const EXPERIENCE_LEVELS: Array<{ id: ExperienceLevel; label: string; years: stri
     { id: 'executive', label: 'Expert/Manager', years: '10+ ans' },
 ];
 
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { CVTemplateProfessional, type CVData } from '@/components/cv-templates/CVTemplateProfessional';
+
 export default function CareerStudioPage() {
     const supabase = createClient();
 
@@ -87,6 +91,58 @@ export default function CareerStudioPage() {
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'cv' | 'letter'>('cv');
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+    // Derived parsing state
+    const [parsedCV, setParsedCV] = useState<CVData | null>(null);
+    const [parsedLetter, setParsedLetter] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!isStreaming && output) {
+            try {
+                // Determine if it was "both", "cv", or "cover-letter"
+                if (documentType === 'cover-letter') {
+                    setParsedLetter(output);
+                    setParsedCV(null);
+                } else if (documentType === 'cv') {
+                    const parsed = JSON.parse(output);
+                    setParsedCV(parsed);
+                    setParsedLetter(null);
+                } else {
+                    const parsed = JSON.parse(output);
+                    setParsedCV(parsed.cv);
+                    setParsedLetter(parsed.coverLetter);
+                }
+            } catch (e) {
+                // Not fully valid JSON yet, we leave it null 
+                // However, since we strictly enforce JSON, it should parse once stream ends
+            }
+        }
+    }, [output, isStreaming, documentType]);
+
+    const handleDownloadPDF = async () => {
+        const cvElement = document.getElementById('cv-export-wrapper');
+        if (!cvElement) return;
+
+        try {
+            setIsGeneratingPDF(true);
+            const canvas = await html2canvas(cvElement, { scale: 2, useCORS: true });
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            
+            // A4 parameters
+            const pdf = new jsPDF({ format: 'a4', unit: 'mm' });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`CV_${name.replace(/\s+/g, '_')}_JadaRise.pdf`);
+        } catch (err) {
+            console.error('Erreur PDF:', err);
+            setError('Erreur lors de la génération du PDF.');
+        } finally {
+            setIsGeneratingPDF(false);
+        }
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -587,7 +643,7 @@ export default function CareerStudioPage() {
                             <div className="flex items-center gap-2">
                                 <IconFile size={18} className="text-gray-400" />
                                 <span className="text-gray-700 font-medium text-sm">
-                                    {output ? 'Document généré' : 'Aperçu'}
+                                    {output ? 'Aperçu du Document' : 'Aperçu'}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -599,7 +655,7 @@ export default function CareerStudioPage() {
                                                 activeTab === 'cv' ? 'bg-white shadow text-gray-800' : 'text-gray-500'
                                             }`}
                                         >
-                                            CV
+                                            CV Design
                                         </button>
                                         <button
                                             onClick={() => setActiveTab('letter')}
@@ -611,7 +667,17 @@ export default function CareerStudioPage() {
                                         </button>
                                     </div>
                                 )}
-                                {output && (
+                                {parsedCV && activeTab === 'cv' && (
+                                    <button
+                                        onClick={handleDownloadPDF}
+                                        disabled={isGeneratingPDF}
+                                        className="flex items-center gap-2 bg-[var(--color-savanna)] hover:bg-[var(--color-savanna-dark)] text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                    >
+                                        {isGeneratingPDF ? <IconLoader2 size={16} className="animate-spin" /> : <IconCheck size={16} />}
+                                        Télécharger PDF
+                                    </button>
+                                )}
+                                {output && activeTab === 'letter' && (
                                     <button
                                         onClick={handleCopy}
                                         className={`p-2 rounded-lg transition-colors ${
@@ -636,31 +702,38 @@ export default function CareerStudioPage() {
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar">
-                            {isStreaming && !output ? (
-                                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
+                        <div className="flex-1 overflow-y-auto p-0 md:p-0 bg-gray-100 hide-scrollbar flex justify-center items-start">
+                            {isStreaming ? (
+                                <div className="flex flex-col items-center justify-center h-full w-full gap-4 text-gray-400 bg-white">
                                     <IconLoader2 size={32} className="animate-spin text-[var(--color-gold)]" />
                                     <div className="text-center">
-                                        <p className="text-sm font-medium">Rédaction professionnelle en cours...</p>
-                                        <p className="text-xs text-gray-400 mt-1">Adaptation au contexte africain</p>
+                                        <p className="text-sm font-medium">L&apos;IA JadaRise conçoit votre CV sur mesure...</p>
+                                        <p className="text-xs text-gray-400 mt-1">Génération du design premium A4 automatique</p>
                                     </div>
                                 </div>
                             ) : output ? (
-                                <div className="prose prose-sm sm:prose-base max-w-none text-[15px] leading-relaxed whitespace-pre-wrap font-mono">
-                                    {hasBothOutputs ? (
-                                        <>
-                                            {activeTab === 'cv' ? (
-                                                <ChatMessageContent content={output.split('---')[0] || output} />
-                                            ) : (
-                                                <ChatMessageContent content={output.split('---')[1] || ''} />
-                                            )}
-                                        </>
+                                <div className="w-full">
+                                    {activeTab === 'cv' ? (
+                                        parsedCV ? (
+                                            <div className="w-full max-w-[800px] mx-auto my-8">
+                                                <CVTemplateProfessional data={parsedCV} />
+                                            </div>
+                                        ) : (
+                                            <div className="p-8 text-center text-red-500">
+                                                Impossible de générer le rendu. Format de données incorrect.
+                                                <pre className="text-xs text-left text-gray-500 mt-4 overflow-auto">{output}</pre>
+                                            </div>
+                                        )
                                     ) : (
-                                        <ChatMessageContent content={output} />
+                                        <div className="p-8 bg-white h-full w-full">
+                                            <div className="prose prose-sm sm:prose-base max-w-none text-[15px] leading-relaxed whitespace-pre-wrap font-mono">
+                                                <ChatMessageContent content={parsedLetter || output} />
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
+                                <div className="flex flex-col items-center justify-center h-full w-full gap-4 text-gray-400 bg-white">
                                     <div className="w-16 h-16 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center">
                                         <IconBriefcase size={28} className="text-gray-300" />
                                     </div>
