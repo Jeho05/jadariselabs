@@ -166,40 +166,80 @@ export default function CareerStudioPage() {
         }
     };
 
+    // ── Robust JSON extractor ──
+    function extractJSON(raw: string): object | null {
+        let str = raw.trim();
+
+        // 1. Strip markdown code fences (```json ... ``` or ``` ... ```)
+        const fencePatterns = [
+            /```json\s*([\s\S]*?)```/i,
+            /```\s*([\s\S]*?)```/,
+        ];
+        for (const pat of fencePatterns) {
+            const m = str.match(pat);
+            if (m) { str = m[1].trim(); break; }
+        }
+
+        // 2. Find the outermost { ... } pair using brace counting
+        let depth = 0;
+        let start = -1;
+        let end = -1;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === '{') {
+                if (depth === 0) start = i;
+                depth++;
+            } else if (str[i] === '}') {
+                depth--;
+                if (depth === 0 && start !== -1) {
+                    end = i;
+                    break;
+                }
+            }
+        }
+
+        if (start === -1 || end === -1) return null;
+
+        let jsonStr = str.slice(start, end + 1);
+
+        // 3. Clean up common AI mistakes
+        // Remove trailing commas before } or ]
+        jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
+        // Remove control characters except newlines 
+        jsonStr = jsonStr.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F]/g, '');
+
+        try {
+            return JSON.parse(jsonStr);
+        } catch {
+            // Try a second pass: sometimes the AI outputs newlines inside strings
+            try {
+                jsonStr = jsonStr.replace(/\n/g, '\\n');
+                return JSON.parse(jsonStr);
+            } catch {
+                console.error('JSON parse failed. Extracted string:', jsonStr.substring(0, 300));
+                return null;
+            }
+        }
+    }
+
     // ── Parse output when streaming ends ──
     useEffect(() => {
         if (!isStreaming && output) {
-            try {
-                if (documentType === 'cover-letter') {
-                    setParsedLetter(output);
-                    setParsedCV(null);
-                } else if (documentType === 'cv') {
-                    // Try to extract JSON from potential markdown code fence
-                    let jsonStr = output.trim();
-                    const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-                    if (fenceMatch) jsonStr = fenceMatch[1].trim();
-                    // Also try to find first { to last }
-                    const firstBrace = jsonStr.indexOf('{');
-                    const lastBrace = jsonStr.lastIndexOf('}');
-                    if (firstBrace !== -1 && lastBrace !== -1 && firstBrace < lastBrace) {
-                        jsonStr = jsonStr.slice(firstBrace, lastBrace + 1);
-                    }
-                    const parsed = JSON.parse(jsonStr);
-                    setParsedCV(parsed);
+            if (documentType === 'cover-letter') {
+                setParsedLetter(output);
+                setParsedCV(null);
+            } else if (documentType === 'cv') {
+                const parsed = extractJSON(output);
+                if (parsed) {
+                    setParsedCV(parsed as CVData);
                     setParsedLetter(null);
-                } else {
-                    let jsonStr = output.trim();
-                    const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-                    if (fenceMatch) jsonStr = fenceMatch[1].trim();
-                    const firstBrace = jsonStr.indexOf('{');
-                    const lastBrace = jsonStr.lastIndexOf('}');
-                    if (firstBrace !== -1 && lastBrace !== -1) jsonStr = jsonStr.slice(firstBrace, lastBrace + 1);
-                    const parsed = JSON.parse(jsonStr);
-                    setParsedCV(parsed.cv || parsed);
-                    setParsedLetter(parsed.coverLetter || null);
                 }
-            } catch {
-                // JSON parse failed — show raw output  
+            } else {
+                // Both mode
+                const parsed = extractJSON(output) as Record<string, unknown> | null;
+                if (parsed) {
+                    setParsedCV((parsed.cv || parsed) as CVData);
+                    setParsedLetter((parsed.coverLetter as string) || null);
+                }
             }
         }
     }, [output, isStreaming, documentType]);

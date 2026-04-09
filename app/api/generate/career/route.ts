@@ -60,7 +60,7 @@ async function runOpenAICompatibleChat({
             model,
             messages,
             stream: true,
-            temperature: 0.6, // Plus conservateur pour documents professionnels
+            temperature: 0.4, // Low temp for strict JSON adherence
             max_tokens: maxTokens,
             top_p: 0.9,
         }),
@@ -142,36 +142,39 @@ export async function POST(request: NextRequest) {
         }
 
         // 5. Build prompts
-        // 5. Build prompts
         let systemPrompt = '';
-        let userPrompt = '';
         let finalPrompt = '';
 
+        // JSON enforcement prefix for CV generation
+        const JSON_ENFORCEMENT = `RÈGLE ABSOLUE ET NON-NÉGOCIABLE:
+- Tu DOIS répondre UNIQUEMENT avec du JSON brut valide.
+- AUCUN texte avant le JSON. AUCUN texte après le JSON.
+- PAS de \`\`\`json ni de \`\`\`. PAS de "Voici le CV". PAS d'explication.
+- Ta réponse COMMENCE par { et SE TERMINE par }.
+- Si tu ajoutes quoi que ce soit d'autre que du JSON pur, la réponse sera rejetée.`;
+
         if (generateBoth) {
-            // Generate both sequentially in one prompt
             const cvTemplates = getTemplatesByType('cv');
             const clTemplates = getTemplatesByType('cover-letter');
-            
             const cvTpl = cvTemplates.find(t => t.id === templateId) || cvTemplates[0];
             const clTpl = clTemplates[0];
 
-            systemPrompt = `${cvTpl.systemPrompt}\n\nIMPORTANT: Produit les documents dans le format exact ci-dessous: Tu dois générer un objet JSON complet contenant DEUX clés principales: "cv" (qui contient l'objet JSON du CV selon la structure demandée) et "coverLetter" (qui contient une chaîne de texte markdown de la lettre de motivation). \n\nFORMAT ATTENDU:\n{\n  "cv": { /* objet JSON du CV */ },\n  "coverLetter": "## Lettre de Motivation\\n..."\n}`;
+            systemPrompt = `${JSON_ENFORCEMENT}\n\n${cvTpl.systemPrompt}\n\nTu dois générer UN SEUL objet JSON contenant deux clés: "cv" (objet JSON du CV) et "coverLetter" (string markdown de la lettre).`;
             const cvPrompt = buildCareerPrompt(cvTpl, formData);
             const clPrompt = buildCareerPrompt(clTpl, formData);
             
-            finalPrompt = `GÉNÈRE LES DEUX DOCUMENTS SÉPARÉMENT ET RETOURNE STRICTEMENT CE FORMAT JSON FINAL UNIQUE : { "cv": { <json_du_cv_ici> }, "coverLetter": "<lettre_ici>" }
-            
---- REQUIS POUR LE CV ---
-${cvPrompt}
-
---- REQUIS POUR LA LETTRE DE MOTIVATION ---
-${clPrompt}`;
+            finalPrompt = `Génère les deux documents. RETOURNE UNIQUEMENT LE JSON, rien d'autre.\n\nCV requis:\n${cvPrompt}\n\nLettre requise:\n${clPrompt}`;
+        } else if (documentType === 'cv') {
+            const templates = getTemplatesByType('cv');
+            const tpl = templates.find(t => t.id === templateId) || templates[0];
+            systemPrompt = `${JSON_ENFORCEMENT}\n\n${tpl.systemPrompt}`;
+            finalPrompt = buildCareerPrompt(tpl, formData);
         } else {
-            const templates = getTemplatesByType(documentType as 'cv' | 'cover-letter');
+            // Cover letter: no JSON enforcement needed, just text
+            const templates = getTemplatesByType('cover-letter');
             const tpl = templates.find(t => t.id === templateId) || templates[0];
             systemPrompt = tpl.systemPrompt;
-            userPrompt = buildCareerPrompt(tpl, formData);
-            finalPrompt = userPrompt;
+            finalPrompt = buildCareerPrompt(tpl, formData);
         }
 
         const messages = [
