@@ -9,7 +9,6 @@ import {
     IconLoader2,
     IconAlertCircle,
     IconCopy,
-    IconRefresh,
     IconFileText,
     IconFile,
     IconCheck,
@@ -17,19 +16,12 @@ import {
     IconSparkles,
     IconBuilding,
     IconMail,
-    IconPhone,
-    IconMapPin,
     IconUser,
-    IconGraduationCap,
     IconAward,
 } from '@/components/icons';
 import ChatMessageContent from '@/components/chat-message-content';
 import {
     SECTOR_CONFIG,
-    CAREER_TEMPLATES,
-    CV_ACTION_VERBS,
-    COVER_OPENINGS,
-    COVER_CLOSINGS,
     type DocumentType,
     type SectorType,
 } from '@/lib/prompts/career-templates';
@@ -37,13 +29,21 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { CVTemplateProfessional, type CVData } from '@/components/cv-templates/CVTemplateProfessional';
 
+/* ─── Inline Mini Icons for Dynamic Forms ─── */
+const MiniPlus = () => (
+    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
+);
+const MiniTrash = () => (
+    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+);
+
 type ExperienceLevel = 'junior' | 'mid' | 'senior' | 'executive';
 type CareerDocumentType = DocumentType | 'both';
 
-const DOCUMENT_TYPES: Array<{ id: CareerDocumentType; name: string; credits: number; description: string }> = [
-    { id: 'cv', name: 'CV seul', credits: 3, description: 'Curriculum Vitae professionnel' },
-    { id: 'cover-letter', name: 'Lettre seule', credits: 2, description: 'Lettre de motivation' },
-    { id: 'both', name: 'CV + Lettre', credits: 4, description: 'Pack complet' },
+const DOCUMENT_TYPES: Array<{ id: CareerDocumentType; name: string; credits: number; description: string; tag?: string }> = [
+    { id: 'cv', name: 'CV Live', credits: 0, description: 'Création instantanée', tag: 'GRATUIT' },
+    { id: 'cover-letter', name: 'Lettre seule', credits: 2, description: 'Lettre par IA' },
+    { id: 'both', name: 'CV Live + Lettre', credits: 2, description: 'Pack complet' },
 ];
 
 const EXPERIENCE_LEVELS: Array<{ id: ExperienceLevel; label: string; years: string }> = [
@@ -87,11 +87,12 @@ function FormSection({ title, icon, children, defaultOpen = true, accentColor = 
 }) {
     const [open, setOpen] = useState(defaultOpen);
     return (
-        <div className="glass-card-premium rounded-[20px] shadow-sm overflow-hidden">
+        <div className="glass-card-premium rounded-[20px] shadow-sm overflow-hidden mb-4">
             <button
                 type="button"
                 onClick={() => setOpen(v => !v)}
                 className="w-full flex items-center justify-between p-5 hover:bg-gray-50/50 transition-colors"
+                style={{ borderLeft: `4px solid ${accentColor}` }}
             >
                 <span className="font-bold text-gray-800 flex items-center gap-2 text-sm">
                     <span style={{ color: accentColor }}>{icon}</span>
@@ -105,7 +106,7 @@ function FormSection({ title, icon, children, defaultOpen = true, accentColor = 
 }
 
 /* ─── Input styling ─── */
-const inputClass = "w-full p-3 rounded-xl border-2 border-gray-200 bg-white focus:outline-none focus:border-[var(--color-gold)] transition-all text-sm";
+const inputClass = "w-full p-2.5 rounded-lg border-2 border-gray-200 bg-white focus:outline-none focus:border-[var(--color-gold)] transition-all text-sm";
 const textareaClass = `${inputClass} resize-none`;
 
 export default function CareerStudioPage() {
@@ -113,7 +114,7 @@ export default function CareerStudioPage() {
 
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
-    const [documentType, setDocumentType] = useState<DocumentType | 'both'>('cv');
+    const [documentType, setDocumentType] = useState<CareerDocumentType>('cv');
 
     // ── Personal info ──
     const [name, setName] = useState('');
@@ -128,32 +129,45 @@ export default function CareerStudioPage() {
 
     // ── Professional info ──
     const [jobTitle, setJobTitle] = useState('');
-    const [companyName, setCompanyName] = useState('');
-    const [companyAddress, setCompanyAddress] = useState('');
     const [sector, setSector] = useState<SectorType>('tech');
     const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>('mid');
+    const [summary, setSummary] = useState('');
 
-    // ── Content ──
-    const [experiences, setExperiences] = useState('');
-    const [education, setEducation] = useState('');
+    // ── Dynamic Lists ──
+    const [experiences, setExperiences] = useState([{ id: 'exp_1', role: '', company: '', location: '', period: '', achievements: '' }]);
+    const [education, setEducation] = useState([{ id: 'edu_1', degree: '', institution: '', period: '', details: '' }]);
+    const [languages, setLanguages] = useState([{ id: 'lang_1', name: '', level: '' }]);
+    const [certifications, setCertifications] = useState([{ id: 'cert_1', name: '', issuer: '', year: '' }]);
+    const [references, setReferences] = useState([{ id: 'ref_1', name: '', role: '', contact: '' }]);
+
+    // ── Simple text fields ──
     const [skills, setSkills] = useState('');
-    const [achievements, setAchievements] = useState('');
-    const [languages, setLanguages] = useState('Français: Langue maternelle');
-    const [certifications, setCertifications] = useState('');
     const [interests, setInterests] = useState('');
-    const [references, setReferences] = useState('');
+
+    // ── Cover Letter Exclusive fields ──
+    const [companyName, setCompanyName] = useState('');
+    const [companyAddress, setCompanyAddress] = useState('');
     const [motivation, setMotivation] = useState('');
     const [strengths, setStrengths] = useState('');
 
     // ── Generation state ──
     const [isStreaming, setIsStreaming] = useState(false);
-    const [output, setOutput] = useState('');
+    const [letterOutput, setLetterOutput] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'cv' | 'letter'>('cv');
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-    const [parsedCV, setParsedCV] = useState<CVData | null>(null);
-    const [parsedLetter, setParsedLetter] = useState<string | null>(null);
+
+    // ── Handlers for Dynamic Lists ──
+    const genId = () => Math.random().toString(36).substr(2, 9);
+    
+    // Arrays helper
+    const updateListItem = <T extends { id: string }>(list: T[], setList: (v: T[]) => void, id: string, key: keyof T, value: string) => {
+        setList(list.map(item => item.id === id ? { ...item, [key]: value } : item));
+    };
+    const removeListItem = <T extends { id: string }>(list: T[], setList: (v: T[]) => void, id: string) => {
+        setList(list.filter(item => item.id !== id));
+    };
 
     // ── Photo handler ──
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,83 +180,38 @@ export default function CareerStudioPage() {
         }
     };
 
-    // ── Robust JSON extractor ──
-    function extractJSON(raw: string): object | null {
-        let str = raw.trim();
-
-        // 1. Strip markdown code fences (```json ... ``` or ``` ... ```)
-        const fencePatterns = [
-            /```json\s*([\s\S]*?)```/i,
-            /```\s*([\s\S]*?)```/,
-        ];
-        for (const pat of fencePatterns) {
-            const m = str.match(pat);
-            if (m) { str = m[1].trim(); break; }
-        }
-
-        // 2. Find the outermost { ... } pair using brace counting
-        let depth = 0;
-        let start = -1;
-        let end = -1;
-        for (let i = 0; i < str.length; i++) {
-            if (str[i] === '{') {
-                if (depth === 0) start = i;
-                depth++;
-            } else if (str[i] === '}') {
-                depth--;
-                if (depth === 0 && start !== -1) {
-                    end = i;
-                    break;
-                }
-            }
-        }
-
-        if (start === -1 || end === -1) return null;
-
-        let jsonStr = str.slice(start, end + 1);
-
-        // 3. Clean up common AI mistakes
-        // Remove trailing commas before } or ]
-        jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
-        // Remove control characters except newlines 
-        jsonStr = jsonStr.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F]/g, '');
-
-        try {
-            return JSON.parse(jsonStr);
-        } catch {
-            // Try a second pass: sometimes the AI outputs newlines inside strings
-            try {
-                jsonStr = jsonStr.replace(/\n/g, '\\n');
-                return JSON.parse(jsonStr);
-            } catch {
-                console.error('JSON parse failed. Extracted string:', jsonStr.substring(0, 300));
-                return null;
-            }
-        }
-    }
-
-    // ── Parse output when streaming ends ──
-    useEffect(() => {
-        if (!isStreaming && output) {
-            if (documentType === 'cover-letter') {
-                setParsedLetter(output);
-                setParsedCV(null);
-            } else if (documentType === 'cv') {
-                const parsed = extractJSON(output);
-                if (parsed) {
-                    setParsedCV(parsed as CVData);
-                    setParsedLetter(null);
-                }
-            } else {
-                // Both mode
-                const parsed = extractJSON(output) as Record<string, unknown> | null;
-                if (parsed) {
-                    setParsedCV((parsed.cv || parsed) as CVData);
-                    setParsedLetter((parsed.coverLetter as string) || null);
-                }
-            }
-        }
-    }, [output, isStreaming, documentType]);
+    // ── Live CV Data Mapping ──
+    const liveCVData: CVData = {
+        personalInfo: {
+            fullName: name,
+            jobTitle,
+            email,
+            phone,
+            location: address,
+            linkedin,
+            website,
+            photoUrl: photoPreview || undefined
+        },
+        summary,
+        experience: experiences.filter(e => e.role || e.company).map(e => ({
+            role: e.role,
+            company: e.company,
+            period: e.period,
+            location: e.location,
+            achievements: e.achievements.split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean)
+        })),
+        education: education.filter(e => e.degree || e.institution).map(e => ({
+            degree: e.degree,
+            institution: e.institution,
+            period: e.period,
+            details: e.details
+        })),
+        skills: skills.split(',').map(s => s.trim()).filter(Boolean),
+        languages: languages.filter(l => l.name).map(l => ({ name: l.name, level: l.level })),
+        certifications: certifications.filter(c => c.name).map(c => ({ name: c.name, issuer: c.issuer, year: c.year })),
+        interests: interests.split(',').map(s => s.trim()).filter(Boolean),
+        references: references.filter(r => r.name).map(r => ({ name: r.name, role: r.role, contact: r.contact }))
+    };
 
     // ── PDF Download ──
     const handleDownloadPDF = async () => {
@@ -251,8 +220,6 @@ export default function CareerStudioPage() {
 
         try {
             setIsGeneratingPDF(true);
-
-            // Capture at high resolution with explicit dimensions
             const canvas = await html2canvas(cvElement, {
                 scale: 2,
                 useCORS: true,
@@ -264,48 +231,32 @@ export default function CareerStudioPage() {
             });
 
             const pdf = new jsPDF({ format: 'a4', unit: 'mm', orientation: 'portrait' });
-            const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
-            const pdfHeight = pdf.internal.pageSize.getHeight();  // 297mm
-
-            // Calculate proportional image height in mm
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
             const imgHeightMM = (canvas.height * pdfWidth) / canvas.width;
 
             if (imgHeightMM <= pdfHeight) {
-                // Fits on one page
                 pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, imgHeightMM);
             } else {
-                // Multi-page: slice the canvas into page-sized chunks
                 const pageCanvasHeight = Math.floor((pdfHeight / imgHeightMM) * canvas.height);
-                let yOffset = 0;
-                let pageNum = 0;
-
+                let yOffset = 0; let pageNum = 0;
                 while (yOffset < canvas.height) {
                     const sliceHeight = Math.min(pageCanvasHeight, canvas.height - yOffset);
-
-                    // Create a slice canvas for this page
                     const pageCanvas = document.createElement('canvas');
                     pageCanvas.width = canvas.width;
                     pageCanvas.height = sliceHeight;
                     const ctx = pageCanvas.getContext('2d');
-                    if (ctx) {
-                        ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-                    }
-
+                    if (ctx) ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
                     const sliceHeightMM = (sliceHeight * pdfWidth) / canvas.width;
-
                     if (pageNum > 0) pdf.addPage();
                     pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, sliceHeightMM);
-
-                    yOffset += sliceHeight;
-                    pageNum++;
+                    yOffset += sliceHeight; pageNum++;
                 }
             }
-
-            const safeName = name.replace(/\s+/g, '_') || 'CV';
-            pdf.save(`CV_${safeName}_JadaRise.pdf`);
+            pdf.save(`CV_${name.replace(/\s+/g, '_') || 'JadaRise'}.pdf`);
         } catch (err) {
             console.error('PDF Error:', err);
-            setError('Erreur lors de la génération du PDF. Réessayez.');
+            setError('Erreur lors de la génération du PDF.');
         } finally {
             setIsGeneratingPDF(false);
         }
@@ -327,70 +278,49 @@ export default function CareerStudioPage() {
         fetchProfile();
     }, [supabase]);
 
-    // ── Auto-fill skills ──
     useEffect(() => {
-        const sectorSkills = SECTOR_CONFIG[sector].skills;
-        setSkills(sectorSkills.join(', '));
+        setSkills(SECTOR_CONFIG[sector].skills.join(', '));
     }, [sector]);
 
-    const calculateCredits = () => DOCUMENT_TYPES.find(t => t.id === documentType)?.credits || 3;
+    const calculateCredits = () => DOCUMENT_TYPES.find(t => t.id === documentType)?.credits || 0;
 
-    const validateForm = (): string | null => {
-        if (!name.trim()) return 'Le nom complet est requis';
-        if (!email.trim() || !email.includes('@')) return 'Un email valide est requis';
-        if (!jobTitle.trim()) return 'Le poste visé est requis';
-        if (documentType !== 'cv' && !companyName.trim()) return 'Le nom de l\'entreprise est requis pour une lettre';
-        return null;
-    };
-
-    const handleGenerate = async () => {
-        const validationError = validateForm();
-        if (validationError) { setError(validationError); return; }
-
-        const creditsNeeded = calculateCredits();
-        if (profile && profile.credits !== -1 && profile.credits < creditsNeeded) {
-            setError(`Crédits insuffisants. Il vous faut ${creditsNeeded} crédits.`);
+    // ── Generate AI Cover Letter ──
+    const handleGenerateLetter = async () => {
+        if (!name.trim() || !jobTitle.trim() || !companyName.trim()) {
+            setError('Pour la lettre, indiquez au minimum : Nom, Poste visé, et Nom de l\'entreprise.');
             return;
         }
 
-        setIsStreaming(true);
-        setError(null);
-        setOutput('');
-        setParsedCV(null);
-        setParsedLetter(null);
-        setCopied(false);
+        const creditsNeeded = calculateCredits();
+        if (profile && profile.credits !== -1 && profile.credits < creditsNeeded) {
+            setError(`Crédits insuffisants. Il faut ${creditsNeeded} crédits.`);
+            return;
+        }
 
-        const formData: Record<string, string> = {
-            name, email, phone, address, linkedin, website,
-            jobTitle, companyName, companyAddress, sector, experienceLevel,
-            experiences, education, skills, achievements,
-            languages, certifications, interests, references,
+        setIsStreaming(true); setError(null); setLetterOutput(''); setActiveTab('letter');
+
+        // Construire form data pour l'IA
+        const formData = {
+            name, email, phone, address, jobTitle, companyName, companyAddress, sector, experienceLevel,
             motivation, strengths,
+            experiences: experiences.map(e => `${e.role} chez ${e.company} (${e.period})`).join(', '),
+            education: education.map(e => `${e.degree} - ${e.institution}`).join(', '),
+            skills
         };
 
         try {
             const res = await fetch('/api/generate/career', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    documentType: documentType === 'both' ? 'cv' : documentType,
-                    templateId: 'cv-professional',
-                    formData,
-                    generateBoth: documentType === 'both',
-                }),
+                body: JSON.stringify({ documentType: 'cover-letter', templateId: 'cover-classic', formData, generateBoth: false }),
             });
-
             if (!res.ok) {
                 const data = await res.json();
-                setError(data.details || data.error || 'Une erreur est survenue');
-                setIsStreaming(false);
-                return;
+                setError(data.error); setIsStreaming(false); return;
             }
-
             const reader = res.body?.getReader();
             const decoder = new TextDecoder();
-            let fullContent = '';
-
+            let full = '';
             if (reader) {
                 while (true) {
                     const { done, value } = await reader.read();
@@ -407,8 +337,8 @@ export default function CareerStudioPage() {
                                     setProfile({ ...profile, credits: parsed.meta.remaining_credits });
                                 }
                                 if (parsed.content) {
-                                    fullContent += parsed.content;
-                                    setOutput(fullContent);
+                                    full += parsed.content;
+                                    setLetterOutput(full);
                                 }
                             } catch { /* ignore */ }
                         }
@@ -416,91 +346,57 @@ export default function CareerStudioPage() {
                 }
             }
         } catch {
-            setError('Erreur réseau. Vérifiez votre connexion et réessayez.');
+            setError('Erreur réseau.');
         } finally {
             setIsStreaming(false);
         }
     };
 
-    const handleCopy = async () => {
-        if (!output) return;
-        try {
-            await navigator.clipboard.writeText(output);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch { /* no-op */ }
-    };
+    if (loading) return (
+        <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+            <IconLoader2 size={32} className="animate-spin text-[var(--color-gold)]" />
+        </div>
+    );
 
-    const clearAll = () => {
-        setOutput('');
-        setParsedCV(null);
-        setParsedLetter(null);
-        setCopied(false);
-    };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <div className="skeleton h-16 w-16 rounded-full mb-4" />
-                    <div className="skeleton h-6 w-48 mb-2 rounded-lg" />
-                    <div className="skeleton h-4 w-64 rounded-lg" />
-                </div>
-            </div>
-        );
-    }
-
-    const creditsNeeded = calculateCredits();
-    const showCVTab = documentType === 'cv' || documentType === 'both';
     const showLetterTab = documentType === 'cover-letter' || documentType === 'both';
+    const showCVTab = documentType === 'cv' || documentType === 'both';
 
     return (
         <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
             <div className="fixed inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }} />
-            <div className="absolute top-[15%] right-[-10%] w-[35%] h-[40%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.1] pointer-events-none" />
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 {/* ── Header ── */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                     <div className="flex items-center gap-4">
-                        <div className="module-icon-premium gold shadow-lg">
-                            <IconBriefcase size={28} />
-                        </div>
+                        <div className="module-icon-premium gold shadow-lg"><IconBriefcase size={28} /></div>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-                                Builder de Carrière
-                            </h1>
-                            <p className="text-[var(--color-text-secondary)] text-sm mt-1">
-                                CV et lettres de motivation professionnels, design premium et export PDF
-                            </p>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Builder CV & Lettres</h1>
+                            <p className="text-[var(--color-text-secondary)] text-sm mt-1">Créez votre CV professionnel en direct et générez une lettre par IA.</p>
                         </div>
                     </div>
                     {profile && (
-                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md border border-white shadow-sm">
+                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md shadow-sm">
                             <IconZap size={18} className="text-[var(--color-gold)]" />
                             <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits</span>
                         </div>
                     )}
                 </div>
 
-                {/* ── Document Type Selector ── */}
+                {/* ── Type Selector ── */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
                     {DOCUMENT_TYPES.map((type) => (
                         <button
                             key={type.id}
-                            onClick={() => { setDocumentType(type.id); setOutput(''); setParsedCV(null); setParsedLetter(null); }}
-                            disabled={isStreaming}
-                            className={`p-4 rounded-xl border-2 text-center transition-all ${
-                                documentType === type.id
-                                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
-                                    : 'border-gray-200 bg-white/50 hover:border-gray-300'
+                            onClick={() => { setDocumentType(type.id); if (type.id === 'cv') setActiveTab('cv'); else if (type.id === 'cover-letter') setActiveTab('letter'); }}
+                            className={`p-4 rounded-xl border-2 text-center transition-all relative ${
+                                documentType === type.id ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-gray-200 bg-white/50 hover:border-gray-300'
                             }`}
                         >
+                            {type.tag && <div className="absolute -top-3 right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{type.tag}</div>}
                             <p className="font-bold text-gray-800">{type.name}</p>
                             <p className="text-xs text-gray-500 mb-2">{type.description}</p>
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                                documentType === type.id ? 'bg-[var(--color-gold)] text-white' : 'bg-gray-100 text-gray-600'
-                            }`}>
+                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${documentType === type.id ? 'bg-[var(--color-gold)] text-white' : 'bg-gray-100 text-gray-600'}`}>
                                 {type.credits} crédits
                             </span>
                         </button>
@@ -509,311 +405,207 @@ export default function CareerStudioPage() {
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* ════════════ LEFT PANEL — FORM ════════════ */}
-                    <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-200px)] pr-1 hide-scrollbar">
+                    <div className="space-y-4 overflow-y-auto h-[75vh] pr-2 custom-scrollbar">
 
-                        {/* ── 1. Identité & Photo ── */}
-                        <FormSection title="Identité & Photo" icon={<IconUser size={18} />} accentColor="var(--color-gold)">
-                            {/* Photo upload */}
+                        <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl mb-4 text-xs text-blue-800 flex gap-2">
+                            <span>💡</span>
+                            <p><strong>Aperçu en direct !</strong> Remplissez le formulaire, votre CV se construit instantanément sur la droite. Aucun crédit nécessaire pour le CV.</p>
+                        </div>
+
+                        {/* ── Identité & Photo ── */}
+                        <FormSection title="Identité & Contact" icon={<IconUser size={18} />} accentColor="#C9A84C">
                             <div className="flex items-center gap-4 mb-2">
-                                <div
-                                    onClick={() => photoInputRef.current?.click()}
-                                    className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[var(--color-gold)] transition-colors overflow-hidden bg-gray-50 shrink-0"
-                                >
-                                    {photoPreview ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={photoPreview} alt="Photo" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="text-center">
-                                            <IconUser size={24} className="text-gray-300 mx-auto" />
-                                            <span className="text-[9px] text-gray-400 block mt-1">Photo</span>
-                                        </div>
-                                    )}
+                                <div onClick={() => photoInputRef.current?.click()} className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#C9A84C] relative overflow-hidden bg-gray-50 shrink-0">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    {photoPreview ? <img src={photoPreview} alt="Photo" className="w-full h-full object-cover" /> : <IconUser size={20} className="text-gray-300" />}
                                 </div>
                                 <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
-                                <div className="flex-1 space-y-1">
-                                    <p className="text-xs text-gray-500">📸 Ajoutez votre photo (optionnel mais recommandé)</p>
-                                    <p className="text-[10px] text-gray-400">Format carré, bonne luminosité, tenue professionnelle</p>
+                                <div className="text-xs text-gray-500">Ajouter une photo de profil pro</div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <FormField label="Nom complet *"><input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Prénom NOM" className={inputClass} /></FormField>
+                                <FormField label="Poste visé *"><input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="ex: Développeur Web" className={inputClass} /></FormField>
+                                <FormField label="Email"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@domaine.com" className={inputClass} /></FormField>
+                                <FormField label="Téléphone"><input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+229 00 00 00 00" className={inputClass} /></FormField>
+                                <FormField label="Ville, Pays"><input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Ex: Cotonou, Bénin" className={inputClass} /></FormField>
+                                <FormField label="Profil (Résumé)"><textarea value={summary} onChange={e => setSummary(e.target.value)} placeholder="Une phrase d'accroche pour votre CV" rows={1} className={textareaClass} /></FormField>
+                                <FormField label="LinkedIn"><input type="text" value={linkedin} onChange={e => setLinkedin(e.target.value)} placeholder="linkedin.com/in/..." className={inputClass} /></FormField>
+                                <FormField label="Site Web"><input type="text" value={website} onChange={e => setWebsite(e.target.value)} placeholder="www.portfolio.com" className={inputClass} /></FormField>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 mt-3">
+                                <FormField label="Secteur">
+                                    <select value={sector} onChange={e => setSector(e.target.value as SectorType)} className={inputClass}>
+                                        {Object.entries(SECTOR_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
+                                    </select>
+                                </FormField>
+                                <FormField label="Exigence & Niveau">
+                                    <select value={experienceLevel} onChange={e => setExperienceLevel(e.target.value as ExperienceLevel)} className={inputClass}>
+                                        {EXPERIENCE_LEVELS.map(lvl => <option key={lvl.id} value={lvl.id}>{lvl.label}</option>)}
+                                    </select>
+                                </FormField>
+                            </div>
+                        </FormSection>
+
+                        {/* ── Expériences ── */}
+                        <FormSection title="Expériences" icon={<IconBriefcase size={18} />} accentColor="#A88B3A">
+                            {experiences.map((exp, i) => (
+                                <div key={exp.id} className="relative p-3 bg-gray-50 border border-gray-100 rounded-lg mb-3">
+                                    <button onClick={() => removeListItem(experiences, setExperiences, exp.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><MiniTrash /></button>
+                                    <div className="grid grid-cols-2 gap-2 mb-2 pr-6">
+                                        <FormField label="Titre du poste"><input type="text" value={exp.role} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'role', e.target.value)} placeholder="Directeur IT" className={inputClass} /></FormField>
+                                        <FormField label="Entreprise"><input type="text" value={exp.company} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'company', e.target.value)} placeholder="TechCorp" className={inputClass} /></FormField>
+                                        <FormField label="Période"><input type="text" value={exp.period} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'period', e.target.value)} placeholder="2020 - 2023" className={inputClass} /></FormField>
+                                        <FormField label="Ville"><input type="text" value={exp.location} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'location', e.target.value)} placeholder="Dakar" className={inputClass} /></FormField>
+                                    </div>
+                                    <FormField label="Réalisations (une par ligne)">
+                                        <textarea value={exp.achievements} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'achievements', e.target.value)} placeholder="- Augmentation du CA de 20%\n- Management de 5 personnes" rows={3} className={textareaClass} />
+                                    </FormField>
                                 </div>
-                            </div>
-
-                            <div className="grid sm:grid-cols-2 gap-3">
-                                <FormField label="Nom complet" required hint="Prénom suivi du nom de famille" example="Jean-Baptiste AGOSSOU">
-                                    <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Prénom NOM" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                                <FormField label="Email" required example="jb.agossou@gmail.com">
-                                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@email.com" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                                <FormField label="Téléphone" hint="Format international recommandé" example="+229 97 12 34 56">
-                                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+229 00 00 00 00" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                                <FormField label="Adresse / Ville" example="Cotonou, Bénin">
-                                    <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Ville, Pays" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                                <FormField label="LinkedIn" hint="URL de votre profil LinkedIn" example="linkedin.com/in/jbagossou">
-                                    <input type="text" value={linkedin} onChange={e => setLinkedin(e.target.value)} placeholder="linkedin.com/in/votre-profil" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                                <FormField label="Site web / Portfolio" example="www.monportfolio.com">
-                                    <input type="text" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                            </div>
+                            ))}
+                            <button onClick={() => setExperiences([...experiences, { id: genId(), role: '', company: '', location: '', period: '', achievements: '' }])} className="text-xs font-bold text-[#C9A84C] flex items-center gap-1 hover:underline">
+                                <MiniPlus /> Ajouter une expérience
+                            </button>
                         </FormSection>
 
-                        {/* ── 2. Informations Professionnelles ── */}
-                        <FormSection title="Poste & Secteur" icon={<IconBuilding size={18} />} accentColor="var(--color-earth)">
-                            <div className="grid sm:grid-cols-2 gap-3">
-                                <FormField label="Poste visé" required hint="Le titre exact du poste que vous recherchez" example="Développeur Full Stack Senior">
-                                    <input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="Titre du poste" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                                <FormField label={documentType !== 'cv' ? 'Entreprise *' : 'Entreprise'} hint="Utile pour cibler un employeur spécifique">
-                                    <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nom de l&apos;entreprise" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                            </div>
-                            {documentType !== 'cv' && (
-                                <FormField label="Adresse de l&apos;entreprise" example="Avenue Jean-Paul II, Cotonou, Bénin">
-                                    <input type="text" value={companyAddress} onChange={e => setCompanyAddress(e.target.value)} placeholder="Adresse complète" disabled={isStreaming} className={inputClass} />
-                                </FormField>
-                            )}
-                            <div className="grid sm:grid-cols-2 gap-3">
-                                <FormField label="Secteur d&apos;activité">
-                                    <div className="relative">
-                                        <select value={sector} onChange={e => setSector(e.target.value as SectorType)} disabled={isStreaming} className={`${inputClass} appearance-none pr-8`}>
-                                            {Object.entries(SECTOR_CONFIG).map(([key, config]) => (
-                                                <option key={key} value={key}>{config.name}</option>
-                                            ))}
-                                        </select>
-                                        <IconChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        {/* ── Formation ── */}
+                        <FormSection title="Formations" icon={<IconFileText size={18} />} accentColor="#8B7355">
+                            {education.map((edu, i) => (
+                                <div key={edu.id} className="relative p-3 bg-gray-50 border border-gray-100 rounded-lg mb-3">
+                                    <button onClick={() => removeListItem(education, setEducation, edu.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><MiniTrash /></button>
+                                    <div className="grid grid-cols-2 gap-2 pr-6">
+                                        <FormField label="Diplôme"><input type="text" value={edu.degree} onChange={e => updateListItem(education, setEducation, edu.id, 'degree', e.target.value)} placeholder="Master Informatique" className={inputClass} /></FormField>
+                                        <FormField label="Établissement"><input type="text" value={edu.institution} onChange={e => updateListItem(education, setEducation, edu.id, 'institution', e.target.value)} placeholder="Université d'Abomey-Calavi" className={inputClass} /></FormField>
+                                        <FormField label="Période"><input type="text" value={edu.period} onChange={e => updateListItem(education, setEducation, edu.id, 'period', e.target.value)} placeholder="2018 - 2020" className={inputClass} /></FormField>
+                                        <FormField label="Mention/Détails"><input type="text" value={edu.details} onChange={e => updateListItem(education, setEducation, edu.id, 'details', e.target.value)} placeholder="Mention Très Bien" className={inputClass} /></FormField>
                                     </div>
+                                </div>
+                            ))}
+                            <button onClick={() => setEducation([...education, { id: genId(), degree: '', institution: '', period: '', details: '' }])} className="text-xs font-bold text-[#C9A84C] flex items-center gap-1 hover:underline">
+                                <MiniPlus /> Ajouter une formation
+                            </button>
+                        </FormSection>
+
+                        {/* ── Compétences & Extras ── */}
+                        <FormSection title="Compétences, Langues, Extras" icon={<IconAward size={18} />} accentColor="#C9A84C" defaultOpen={false}>
+                            <div className="space-y-4">
+                                <FormField label="Compétences (séparées par virgule)">
+                                    <input type="text" value={skills} onChange={e => setSkills(e.target.value)} placeholder="React, Node.js, Vente..." className={inputClass} />
                                 </FormField>
-                                <FormField label="Niveau d&apos;expérience">
-                                    <div className="relative">
-                                        <select value={experienceLevel} onChange={e => setExperienceLevel(e.target.value as ExperienceLevel)} disabled={isStreaming} className={`${inputClass} appearance-none pr-8`}>
-                                            {EXPERIENCE_LEVELS.map(level => (
-                                                <option key={level.id} value={level.id}>{level.label} ({level.years})</option>
-                                            ))}
-                                        </select>
-                                        <IconChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                    </div>
+                                
+                                <div className="border-t border-gray-100 pt-3">
+                                    <label className="text-xs font-bold text-gray-500 mb-2 block">Langues</label>
+                                    {languages.map((lang) => (
+                                        <div key={lang.id} className="flex gap-2 mb-2 items-center">
+                                            <input type="text" value={lang.name} onChange={e => updateListItem(languages, setLanguages, lang.id, 'name', e.target.value)} placeholder="Anglais" className={`flex-1 ${inputClass} py-1.5`} />
+                                            <input type="text" value={lang.level} onChange={e => updateListItem(languages, setLanguages, lang.id, 'level', e.target.value)} placeholder="Courant" className={`flex-1 ${inputClass} py-1.5`} />
+                                            <button onClick={() => removeListItem(languages, setLanguages, lang.id)} className="text-gray-400 hover:text-red-500"><MiniTrash /></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => setLanguages([...languages, { id: genId(), name: '', level: '' }])} className="text-[10px] font-bold text-gray-500 hover:text-gray-800 py-1">+ Ajouter Langue</button>
+                                </div>
+
+                                <div className="border-t border-gray-100 pt-3">
+                                    <label className="text-xs font-bold text-gray-500 mb-2 block">Certifications</label>
+                                    {certifications.map((cert) => (
+                                        <div key={cert.id} className="flex gap-2 mb-2 items-center">
+                                            <input type="text" value={cert.name} onChange={e => updateListItem(certifications, setCertifications, cert.id, 'name', e.target.value)} placeholder="AWS Cloud" className={`flex-1 ${inputClass} py-1.5`} />
+                                            <input type="text" value={cert.year} onChange={e => updateListItem(certifications, setCertifications, cert.id, 'year', e.target.value)} placeholder="2023" className={`w-20 ${inputClass} py-1.5`} />
+                                            <button onClick={() => removeListItem(certifications, setCertifications, cert.id)} className="text-gray-400 hover:text-red-500"><MiniTrash /></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => setCertifications([...certifications, { id: genId(), name: '', issuer: '', year: '' }])} className="text-[10px] font-bold text-gray-500 hover:text-gray-800 py-1">+ Ajouter Certification</button>
+                                </div>
+
+                                <FormField label="Centres d'intérêt (virgules)">
+                                    <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Sport, Lecture..." className={inputClass} />
                                 </FormField>
                             </div>
                         </FormSection>
 
-                        {/* ── 3. Expériences & Formation ── */}
-                        <FormSection title="Expériences & Formation" icon={<IconFileText size={18} />} accentColor="var(--color-savanna)">
-                            <FormField
-                                label="Expériences professionnelles"
-                                hint="Listez vos postes du plus récent au plus ancien. L&apos;IA enrichira les descriptions."
-                                example="Développeur Web Senior chez TechAfrique, Cotonou (2022-2024) — Conception d&apos;une plateforme e-commerce, +40% de conversion"
-                            >
-                                <textarea value={experiences} onChange={e => setExperiences(e.target.value)}
-                                    placeholder={"Poste 1 — Entreprise (dates)\n• Réalisation clé\n\nPoste 2 — Entreprise (dates)\n• Réalisation clé"}
-                                    rows={5} disabled={isStreaming} className={textareaClass}
-                                />
-                            </FormField>
-
-                            <FormField
-                                label="Formation & Diplômes"
-                                hint="Du plus récent au plus ancien. Mentionnez la mention si pertinente."
-                                example="Master Informatique — Université d&apos;Abomey-Calavi (2022), Mention Bien"
-                            >
-                                <textarea value={education} onChange={e => setEducation(e.target.value)}
-                                    placeholder={"Diplôme — Établissement (année)\nDiplôme — Établissement (année)"}
-                                    rows={3} disabled={isStreaming} className={textareaClass}
-                                />
-                            </FormField>
-
-                            <FormField label="Réalisations marquantes" hint="Chiffrez-les pour plus d&apos;impact" example="Augmentation du CA de 25%, gestion d&apos;une équipe de 12 personnes">
-                                <textarea value={achievements} onChange={e => setAchievements(e.target.value)}
-                                    placeholder="Vos réalisations les plus impressionnantes, quantifiées si possible..."
-                                    rows={2} disabled={isStreaming} className={textareaClass}
-                                />
-                            </FormField>
-                        </FormSection>
-
-                        {/* ── 4. Compétences, Langues, Certifications ── */}
-                        <FormSection title="Compétences & Langues" icon={<IconSparkles size={18} />} accentColor="var(--color-terracotta)" defaultOpen={true}>
-                            <FormField label="Compétences clés" hint="Séparées par des virgules. L&apos;IA les mettra en valeur.">
-                                <input type="text" value={skills} onChange={e => setSkills(e.target.value)} placeholder="React, Node.js, Gestion de projet, ..." disabled={isStreaming} className={inputClass} />
-                                <p className="text-[10px] text-gray-400 mt-1">
-                                    💡 Suggérés pour {SECTOR_CONFIG[sector].name}: {SECTOR_CONFIG[sector].skills.slice(0, 4).join(', ')}...
-                                </p>
-                            </FormField>
-
-                            <FormField
-                                label="Langues"
-                                hint="Indiquez chaque langue et son niveau. Format: Langue: Niveau"
-                                example="Français: Langue maternelle, Anglais: Courant (B2), Fon: Natif"
-                            >
-                                <input type="text" value={languages} onChange={e => setLanguages(e.target.value)} placeholder="Français: Maternelle, Anglais: Intermédiaire, Fon: Natif" disabled={isStreaming} className={inputClass} />
-                            </FormField>
-
-                            <FormField
-                                label="Certifications & Formations complémentaires"
-                                hint="Diplômes en ligne, certifications professionnelles, etc."
-                                example="Google Analytics Certified (2023), AWS Cloud Practitioner (2022)"
-                            >
-                                <textarea value={certifications} onChange={e => setCertifications(e.target.value)}
-                                    placeholder="Nom de certification — Organisme (année)"
-                                    rows={2} disabled={isStreaming} className={textareaClass}
-                                />
-                            </FormField>
-                        </FormSection>
-
-                        {/* ── 5. Extras (optionnel) ── */}
-                        <FormSection title="Extras (optionnel)" icon={<IconAward size={18} />} accentColor="var(--color-gold)" defaultOpen={false}>
-                            <FormField label="Centres d&apos;intérêt" hint="Loisirs pertinents qui montrent votre personnalité" example="Football, Lecture, Bénévolat, Voyages, Coding">
-                                <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Lecture, Sport, Bénévolat..." disabled={isStreaming} className={inputClass} />
-                            </FormField>
-
-                            <FormField
-                                label="Références"
-                                hint="Personnes pouvant témoigner de votre travail. Contact optionnel."
-                                example="Dr. Koffi AMOUSSOU — Directeur, TechAfrique — k.amoussou@techafrique.bj"
-                            >
-                                <textarea value={references} onChange={e => setReferences(e.target.value)}
-                                    placeholder={"Nom — Poste, Entreprise — Contact (optionnel)\nNom — Poste, Entreprise — Contact (optionnel)"}
-                                    rows={2} disabled={isStreaming} className={textareaClass}
-                                />
-                            </FormField>
-                        </FormSection>
-
-                        {/* ── 6. Lettre de motivation (conditionnel) ── */}
-                        {documentType !== 'cv' && (
-                            <FormSection title="Lettre de motivation" icon={<IconMail size={18} />} accentColor="var(--color-earth)">
-                                <FormField label="Motivation pour le poste" hint="Qu&apos;est-ce qui vous attire spécifiquement dans ce poste/cette entreprise ?" example="La mission de contribuer au développement numérique en Afrique de l&apos;Ouest...">
-                                    <textarea value={motivation} onChange={e => setMotivation(e.target.value)}
-                                        placeholder="Pourquoi ce poste m'intéresse particulièrement..." rows={3} disabled={isStreaming} className={textareaClass}
-                                    />
-                                </FormField>
-                                <FormField label="Points forts à mettre en avant" example="Leadership, Adaptabilité, 5 ans dans le secteur">
-                                    <input type="text" value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="Adaptabilité, créativité, expertise..." disabled={isStreaming} className={inputClass} />
-                                </FormField>
+                        {/* ── Lettre de motivation (si requis) ── */}
+                        {showLetterTab && (
+                            <FormSection title="Données pour la Lettre" icon={<IconMail size={18} />} accentColor="#333" defaultOpen={true}>
+                                <FormField label="Nom de l'entreprise cible *" hint="Requis pour la lettre"><input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nom entreprise" className={inputClass} /></FormField>
+                                <FormField label="Vos principales forces"><input type="text" value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="Adaptabilité, Leadership..." className={inputClass} /></FormField>
+                                <FormField label="Pourquoi cette entreprise ?"><textarea value={motivation} onChange={e => setMotivation(e.target.value)} placeholder="J'admire votre croissance sur le marché africain..." rows={2} className={textareaClass} /></FormField>
                             </FormSection>
                         )}
-
-                        {/* ── Tips ── */}
-                        <div className="p-4 bg-[var(--color-gold)]/10 rounded-xl">
-                            <p className="text-xs font-bold text-[var(--color-gold-dark)] mb-2 uppercase tracking-wider">
-                                🎯 Conseils pour un CV parfait
-                            </p>
-                            <ul className="text-xs text-gray-600 space-y-1">
-                                <li>• Utilisez des verbes d&apos;action: {CV_ACTION_VERBS.slice(0, 5).join(', ')}...</li>
-                                <li>• Quantifiez vos réalisations (chiffres, pourcentages)</li>
-                                <li>• Plus vous donnez de détails, meilleur sera le résultat</li>
-                                <li>• Adaptez au contexte africain (langues locales = atout !)</li>
-                            </ul>
-                        </div>
-
-                        {/* ── Generate Button ── */}
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isStreaming}
-                            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[16px] font-bold text-white transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
-                            style={{
-                                background: 'linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%)',
-                                boxShadow: '0 8px 16px -4px rgba(201, 168, 76, 0.4)',
-                            }}
-                        >
-                            {isStreaming ? (
-                                <><IconLoader2 size={20} className="animate-spin" /><span>Génération en cours...</span></>
-                            ) : (
-                                <><IconFileText size={20} /><span>Générer {documentType === 'both' ? 'CV + Lettre' : DOCUMENT_TYPES.find(t => t.id === documentType)?.name} ({creditsNeeded} crédits)</span></>
-                            )}
-                        </button>
-
-                        {error && (
-                            <div className="flex items-start gap-3 text-sm text-red-600 bg-red-50 border border-red-100 p-4 rounded-xl">
-                                <IconAlertCircle size={20} className="shrink-0 mt-0.5" />
-                                <span>{error}</span>
-                            </div>
+                        
+                        {/* ── Generate Letter Button ── */}
+                        {showLetterTab && (
+                            <button
+                                onClick={handleGenerateLetter}
+                                disabled={isStreaming}
+                                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                                style={{ background: '#1F2937' }}
+                            >
+                                {isStreaming ? <IconLoader2 className="animate-spin" /> : <IconSparkles size={18} />}
+                                <span>Générer la Lettre par IA ({calculateCredits()} crédits)</span>
+                            </button>
                         )}
+                        {error && <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">{error}</div>}
+                        
                     </div>
 
-                    {/* ════════════ RIGHT PANEL — PREVIEW ════════════ */}
-                    <div className="flex flex-col min-h-[600px] bg-white rounded-[24px] shadow-lg overflow-hidden border border-gray-100">
-                        {/* Header bar */}
-                        <div className="bg-gray-50 px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-gray-100">
-                            <div className="flex items-center gap-2">
-                                <IconFile size={18} className="text-gray-400" />
-                                <span className="text-gray-700 font-medium text-sm">
-                                    {output ? 'Aperçu du document' : 'Aperçu'}
-                                </span>
+                    {/* ════════════ RIGHT PANEL — LIVE PREVIEW ════════════ */}
+                    <div className="flex flex-col bg-[#F3F4F6] rounded-[24px] shadow-lg overflow-hidden border-2 border-gray-200 h-[75vh]">
+                        {/* Toolbar */}
+                        <div className="bg-white px-4 py-3 flex items-center justify-between shadow-sm z-10 shrink-0">
+                            <div className="flex bg-gray-100 rounded-lg p-1">
+                                {showCVTab && <button onClick={() => setActiveTab('cv')} className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeTab === 'cv' ? 'bg-white shadow text-[#1B2A4A]' : 'text-gray-500'}`}>CV (Live)</button>}
+                                {showLetterTab && <button onClick={() => setActiveTab('letter')} className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeTab === 'letter' ? 'bg-white shadow text-[#1B2A4A]' : 'text-gray-500'}`}>Lettre IA</button>}
                             </div>
-                            <div className="flex items-center gap-2">
-                                {documentType === 'both' && (parsedCV || parsedLetter) && (
-                                    <div className="flex bg-gray-200 rounded-lg p-1">
-                                        <button onClick={() => setActiveTab('cv')} className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${activeTab === 'cv' ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}>CV Design</button>
-                                        <button onClick={() => setActiveTab('letter')} className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${activeTab === 'letter' ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}>Lettre</button>
-                                    </div>
-                                )}
-                                {parsedCV && (activeTab === 'cv' || documentType === 'cv') && (
-                                    <button
-                                        onClick={handleDownloadPDF}
-                                        disabled={isGeneratingPDF}
-                                        className="flex items-center gap-2 bg-gradient-to-r from-[var(--color-savanna)] to-[var(--color-earth)] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
-                                    >
-                                        {isGeneratingPDF ? <IconLoader2 size={16} className="animate-spin" /> : <IconFileText size={16} />}
-                                        Télécharger PDF
-                                    </button>
-                                )}
-                                {output && (activeTab === 'letter' || documentType === 'cover-letter') && (
-                                    <button onClick={handleCopy} className={`p-2 rounded-lg transition-colors ${copied ? 'text-green-600 bg-green-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`} title="Copier">
-                                        {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                                    </button>
-                                )}
-                                <button onClick={clearAll} disabled={!output} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Effacer">
-                                    <IconRefresh size={16} />
+
+                            {activeTab === 'cv' && (
+                                <button
+                                    onClick={handleDownloadPDF}
+                                    disabled={isGeneratingPDF}
+                                    className="flex items-center gap-2 bg-[#1B2A4A] text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-[#2A3A5E] transition-all"
+                                >
+                                    {isGeneratingPDF ? <IconLoader2 size={16} className="animate-spin" /> : <IconFileText size={16} />}
+                                    Télécharger PDF
                                 </button>
-                            </div>
+                            )}
+                            {activeTab === 'letter' && letterOutput && (
+                                <button onClick={() => { navigator.clipboard.writeText(letterOutput); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="text-gray-500 hover:text-gray-700 bg-gray-100 p-2 rounded-lg">
+                                    {copied ? <IconCheck size={18} className="text-green-600" /> : <IconCopy size={18} />}
+                                </button>
+                            )}
                         </div>
 
-                        {/* Content area */}
-                        <div className="flex-1 overflow-auto bg-gray-100 flex justify-center items-start hide-scrollbar">
-                            {isStreaming ? (
-                                <div className="flex flex-col items-center justify-center h-full w-full gap-4 text-gray-400 bg-white">
-                                    <IconLoader2 size={32} className="animate-spin text-[var(--color-gold)]" />
-                                    <div className="text-center">
-                                        <p className="text-sm font-medium">L&apos;IA construit votre document professionnel...</p>
-                                        <p className="text-xs text-gray-400 mt-1">Création du design premium A4 en cours</p>
-                                    </div>
-                                </div>
-                            ) : output ? (
-                                <div className="w-full">
-                                    {(activeTab === 'cv' && showCVTab) ? (
-                                        parsedCV ? (
-                                            <div className="w-full overflow-x-auto py-6 px-2 flex justify-center">
-                                                <CVTemplateProfessional data={parsedCV} photoPreview={photoPreview} />
-                                            </div>
-                                        ) : (
-                                            <div className="p-8 text-center">
-                                                <p className="text-amber-600 font-medium mb-4">⚠️ Le format JSON n&apos;a pas été correctement généré. Voici le contenu brut :</p>
-                                                <div className="bg-white rounded-xl p-6 text-left">
-                                                    <ChatMessageContent content={output} />
-                                                </div>
-                                            </div>
-                                        )
-                                    ) : (
-                                        <div className="p-8 bg-white h-full w-full">
-                                            <div className="prose prose-sm sm:prose-base max-w-none text-[15px] leading-relaxed">
-                                                <ChatMessageContent content={parsedLetter || output} />
-                                            </div>
-                                        </div>
-                                    )}
+                        {/* Render Area */}
+                        <div className="flex-1 overflow-auto flex justify-center py-8 hide-scrollbar bg-[#E5E7EB]">
+                            {activeTab === 'cv' ? (
+                                <div className="shadow-2xl">
+                                    <CVTemplateProfessional data={liveCVData} photoPreview={photoPreview} />
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full w-full gap-4 text-gray-400 bg-white">
-                                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center">
-                                        <IconBriefcase size={32} className="text-gray-300" />
-                                    </div>
-                                    <p className="text-sm font-medium text-gray-500">Votre document apparaîtra ici</p>
-                                    <p className="text-xs text-gray-400 max-w-xs text-center">
-                                        Remplissez le formulaire à gauche et cliquez sur Générer pour obtenir un CV professionnel avec design premium
-                                    </p>
+                                <div className="w-[794px] max-w-full bg-white p-12 shadow-xl shrink-0">
+                                    {isStreaming ? (
+                                        <div className="text-center text-gray-400 py-20 flex flex-col items-center">
+                                            <IconLoader2 size={32} className="animate-spin mb-4 text-gray-300" />
+                                            <span>L&apos;Intelligence Artificielle rédige votre lettre...</span>
+                                        </div>
+                                    ) : letterOutput ? (
+                                        <div className="prose prose-sm max-w-none"><ChatMessageContent content={letterOutput} /></div>
+                                    ) : (
+                                        <div className="text-center text-gray-400 py-20">
+                                            <IconMail size={48} className="mx-auto mb-4 opacity-20" />
+                                            <span>Cliquez sur &quot;Générer la Lettre par IA&quot; à gauche.</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+            {/* Minimal styles for specific needs directly in JSX for self-containment */}
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+            `}</style>
         </div>
     );
 }
