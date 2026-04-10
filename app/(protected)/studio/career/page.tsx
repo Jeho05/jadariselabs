@@ -172,13 +172,49 @@ export default function CareerStudioPage() {
     };
 
     // ── Photo handler ──
-    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setPhotoFile(file);
+        if (!file) return;
+
+        setPhotoFile(file);
+        setError(null);
+
+        const originalDataUrl = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
-            reader.onloadend = () => setPhotoPreview(reader.result as string);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error('FileReader failed'));
             reader.readAsDataURL(file);
+        });
+
+        try {
+            const normalizedDataUrl = await new Promise<string>((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const maxSize = 900;
+                    const scale = Math.min(1, maxSize / Math.max(img.width || 1, img.height || 1));
+                    const targetW = Math.max(1, Math.round(img.width * scale));
+                    const targetH = Math.max(1, Math.round(img.height * scale));
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return reject(new Error('Canvas context unavailable'));
+
+                    ctx.drawImage(img, 0, 0, targetW, targetH);
+
+                    const out = canvas.toDataURL('image/jpeg', 0.86);
+                    resolve(out);
+                };
+                img.onerror = () => reject(new Error('Image decode failed'));
+                img.src = originalDataUrl;
+            });
+
+            setPhotoPreview(normalizedDataUrl);
+        } catch (err) {
+            console.error('Photo normalization failed:', err);
+            setPhotoPreview(originalDataUrl);
+            setError('Photo non compatible pour le PDF. Utilisez plutôt une image JPG ou PNG.');
         }
     };
 
@@ -441,7 +477,7 @@ export default function CareerStudioPage() {
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     {photoPreview ? <img src={photoPreview} alt="Photo" className="w-full h-full object-cover" /> : <IconUser size={24} className="text-gray-300 group-hover:text-blue-400 transition-colors" />}
                                 </div>
-                                <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                                <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange={handlePhotoChange} className="hidden" />
                                 <div className="text-[13px] text-gray-500 font-medium">Ajoutez une photo professionnelle.<br/><span className="text-blue-500 cursor-pointer">Parcourir</span></div>
                             </div>
                             
