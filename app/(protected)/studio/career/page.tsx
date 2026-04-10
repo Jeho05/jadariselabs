@@ -155,6 +155,7 @@ export default function CareerStudioPage() {
 
     // ── Generation state ──
     const [isStreaming, setIsStreaming] = useState(false);
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const [letterOutput, setLetterOutput] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -199,7 +200,7 @@ export default function CareerStudioPage() {
             company: e.company,
             period: e.period,
             location: e.location,
-            achievements: e.achievements.split('n').map(s => s.replace(/^[-•*]s*/, '').trim()).filter(Boolean)
+            achievements: e.achievements.split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean)
         })),
         education: education.filter(e => e.degree || e.institution).map(e => ({
             degree: e.degree,
@@ -214,9 +215,38 @@ export default function CareerStudioPage() {
         references: references.filter(r => r.name).map(r => ({ name: r.name, role: r.role, contact: r.contact }))
     };
 
-    // ── Native PDF Print ──
-    const handleDownloadPDF = () => {
-        window.print();
+    // ── Native PDF Print (Vector Perfect PDF via @react-pdf/renderer) ──
+    const handleDownloadPDF = async () => {
+        try {
+            setIsGeneratingPDF(true);
+            
+            // On importe dynamiquement pour limiter le poids du bundle initial
+            const { pdf } = await import('@react-pdf/renderer');
+            const { CVTemplateReactPDF } = await import('@/components/cv-templates/CVTemplateReactPDF');
+            
+            // On compile le composant PDF
+            const documentComponent = <CVTemplateReactPDF data={liveCVData} photoPreview={photoPreview} />;
+            
+            // On génère le blob
+            const asPdf = pdf();
+            asPdf.updateContainer(documentComponent);
+            const blob = await asPdf.toBlob();
+            
+            // On télécharge le fichier localement
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const fileName = `CV_Pro_${name.replace(/\s+/g, '_') || 'JadaRise'}.pdf`;
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error("PDF generation failed:", error);
+            setError("Erreur lors de la création du PDF parfait.");
+        } finally {
+            setIsGeneratingPDF(false);
+        }
     };
 
     // ── Fetch profile ──
@@ -553,10 +583,15 @@ export default function CareerStudioPage() {
                             {activeTab === 'cv' && (
                                 <button
                                     onClick={handleDownloadPDF}
-                                    className="flex items-center gap-2.5 bg-[#111827] text-white px-6 py-2.5 rounded-xl text-[14px] font-bold hover:bg-[#1F2937] hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-4 focus:ring-gray-200"
+                                    disabled={isGeneratingPDF}
+                                    className="flex items-center gap-2.5 bg-[#111827] text-white px-6 py-2.5 rounded-xl text-[14px] font-bold hover:bg-[#1F2937] hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-4 focus:ring-gray-200 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                                 >
-                                    <IconFileText size={18} className="text-[#C9A84C]" />
-                                    Télécharger PDF Parfait
+                                    {isGeneratingPDF ? (
+                                        <IconLoader2 size={18} className="animate-spin text-[#C9A84C]" />
+                                    ) : (
+                                        <IconFileText size={18} className="text-[#C9A84C]" />
+                                    )}
+                                    {isGeneratingPDF ? 'Création du PDF...' : 'Télécharger PDF Parfait'}
                                 </button>
                             )}
                             {activeTab === 'letter' && letterOutput && (
