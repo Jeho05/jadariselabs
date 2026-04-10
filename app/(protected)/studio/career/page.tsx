@@ -215,24 +215,23 @@ export default function CareerStudioPage() {
         references: references.filter(r => r.name).map(r => ({ name: r.name, role: r.role, contact: r.contact }))
     };
 
-    // ── Native PDF Print (Vector Perfect PDF via @react-pdf/renderer) ──
+    // ── Native PDF Generator (Vector Perfect PDF via @react-pdf/renderer) ──
     const handleDownloadPDF = async () => {
         try {
             setIsGeneratingPDF(true);
             
-            // On importe dynamiquement pour limiter le poids du bundle initial
+            // Importation dynamique
             const { pdf } = await import('@react-pdf/renderer');
             const { CVTemplateReactPDF } = await import('@/components/cv-templates/CVTemplateReactPDF');
             
-            // On compile le composant PDF
+            // Compilation
             const documentComponent = <CVTemplateReactPDF data={liveCVData} photoPreview={photoPreview} />;
             
-            // On génère le blob
-            const asPdf = pdf();
-            asPdf.updateContainer(documentComponent);
+            // Génération
+            const asPdf = pdf(documentComponent);
             const blob = await asPdf.toBlob();
             
-            // On télécharge le fichier localement
+            // Téléchargement
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
@@ -242,8 +241,36 @@ export default function CareerStudioPage() {
             URL.revokeObjectURL(url);
             
         } catch (error) {
-            console.error("PDF generation failed:", error);
-            setError("Erreur lors de la création du PDF parfait.");
+            console.error("CV PDF generation failed:", error);
+            setError("Erreur lors de la création du CV PDF.");
+        } finally {
+            setIsGeneratingPDF(false);
+        }
+    };
+
+    const handleDownloadLetterPDF = async () => {
+        try {
+            setIsGeneratingPDF(true);
+            
+            const { pdf } = await import('@react-pdf/renderer');
+            const { CoverLetterReactPDF } = await import('@/components/cv-templates/CoverLetterReactPDF');
+            
+            const documentComponent = <CoverLetterReactPDF content={letterOutput} personalInfo={liveCVData.personalInfo} companyName={companyName} />;
+            
+            const asPdf = pdf(documentComponent);
+            const blob = await asPdf.toBlob();
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const fileName = `Lettre_Motivation_${name.replace(/\s+/g, '_') || 'JadaRise'}.pdf`;
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error("Letter PDF generation failed:", error);
+            setError("Erreur lors de la création de la Lettre PDF.");
         } finally {
             setIsGeneratingPDF(false);
         }
@@ -595,9 +622,19 @@ export default function CareerStudioPage() {
                                 </button>
                             )}
                             {activeTab === 'letter' && letterOutput && (
-                                <button onClick={() => { navigator.clipboard.writeText(letterOutput); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="text-gray-600 hover:text-gray-900 bg-gray-100/80 p-2.5 rounded-xl border border-gray-200 shadow-sm transition-all hover:bg-white">
-                                    {copied ? <IconCheck size={20} className="text-green-500" /> : <IconCopy size={20} />}
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={handleDownloadLetterPDF}
+                                        disabled={isGeneratingPDF}
+                                        className="flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-[14px] font-bold hover:bg-[#1F2937] hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-4 focus:ring-gray-200 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                                    >
+                                        {isGeneratingPDF ? <IconLoader2 size={18} className="animate-spin text-white" /> : <IconFileText size={18} className="text-white" />}
+                                        Télécharger PDF
+                                    </button>
+                                    <button onClick={() => { navigator.clipboard.writeText(letterOutput); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="text-gray-600 hover:text-gray-900 bg-gray-100/80 p-2.5 rounded-xl border border-gray-200 shadow-sm transition-all hover:bg-white" title="Copier le texte">
+                                        {copied ? <IconCheck size={20} className="text-green-500" /> : <IconCopy size={20} />}
+                                    </button>
+                                </div>
                             )}
                         </div>
 
