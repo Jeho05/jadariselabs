@@ -7,14 +7,11 @@ import {
     IconBriefcase,
     IconZap,
     IconLoader2,
-    IconAlertCircle,
     IconCopy,
     IconFileText,
-    IconFile,
     IconCheck,
     IconChevronDown,
     IconSparkles,
-    IconBuilding,
     IconMail,
     IconUser,
     IconAward,
@@ -25,8 +22,6 @@ import {
     type DocumentType,
     type SectorType,
 } from '@/lib/prompts/career-templates';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { CVTemplateProfessional, type CVData } from '@/components/cv-templates/CVTemplateProfessional';
 
 /* ─── Inline Mini Icons for Dynamic Forms ─── */
@@ -63,14 +58,14 @@ function FormField({ label, required, hint, example, children }: {
 }) {
     return (
         <div>
-            <label className="text-xs font-bold text-gray-500 mb-1 block">
+            <label className="text-[13px] font-semibold text-gray-700 mb-1.5 block">
                 {label} {required && <span className="text-red-400">*</span>}
             </label>
             {children}
             {(hint || example) && (
-                <div className="mt-1 space-y-0.5">
-                    {hint && <p className="text-[11px] text-gray-400 leading-tight">💡 {hint}</p>}
-                    {example && <p className="text-[11px] text-blue-400/70 leading-tight italic">Ex: {example}</p>}
+                <div className="mt-1.5 space-y-0.5">
+                    {hint && <p className="text-[11px] text-gray-500 leading-tight">💡 {hint}</p>}
+                    {example && <p className="text-[11px] text-blue-500/80 leading-tight italic">Ex: {example}</p>}
                 </div>
             )}
         </div>
@@ -78,7 +73,7 @@ function FormField({ label, required, hint, example, children }: {
 }
 
 /* ─── Collapsible Section ─── */
-function FormSection({ title, icon, children, defaultOpen = true, accentColor = 'var(--color-gold)' }: {
+function FormSection({ title, icon, children, defaultOpen = true, accentColor = '#8B5CF6' }: {
     title: string;
     icon: React.ReactNode;
     children: React.ReactNode;
@@ -87,26 +82,34 @@ function FormSection({ title, icon, children, defaultOpen = true, accentColor = 
 }) {
     const [open, setOpen] = useState(defaultOpen);
     return (
-        <div className="glass-card-premium rounded-[20px] shadow-sm overflow-hidden mb-4">
+        <div className="bg-white/80 backdrop-blur-md rounded-[20px] shadow-sm border border-gray-100 overflow-hidden mb-5 transition-all hover:shadow-md">
             <button
                 type="button"
                 onClick={() => setOpen(v => !v)}
                 className="w-full flex items-center justify-between p-5 hover:bg-gray-50/50 transition-colors"
                 style={{ borderLeft: `4px solid ${accentColor}` }}
             >
-                <span className="font-bold text-gray-800 flex items-center gap-2 text-sm">
-                    <span style={{ color: accentColor }}>{icon}</span>
+                <span className="font-bold text-gray-800 flex items-center gap-3 text-[15px]">
+                    <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${accentColor}1A`, color: accentColor }}>
+                        {icon}
+                    </div>
                     {title}
                 </span>
-                <IconChevronDown size={16} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                <div className={`p-1.5 rounded-full bg-gray-100 text-gray-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}>
+                    <IconChevronDown size={16} />
+                </div>
             </button>
-            {open && <div className="px-5 pb-5 space-y-4">{children}</div>}
+            <div className={`transition-all duration-300 ease-in-out origin-top ${open ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0'} grid`}>
+                <div className="overflow-hidden px-5 space-y-4">
+                    {children}
+                </div>
+            </div>
         </div>
     );
 }
 
 /* ─── Input styling ─── */
-const inputClass = "w-full p-2.5 rounded-lg border-2 border-gray-200 bg-white focus:outline-none focus:border-[var(--color-gold)] transition-all text-sm";
+const inputClass = "w-full p-2.5 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:border-[var(--color-gold)] focus:ring-4 focus:ring-[var(--color-gold)]/10 transition-all text-[14px] placeholder-gray-400";
 const textareaClass = `${inputClass} resize-none`;
 
 export default function CareerStudioPage() {
@@ -156,12 +159,10 @@ export default function CareerStudioPage() {
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'cv' | 'letter'>('cv');
-    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
     // ── Handlers for Dynamic Lists ──
     const genId = () => Math.random().toString(36).substr(2, 9);
     
-    // Arrays helper
     const updateListItem = <T extends { id: string }>(list: T[], setList: (v: T[]) => void, id: string, key: keyof T, value: string) => {
         setList(list.map(item => item.id === id ? { ...item, [key]: value } : item));
     };
@@ -198,7 +199,7 @@ export default function CareerStudioPage() {
             company: e.company,
             period: e.period,
             location: e.location,
-            achievements: e.achievements.split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean)
+            achievements: e.achievements.split('n').map(s => s.replace(/^[-•*]s*/, '').trim()).filter(Boolean)
         })),
         education: education.filter(e => e.degree || e.institution).map(e => ({
             degree: e.degree,
@@ -213,53 +214,9 @@ export default function CareerStudioPage() {
         references: references.filter(r => r.name).map(r => ({ name: r.name, role: r.role, contact: r.contact }))
     };
 
-    // ── PDF Download ──
-    const handleDownloadPDF = async () => {
-        const cvElement = document.getElementById('cv-export-wrapper');
-        if (!cvElement) return;
-
-        try {
-            setIsGeneratingPDF(true);
-            const canvas = await html2canvas(cvElement, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-                width: 794,
-                windowWidth: 794,
-            });
-
-            const pdf = new jsPDF({ format: 'a4', unit: 'mm', orientation: 'portrait' });
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgHeightMM = (canvas.height * pdfWidth) / canvas.width;
-
-            if (imgHeightMM <= pdfHeight) {
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, imgHeightMM);
-            } else {
-                const pageCanvasHeight = Math.floor((pdfHeight / imgHeightMM) * canvas.height);
-                let yOffset = 0; let pageNum = 0;
-                while (yOffset < canvas.height) {
-                    const sliceHeight = Math.min(pageCanvasHeight, canvas.height - yOffset);
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvas.width;
-                    pageCanvas.height = sliceHeight;
-                    const ctx = pageCanvas.getContext('2d');
-                    if (ctx) ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-                    const sliceHeightMM = (sliceHeight * pdfWidth) / canvas.width;
-                    if (pageNum > 0) pdf.addPage();
-                    pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, sliceHeightMM);
-                    yOffset += sliceHeight; pageNum++;
-                }
-            }
-            pdf.save(`CV_${name.replace(/\s+/g, '_') || 'JadaRise'}.pdf`);
-        } catch (err) {
-            console.error('PDF Error:', err);
-            setError('Erreur lors de la génération du PDF.');
-        } finally {
-            setIsGeneratingPDF(false);
-        }
+    // ── Native PDF Print ──
+    const handleDownloadPDF = () => {
+        window.print();
     };
 
     // ── Fetch profile ──
@@ -287,7 +244,7 @@ export default function CareerStudioPage() {
     // ── Generate AI Cover Letter ──
     const handleGenerateLetter = async () => {
         if (!name.trim() || !jobTitle.trim() || !companyName.trim()) {
-            setError('Pour la lettre, indiquez au minimum : Nom, Poste visé, et Nom de l\'entreprise.');
+            setError("Pour la lettre, indiquez au minimum : Nom, Poste visé, et Nom de l'entreprise.");
             return;
         }
 
@@ -299,7 +256,6 @@ export default function CareerStudioPage() {
 
         setIsStreaming(true); setError(null); setLetterOutput(''); setActiveTab('letter');
 
-        // Construire form data pour l'IA
         const formData = {
             name, email, phone, address, jobTitle, companyName, companyAddress, sector, experienceLevel,
             motivation, strengths,
@@ -326,7 +282,7 @@ export default function CareerStudioPage() {
                     const { done, value } = await reader.read();
                     if (done) break;
                     const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('\n');
+                    const lines = chunk.split('n');
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const data = line.slice(6).trim();
@@ -353,8 +309,8 @@ export default function CareerStudioPage() {
     };
 
     if (loading) return (
-        <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
-            <IconLoader2 size={32} className="animate-spin text-[var(--color-gold)]" />
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+            <IconLoader2 size={32} className="animate-spin text-[#1B2A4A]" />
         </div>
     );
 
@@ -362,83 +318,101 @@ export default function CareerStudioPage() {
     const showCVTab = documentType === 'cv' || documentType === 'both';
 
     return (
-        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
-            <div className="fixed inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }} />
+        <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden text-gray-800">
+            {/* Elegant Background Gradients */}
+            <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-400/10 blur-[150px] rounded-full pointer-events-none" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-amber-400/10 blur-[150px] rounded-full pointer-events-none" />
             
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 py-8">
                 {/* ── Header ── */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="module-icon-premium gold shadow-lg"><IconBriefcase size={28} /></div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
+                    <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-gradient-to-br from-[#1B2A4A] to-[#2A3F6B] text-white rounded-2xl shadow-xl flex items-center justify-center transform rotate-3">
+                            <IconBriefcase size={28} />
+                        </div>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Builder CV & Lettres</h1>
-                            <p className="text-[var(--color-text-secondary)] text-sm mt-1">Créez votre CV professionnel en direct et générez une lettre par IA.</p>
+                            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#111827] tracking-tight">C.V. Studio Pro</h1>
+                            <p className="text-gray-500 font-medium mt-1 text-[15px]">Construisez un CV parfait. Vectoriel, gratuit et instantané.</p>
                         </div>
                     </div>
                     {profile && (
-                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md shadow-sm">
-                            <IconZap size={18} className="text-[var(--color-gold)]" />
-                            <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits</span>
+                        <div className="flex items-center gap-2.5 text-sm font-bold px-5 py-3 rounded-2xl bg-white/60 backdrop-blur-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100/50">
+                            <div className="p-1.5 bg-amber-100 rounded-lg text-amber-600">
+                                <IconZap size={18} />
+                            </div>
+                            <span className="text-[#111827]">{profile.credits === -1 ? '∞' : profile.credits} crédits IA</span>
                         </div>
                     )}
                 </div>
 
                 {/* ── Type Selector ── */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-3xl">
                     {DOCUMENT_TYPES.map((type) => (
                         <button
                             key={type.id}
                             onClick={() => { setDocumentType(type.id); if (type.id === 'cv') setActiveTab('cv'); else if (type.id === 'cover-letter') setActiveTab('letter'); }}
-                            className={`p-4 rounded-xl border-2 text-center transition-all relative ${
-                                documentType === type.id ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' : 'border-gray-200 bg-white/50 hover:border-gray-300'
+                            className={`p-5 rounded-2xl border-2 text-left transition-all duration-300 relative group overflow-hidden ${
+                                documentType === type.id 
+                                ? 'border-[#C9A84C] bg-white shadow-xl shadow-amber-900/5 transform -translate-y-1' 
+                                : 'border-transparent bg-white/60 backdrop-blur-sm hover:bg-white hover:shadow-lg'
                             }`}
                         >
-                            {type.tag && <div className="absolute -top-3 right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{type.tag}</div>}
-                            <p className="font-bold text-gray-800">{type.name}</p>
-                            <p className="text-xs text-gray-500 mb-2">{type.description}</p>
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${documentType === type.id ? 'bg-[var(--color-gold)] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                            {documentType === type.id && <div className="absolute inset-0 bg-gradient-to-br from-[#C9A84C]/5 to-transparent pointer-events-none" />}
+                            {type.tag && <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-400 to-green-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">{type.tag}</div>}
+                            
+                            <p className={`font-bold text-[16px] mb-1 ${documentType === type.id ? 'text-[#111827]' : 'text-gray-700'}`}>{type.name}</p>
+                            <p className="text-[13px] text-gray-500 mb-3">{type.description}</p>
+                            
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${
+                                documentType === type.id 
+                                ? 'bg-[#111827] text-[#C9A84C]' 
+                                : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
+                            }`}>
                                 {type.credits} crédits
                             </span>
                         </button>
                     ))}
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-6">
+                <div className="grid lg:grid-cols-12 gap-8 items-start">
                     {/* ════════════ LEFT PANEL — FORM ════════════ */}
-                    <div className="space-y-4 overflow-y-auto h-[75vh] pr-2 custom-scrollbar">
-
-                        <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl mb-4 text-xs text-blue-800 flex gap-2">
-                            <span>💡</span>
-                            <p><strong>Aperçu en direct !</strong> Remplissez le formulaire, votre CV se construit instantanément sur la droite. Aucun crédit nécessaire pour le CV.</p>
-                        </div>
-
+                    <div className="lg:col-span-4 2xl:col-span-3 space-y-2 overflow-y-auto max-h-[75vh] pr-4 custom-scrollbar sticky top-8">
                         {/* ── Identité & Photo ── */}
-                        <FormSection title="Identité & Contact" icon={<IconUser size={18} />} accentColor="#C9A84C">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div onClick={() => photoInputRef.current?.click()} className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#C9A84C] relative overflow-hidden bg-gray-50 shrink-0">
+                        <FormSection title="Profil & Info" icon={<IconUser size={18} />} accentColor="#3B82F6">
+                            <div className="flex items-center gap-5 mb-4 p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                                <div onClick={() => photoInputRef.current?.click()} className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all relative overflow-hidden bg-white shrink-0 shadow-sm group">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    {photoPreview ? <img src={photoPreview} alt="Photo" className="w-full h-full object-cover" /> : <IconUser size={20} className="text-gray-300" />}
+                                    {photoPreview ? <img src={photoPreview} alt="Photo" className="w-full h-full object-cover" /> : <IconUser size={24} className="text-gray-300 group-hover:text-blue-400 transition-colors" />}
                                 </div>
                                 <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
-                                <div className="text-xs text-gray-500">Ajouter une photo de profil pro</div>
+                                <div className="text-[13px] text-gray-500 font-medium">Ajoutez une photo professionnelle.<br/><span className="text-blue-500 cursor-pointer">Parcourir</span></div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
+                            
+                            <div className="space-y-4">
                                 <FormField label="Nom complet *"><input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Prénom NOM" className={inputClass} /></FormField>
-                                <FormField label="Poste visé *"><input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="ex: Développeur Web" className={inputClass} /></FormField>
-                                <FormField label="Email"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@domaine.com" className={inputClass} /></FormField>
-                                <FormField label="Téléphone"><input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+229 00 00 00 00" className={inputClass} /></FormField>
-                                <FormField label="Ville, Pays"><input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Ex: Cotonou, Bénin" className={inputClass} /></FormField>
-                                <FormField label="Profil (Résumé)"><textarea value={summary} onChange={e => setSummary(e.target.value)} placeholder="Une phrase d'accroche pour votre CV" rows={1} className={textareaClass} /></FormField>
-                                <FormField label="LinkedIn"><input type="text" value={linkedin} onChange={e => setLinkedin(e.target.value)} placeholder="linkedin.com/in/..." className={inputClass} /></FormField>
-                                <FormField label="Site Web"><input type="text" value={website} onChange={e => setWebsite(e.target.value)} placeholder="www.portfolio.com" className={inputClass} /></FormField>
+                                <FormField label="Poste visé *"><input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="ex: Développeur Senior" className={inputClass} /></FormField>
+                                
+                                <div className="grid grid-cols-2 gap-3">
+                                    <FormField label="Email"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@domaine.com" className={inputClass} /></FormField>
+                                    <FormField label="Téléphone"><input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+229..." className={inputClass} /></FormField>
+                                </div>
+                                
+                                <FormField label="Lieu"><input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Ex: Cotonou, Bénin" className={inputClass} /></FormField>
+                                <FormField label="Résumé du profil"><textarea value={summary} onChange={e => setSummary(e.target.value)} placeholder="Une phrase d'accroche pour votre CV..." rows={3} className={textareaClass} /></FormField>
+                                
+                                <div className="grid grid-cols-2 gap-3">
+                                    <FormField label="LinkedIn"><input type="text" value={linkedin} onChange={e => setLinkedin(e.target.value)} placeholder="in/username" className={inputClass} /></FormField>
+                                    <FormField label="Site Web"><input type="text" value={website} onChange={e => setWebsite(e.target.value)} placeholder="portfolio.com" className={inputClass} /></FormField>
+                                </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 mt-3">
+                            
+                            <div className="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-gray-100">
                                 <FormField label="Secteur">
                                     <select value={sector} onChange={e => setSector(e.target.value as SectorType)} className={inputClass}>
                                         {Object.entries(SECTOR_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
                                     </select>
                                 </FormField>
-                                <FormField label="Exigence & Niveau">
+                                <FormField label="Niveau">
                                     <select value={experienceLevel} onChange={e => setExperienceLevel(e.target.value as ExperienceLevel)} className={inputClass}>
                                         {EXPERIENCE_LEVELS.map(lvl => <option key={lvl.id} value={lvl.id}>{lvl.label}</option>)}
                                     </select>
@@ -447,87 +421,95 @@ export default function CareerStudioPage() {
                         </FormSection>
 
                         {/* ── Expériences ── */}
-                        <FormSection title="Expériences" icon={<IconBriefcase size={18} />} accentColor="#A88B3A">
+                        <FormSection title="Expériences" icon={<IconBriefcase size={18} />} accentColor="#F59E0B" defaultOpen={false}>
                             {experiences.map((exp, i) => (
-                                <div key={exp.id} className="relative p-3 bg-gray-50 border border-gray-100 rounded-lg mb-3">
-                                    <button onClick={() => removeListItem(experiences, setExperiences, exp.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><MiniTrash /></button>
-                                    <div className="grid grid-cols-2 gap-2 mb-2 pr-6">
-                                        <FormField label="Titre du poste"><input type="text" value={exp.role} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'role', e.target.value)} placeholder="Directeur IT" className={inputClass} /></FormField>
+                                <div key={exp.id} className="relative p-4 bg-amber-50/30 border border-amber-100/50 rounded-[14px] mb-4 group transition-all hover:bg-amber-50/50">
+                                    <button onClick={() => removeListItem(experiences, setExperiences, exp.id)} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors p-1 bg-white rounded-lg opacity-0 group-hover:opacity-100 shadow-sm"><MiniTrash /></button>
+                                    <div className="grid grid-cols-2 gap-3 mb-3 pr-8">
+                                        <FormField label="Poste"><input type="text" value={exp.role} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'role', e.target.value)} placeholder="Directeur IT" className={inputClass} /></FormField>
                                         <FormField label="Entreprise"><input type="text" value={exp.company} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'company', e.target.value)} placeholder="TechCorp" className={inputClass} /></FormField>
                                         <FormField label="Période"><input type="text" value={exp.period} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'period', e.target.value)} placeholder="2020 - 2023" className={inputClass} /></FormField>
                                         <FormField label="Ville"><input type="text" value={exp.location} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'location', e.target.value)} placeholder="Dakar" className={inputClass} /></FormField>
                                     </div>
                                     <FormField label="Réalisations (une par ligne)">
-                                        <textarea value={exp.achievements} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'achievements', e.target.value)} placeholder="- Augmentation du CA de 20%\n- Management de 5 personnes" rows={3} className={textareaClass} />
+                                        <textarea value={exp.achievements} onChange={e => updateListItem(experiences, setExperiences, exp.id, 'achievements', e.target.value)} placeholder="- Augmentation de 20%\n- Management équipe" rows={3} className={textareaClass} />
                                     </FormField>
                                 </div>
                             ))}
-                            <button onClick={() => setExperiences([...experiences, { id: genId(), role: '', company: '', location: '', period: '', achievements: '' }])} className="text-xs font-bold text-[#C9A84C] flex items-center gap-1 hover:underline">
+                            <button onClick={() => setExperiences([...experiences, { id: genId(), role: '', company: '', location: '', period: '', achievements: '' }])} className="w-full py-3 rounded-xl border border-dashed border-amber-300 text-amber-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-50 transition-colors mt-2">
                                 <MiniPlus /> Ajouter une expérience
                             </button>
                         </FormSection>
 
                         {/* ── Formation ── */}
-                        <FormSection title="Formations" icon={<IconFileText size={18} />} accentColor="#8B7355">
+                        <FormSection title="Formations" icon={<IconFileText size={18} />} accentColor="#10B981" defaultOpen={false}>
                             {education.map((edu, i) => (
-                                <div key={edu.id} className="relative p-3 bg-gray-50 border border-gray-100 rounded-lg mb-3">
-                                    <button onClick={() => removeListItem(education, setEducation, edu.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><MiniTrash /></button>
-                                    <div className="grid grid-cols-2 gap-2 pr-6">
+                                <div key={edu.id} className="relative p-4 bg-emerald-50/30 border border-emerald-100/50 rounded-[14px] mb-4 group transition-all hover:bg-emerald-50/50">
+                                    <button onClick={() => removeListItem(education, setEducation, edu.id)} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors p-1 bg-white rounded-lg opacity-0 group-hover:opacity-100 shadow-sm"><MiniTrash /></button>
+                                    <div className="grid grid-cols-2 gap-3 pr-8">
                                         <FormField label="Diplôme"><input type="text" value={edu.degree} onChange={e => updateListItem(education, setEducation, edu.id, 'degree', e.target.value)} placeholder="Master Informatique" className={inputClass} /></FormField>
                                         <FormField label="Établissement"><input type="text" value={edu.institution} onChange={e => updateListItem(education, setEducation, edu.id, 'institution', e.target.value)} placeholder="Université d'Abomey-Calavi" className={inputClass} /></FormField>
                                         <FormField label="Période"><input type="text" value={edu.period} onChange={e => updateListItem(education, setEducation, edu.id, 'period', e.target.value)} placeholder="2018 - 2020" className={inputClass} /></FormField>
-                                        <FormField label="Mention/Détails"><input type="text" value={edu.details} onChange={e => updateListItem(education, setEducation, edu.id, 'details', e.target.value)} placeholder="Mention Très Bien" className={inputClass} /></FormField>
+                                        <FormField label="Détails/Mention"><input type="text" value={edu.details} onChange={e => updateListItem(education, setEducation, edu.id, 'details', e.target.value)} placeholder="Mention Très Bien" className={inputClass} /></FormField>
                                     </div>
                                 </div>
                             ))}
-                            <button onClick={() => setEducation([...education, { id: genId(), degree: '', institution: '', period: '', details: '' }])} className="text-xs font-bold text-[#C9A84C] flex items-center gap-1 hover:underline">
+                            <button onClick={() => setEducation([...education, { id: genId(), degree: '', institution: '', period: '', details: '' }])} className="w-full py-3 rounded-xl border border-dashed border-emerald-300 text-emerald-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-emerald-50 transition-colors mt-2">
                                 <MiniPlus /> Ajouter une formation
                             </button>
                         </FormSection>
 
                         {/* ── Compétences & Extras ── */}
-                        <FormSection title="Compétences, Langues, Extras" icon={<IconAward size={18} />} accentColor="#C9A84C" defaultOpen={false}>
-                            <div className="space-y-4">
+                        <FormSection title="Compétences & Plus" icon={<IconAward size={18} />} accentColor="#8B5CF6" defaultOpen={false}>
+                            <div className="space-y-5">
                                 <FormField label="Compétences (séparées par virgule)">
-                                    <input type="text" value={skills} onChange={e => setSkills(e.target.value)} placeholder="React, Node.js, Vente..." className={inputClass} />
+                                    <input type="text" value={skills} onChange={e => setSkills(e.target.value)} placeholder="React, Marketing, Gestion..." className={inputClass} />
                                 </FormField>
                                 
-                                <div className="border-t border-gray-100 pt-3">
-                                    <label className="text-xs font-bold text-gray-500 mb-2 block">Langues</label>
+                                <div className="p-4 rounded-[14px] bg-purple-50/30 border border-purple-100/50">
+                                    <label className="text-[13px] font-semibold text-gray-700 mb-3 block">Langues</label>
                                     {languages.map((lang) => (
-                                        <div key={lang.id} className="flex gap-2 mb-2 items-center">
-                                            <input type="text" value={lang.name} onChange={e => updateListItem(languages, setLanguages, lang.id, 'name', e.target.value)} placeholder="Anglais" className={`flex-1 ${inputClass} py-1.5`} />
-                                            <input type="text" value={lang.level} onChange={e => updateListItem(languages, setLanguages, lang.id, 'level', e.target.value)} placeholder="Courant" className={`flex-1 ${inputClass} py-1.5`} />
-                                            <button onClick={() => removeListItem(languages, setLanguages, lang.id)} className="text-gray-400 hover:text-red-500"><MiniTrash /></button>
+                                        <div key={lang.id} className="flex gap-2 mb-2 items-center group">
+                                            <input type="text" value={lang.name} onChange={e => updateListItem(languages, setLanguages, lang.id, 'name', e.target.value)} placeholder="Anglais" className={`flex-1 ${inputClass} py-2`} />
+                                            <input type="text" value={lang.level} onChange={e => updateListItem(languages, setLanguages, lang.id, 'level', e.target.value)} placeholder="Courant" className={`flex-1 ${inputClass} py-2`} />
+                                            <button onClick={() => removeListItem(languages, setLanguages, lang.id)} className="text-gray-300 hover:text-red-500 p-2"><MiniTrash /></button>
                                         </div>
                                     ))}
-                                    <button onClick={() => setLanguages([...languages, { id: genId(), name: '', level: '' }])} className="text-[10px] font-bold text-gray-500 hover:text-gray-800 py-1">+ Ajouter Langue</button>
+                                    <button onClick={() => setLanguages([...languages, { id: genId(), name: '', level: '' }])} className="text-xs font-bold text-purple-600 hover:text-purple-800 py-2 inline-flex items-center gap-1">+ Ajouter Langue</button>
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-3">
-                                    <label className="text-xs font-bold text-gray-500 mb-2 block">Certifications</label>
+                                <div className="p-4 rounded-[14px] bg-purple-50/30 border border-purple-100/50">
+                                    <label className="text-[13px] font-semibold text-gray-700 mb-3 block">Certifications</label>
                                     {certifications.map((cert) => (
                                         <div key={cert.id} className="flex gap-2 mb-2 items-center">
-                                            <input type="text" value={cert.name} onChange={e => updateListItem(certifications, setCertifications, cert.id, 'name', e.target.value)} placeholder="AWS Cloud" className={`flex-1 ${inputClass} py-1.5`} />
-                                            <input type="text" value={cert.year} onChange={e => updateListItem(certifications, setCertifications, cert.id, 'year', e.target.value)} placeholder="2023" className={`w-20 ${inputClass} py-1.5`} />
-                                            <button onClick={() => removeListItem(certifications, setCertifications, cert.id)} className="text-gray-400 hover:text-red-500"><MiniTrash /></button>
+                                            <input type="text" value={cert.name} onChange={e => updateListItem(certifications, setCertifications, cert.id, 'name', e.target.value)} placeholder="AWS Cloud" className={`flex-1 ${inputClass} py-2`} />
+                                            <input type="text" value={cert.year} onChange={e => updateListItem(certifications, setCertifications, cert.id, 'year', e.target.value)} placeholder="2023" className={`w-24 ${inputClass} py-2 text-center`} />
+                                            <button onClick={() => removeListItem(certifications, setCertifications, cert.id)} className="text-gray-300 hover:text-red-500 p-2"><MiniTrash /></button>
                                         </div>
                                     ))}
-                                    <button onClick={() => setCertifications([...certifications, { id: genId(), name: '', issuer: '', year: '' }])} className="text-[10px] font-bold text-gray-500 hover:text-gray-800 py-1">+ Ajouter Certification</button>
+                                    <button onClick={() => setCertifications([...certifications, { id: genId(), name: '', issuer: '', year: '' }])} className="text-xs font-bold text-purple-600 hover:text-purple-800 py-2 inline-flex items-center gap-1">+ Ajouter Certif</button>
                                 </div>
 
                                 <FormField label="Centres d'intérêt (virgules)">
-                                    <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Sport, Lecture..." className={inputClass} />
+                                    <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Sport, Lecture, Tech..." className={inputClass} />
                                 </FormField>
                             </div>
                         </FormSection>
 
                         {/* ── Lettre de motivation (si requis) ── */}
                         {showLetterTab && (
-                            <FormSection title="Données pour la Lettre" icon={<IconMail size={18} />} accentColor="#333" defaultOpen={true}>
-                                <FormField label="Nom de l'entreprise cible *" hint="Requis pour la lettre"><input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nom entreprise" className={inputClass} /></FormField>
-                                <FormField label="Vos principales forces"><input type="text" value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="Adaptabilité, Leadership..." className={inputClass} /></FormField>
-                                <FormField label="Pourquoi cette entreprise ?"><textarea value={motivation} onChange={e => setMotivation(e.target.value)} placeholder="J'admire votre croissance sur le marché africain..." rows={2} className={textareaClass} /></FormField>
+                            <FormSection title="Générateur de Lettre" icon={<IconMail size={18} />} accentColor="#111827" defaultOpen={true}>
+                                <div className="bg-gray-900 text-white p-4 rounded-xl mb-4 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"/>
+                                    <p className="text-sm font-medium relative z-10 flex items-center gap-2">
+                                        <IconSparkles size={16} className="text-amber-400" /> IA JadaRise
+                                    </p>
+                                </div>
+                                <div className="space-y-4">
+                                    <FormField label="Entreprise ciblée *" hint="Requis pour personnaliser la lettre"><input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nom entreprise" className={inputClass} /></FormField>
+                                    <FormField label="Vos principales forces"><input type="text" value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="Adaptabilité, Leadership..." className={inputClass} /></FormField>
+                                    <FormField label="Pourquoi cette entreprise ?"><textarea value={motivation} onChange={e => setMotivation(e.target.value)} placeholder="Pourquoi les rejoignez-vous ?" rows={3} className={textareaClass} /></FormField>
+                                </div>
                             </FormSection>
                         )}
                         
@@ -536,62 +518,77 @@ export default function CareerStudioPage() {
                             <button
                                 onClick={handleGenerateLetter}
                                 disabled={isStreaming}
-                                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
-                                style={{ background: '#1F2937' }}
+                                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-white transition-all transform hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50 disabled:transform-none disabled:shadow-none mt-6 overflow-hidden relative group"
+                                style={{ background: 'linear-gradient(135deg, #111827 0%, #1F2937 100%)' }}
                             >
-                                {isStreaming ? <IconLoader2 className="animate-spin" /> : <IconSparkles size={18} />}
-                                <span>Générer la Lettre par IA ({calculateCredits()} crédits)</span>
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"/>
+                                <span className="relative z-10 flex items-center gap-2">
+                                    {isStreaming ? <IconLoader2 className="animate-spin" /> : <IconSparkles size={20} className="text-amber-400" />}
+                                    Rédiger la lettre ({calculateCredits()} crédits)
+                                </span>
                             </button>
                         )}
-                        {error && <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">{error}</div>}
+                        {error && <div className="mt-4 text-[13px] text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 font-medium flex items-center gap-2"><IconCheck size={16} className="text-red-500" /> {error}</div>}
                         
                     </div>
 
                     {/* ════════════ RIGHT PANEL — LIVE PREVIEW ════════════ */}
-                    <div className="flex flex-col bg-[#F3F4F6] rounded-[24px] shadow-lg overflow-hidden border-2 border-gray-200 h-[75vh]">
+                    <div className="lg:col-span-8 2xl:col-span-9 flex flex-col bg-white/40 backdrop-blur-xl rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white h-[80vh] overflow-hidden sticky top-8">
+                        
                         {/* Toolbar */}
-                        <div className="bg-white px-4 py-3 flex items-center justify-between shadow-sm z-10 shrink-0">
-                            <div className="flex bg-gray-100 rounded-lg p-1">
-                                {showCVTab && <button onClick={() => setActiveTab('cv')} className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeTab === 'cv' ? 'bg-white shadow text-[#1B2A4A]' : 'text-gray-500'}`}>CV (Live)</button>}
-                                {showLetterTab && <button onClick={() => setActiveTab('letter')} className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeTab === 'letter' ? 'bg-white shadow text-[#1B2A4A]' : 'text-gray-500'}`}>Lettre IA</button>}
+                        <div className="bg-white/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-gray-100 z-20 shrink-0">
+                            <div className="flex bg-gray-100/80 p-1.5 rounded-[14px]">
+                                {showCVTab && (
+                                    <button onClick={() => setActiveTab('cv')} className={`px-5 py-2 rounded-xl text-[14px] font-bold transition-all ${activeTab === 'cv' ? 'bg-white shadow-[0_2px_10px_rgb(0,0,0,0.06)] text-[#111827]' : 'text-gray-500 hover:text-gray-800'}`}>
+                                        CV Vectoriel
+                                    </button>
+                                )}
+                                {showLetterTab && (
+                                    <button onClick={() => setActiveTab('letter')} className={`px-5 py-2 rounded-xl text-[14px] font-bold transition-all ${activeTab === 'letter' ? 'bg-white shadow-[0_2px_10px_rgb(0,0,0,0.06)] text-[#111827]' : 'text-gray-500 hover:text-gray-800'}`}>
+                                        Lettre de Motivation
+                                    </button>
+                                )}
                             </div>
 
                             {activeTab === 'cv' && (
                                 <button
                                     onClick={handleDownloadPDF}
-                                    disabled={isGeneratingPDF}
-                                    className="flex items-center gap-2 bg-[#1B2A4A] text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-[#2A3A5E] transition-all"
+                                    className="flex items-center gap-2.5 bg-[#111827] text-white px-6 py-2.5 rounded-xl text-[14px] font-bold hover:bg-[#1F2937] hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-4 focus:ring-gray-200"
                                 >
-                                    {isGeneratingPDF ? <IconLoader2 size={16} className="animate-spin" /> : <IconFileText size={16} />}
-                                    Télécharger PDF
+                                    <IconFileText size={18} className="text-[#C9A84C]" />
+                                    Télécharger PDF Parfait
                                 </button>
                             )}
                             {activeTab === 'letter' && letterOutput && (
-                                <button onClick={() => { navigator.clipboard.writeText(letterOutput); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="text-gray-500 hover:text-gray-700 bg-gray-100 p-2 rounded-lg">
-                                    {copied ? <IconCheck size={18} className="text-green-600" /> : <IconCopy size={18} />}
+                                <button onClick={() => { navigator.clipboard.writeText(letterOutput); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="text-gray-600 hover:text-gray-900 bg-gray-100/80 p-2.5 rounded-xl border border-gray-200 shadow-sm transition-all hover:bg-white">
+                                    {copied ? <IconCheck size={20} className="text-green-500" /> : <IconCopy size={20} />}
                                 </button>
                             )}
                         </div>
 
                         {/* Render Area */}
-                        <div className="flex-1 overflow-auto flex justify-center py-8 hide-scrollbar bg-[#E5E7EB]">
+                        <div className="flex-1 overflow-auto flex justify-center py-10 px-4 items-start bg-[#F3F4F6]/50 shadow-inner cv-scroll">
                             {activeTab === 'cv' ? (
-                                <div className="shadow-2xl">
+                                <div className="shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-sm overflow-hidden border border-gray-200 bg-white ring-1 ring-black/5 transform origin-top transition-transform">
+                                    {/* The component handles A4 dimensions in its own styles */}
                                     <CVTemplateProfessional data={liveCVData} photoPreview={photoPreview} />
                                 </div>
                             ) : (
-                                <div className="w-[794px] max-w-full bg-white p-12 shadow-xl shrink-0">
+                                <div className="w-[210mm] min-h-[297mm] max-w-full bg-white p-14 shadow-xl border border-gray-100 rounded-sm shrink-0 text-[15px] leading-relaxed text-gray-800 font-serif">
                                     {isStreaming ? (
-                                        <div className="text-center text-gray-400 py-20 flex flex-col items-center">
-                                            <IconLoader2 size={32} className="animate-spin mb-4 text-gray-300" />
-                                            <span>L&apos;Intelligence Artificielle rédige votre lettre...</span>
+                                        <div className="h-full flex flex-col items-center justify-center text-gray-400 py-32 space-y-6">
+                                            <div className="relative">
+                                                <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-20 animate-pulse" />
+                                                <IconLoader2 size={40} className="animate-spin text-[#111827] relative z-10" />
+                                            </div>
+                                            <span className="font-medium tracking-wide">Rédaction intelligente en cours...</span>
                                         </div>
                                     ) : letterOutput ? (
-                                        <div className="prose prose-sm max-w-none"><ChatMessageContent content={letterOutput} /></div>
+                                        <div className="prose prose-gray prose-p:my-5 max-w-none"><ChatMessageContent content={letterOutput} /></div>
                                     ) : (
-                                        <div className="text-center text-gray-400 py-20">
-                                            <IconMail size={48} className="mx-auto mb-4 opacity-20" />
-                                            <span>Cliquez sur &quot;Générer la Lettre par IA&quot; à gauche.</span>
+                                        <div className="h-full flex flex-col items-center justify-center text-gray-300 py-32 space-y-4">
+                                            <IconMail size={64} className="opacity-40" />
+                                            <span className="font-medium text-lg">Votre lettre IA apparaîtra ici.</span>
                                         </div>
                                     )}
                                 </div>
@@ -600,11 +597,16 @@ export default function CareerStudioPage() {
                     </div>
                 </div>
             </div>
-            {/* Minimal styles for specific needs directly in JSX for self-containment */}
+            
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+                .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94A3B8; }
+                
+                .cv-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+                .cv-scroll::-webkit-scrollbar-track { background: transparent; }
+                .cv-scroll::-webkit-scrollbar-thumb { background: #D1D5DB; border: 2px solid #F3F4F6; border-radius: 10px; }
             `}</style>
         </div>
     );
