@@ -25,8 +25,11 @@ Font.register({
     family: 'Open Sans',
     fonts: [
         { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-400-normal.ttf' },
+        { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-400-italic.ttf', fontStyle: 'italic' },
         { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-600-normal.ttf', fontWeight: 600 },
+        { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-600-italic.ttf', fontWeight: 600, fontStyle: 'italic' },
         { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-700-normal.ttf', fontWeight: 700 }
+        ,{ src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-700-italic.ttf', fontWeight: 700, fontStyle: 'italic' }
     ]
 });
 
@@ -238,6 +241,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
     if (!data) return null;
     const { personalInfo, summary, experience, education, skills, languages, certifications, interests, references } = data;
     const photoSrc = photoPreview || personalInfo?.photoUrl;
+    const shouldRenderPhoto = typeof photoSrc === 'string' && /^(data:image\/[a-zA-Z0-9.+-]+;base64,|https?:\/\/)/.test(photoSrc);
 
     const hasSkills = skills && skills.length > 0;
     const hasLanguages = languages && languages.length > 0;
@@ -261,7 +265,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             {personalInfo.website && <Text style={styles.contactItem}>{personalInfo.website}</Text>}
                         </View>
                     </View>
-                    {photoSrc && (
+                    {shouldRenderPhoto && (
                         <View style={styles.photoContainer}>
                             <Image src={photoSrc} style={styles.photo} />
                         </View>

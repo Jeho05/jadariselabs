@@ -5,8 +5,11 @@ Font.register({
     family: 'Open Sans',
     fonts: [
         { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-400-normal.ttf' },
+        { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-400-italic.ttf', fontStyle: 'italic' },
         { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-600-normal.ttf', fontWeight: 600 },
+        { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-600-italic.ttf', fontWeight: 600, fontStyle: 'italic' },
         { src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-700-normal.ttf', fontWeight: 700 }
+        ,{ src: 'https://cdn.jsdelivr.net/fontsource/fonts/open-sans@latest/latin-700-italic.ttf', fontWeight: 700, fontStyle: 'italic' }
     ]
 });
 
