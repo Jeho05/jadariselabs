@@ -116,9 +116,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Données du formulaire manquantes', trace_id: traceId }, { status: 400 });
         }
 
-        const requiredFields = ['name', 'email', 'jobTitle'];
+        const requiredFields = documentType === 'cover-letter'
+            ? ['name', 'jobTitle', 'companyName']
+            : ['name', 'email', 'jobTitle'];
         for (const field of requiredFields) {
-            if (!formData[field] || formData[field].trim() === '') {
+            const raw = formData[field];
+            if (typeof raw !== 'string' || raw.trim() === '') {
                 return NextResponse.json({
                     error: 'Champs requis manquants',
                     details: `Le champ ${field} est obligatoire`,

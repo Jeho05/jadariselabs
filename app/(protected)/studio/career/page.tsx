@@ -159,6 +159,7 @@ export default function CareerStudioPage() {
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const [letterOutput, setLetterOutput] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [errorModal, setErrorModal] = useState<{ error: string; details?: string; traceId?: string } | null>(null);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'cv' | 'letter'>('cv');
 
@@ -388,20 +389,31 @@ export default function CareerStudioPage() {
 
     const calculateCredits = () => DOCUMENT_TYPES.find(t => t.id === documentType)?.credits || 0;
 
+    const openErrorModal = (payload: { error: string; details?: string; traceId?: string }) => {
+        setError(payload.error);
+        setErrorModal(payload);
+    };
+
     // ── Generate AI Cover Letter ──
     const handleGenerateLetter = async () => {
         if (!name.trim() || !jobTitle.trim() || !companyName.trim()) {
-            setError("Pour la lettre, indiquez au minimum : Nom, Poste visé, et Nom de l'entreprise.");
+            openErrorModal({
+                error: "Champs requis manquants",
+                details: "Pour la lettre, indiquez au minimum : Nom, Poste visé, et Nom de l'entreprise.",
+            });
             return;
         }
 
         const creditsNeeded = calculateCredits();
         if (profile && profile.credits !== -1 && profile.credits < creditsNeeded) {
-            setError(`Crédits insuffisants. Il faut ${creditsNeeded} crédits.`);
+            openErrorModal({
+                error: 'Crédits insuffisants',
+                details: `Il faut ${creditsNeeded} crédits.`,
+            });
             return;
         }
 
-        setIsStreaming(true); setError(null); setLetterOutput(''); setActiveTab('letter');
+        setIsStreaming(true); setError(null); setErrorModal(null); setLetterOutput(''); setActiveTab('letter');
 
         const formData = {
             name, email, phone, address, jobTitle, companyName, companyAddress, sector, experienceLevel,
@@ -418,38 +430,77 @@ export default function CareerStudioPage() {
                 body: JSON.stringify({ documentType: 'cover-letter', templateId: 'cover-classic', formData, generateBoth: false }),
             });
             if (!res.ok) {
-                const data = await res.json();
-                setError(data.error); setIsStreaming(false); return;
+                let data: any = null;
+                let rawText: string | null = null;
+                try {
+                    data = await res.json();
+                } catch {
+                    try {
+                        rawText = await res.text();
+                    } catch {
+                        rawText = null;
+                    }
+                }
+
+                const apiError = (data && typeof data === 'object' && typeof data.error === 'string')
+                    ? data.error
+                    : `Erreur HTTP ${res.status}`;
+
+                openErrorModal({
+                    error: apiError,
+                    details: (data && typeof data.details === 'string') ? data.details : (rawText || undefined),
+                    traceId: (data && typeof data.trace_id === 'string') ? data.trace_id : undefined,
+                });
+                setIsStreaming(false);
+                return;
             }
-            const reader = res.body?.getReader();
+            if (!res.body) {
+                const text = await res.text();
+                setLetterOutput(text);
+                return;
+            }
+
+            const reader = res.body.getReader();
             const decoder = new TextDecoder();
             let full = '';
-            if (reader) {
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('n');
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const data = line.slice(6).trim();
-                            if (data === '[DONE]') continue;
-                            try {
-                                const parsed = JSON.parse(data);
-                                if (parsed.meta && profile && parsed.meta.remaining_credits !== undefined) {
-                                    setProfile({ ...profile, credits: parsed.meta.remaining_credits });
-                                }
-                                if (parsed.content) {
-                                    full += parsed.content;
-                                    setLetterOutput(full);
-                                }
-                            } catch { /* ignore */ }
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+
+                const lines = buffer.split('\n');
+                buffer = lines.pop() ?? '';
+
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const dataStr = line.slice(6).trim();
+                    if (!dataStr || dataStr === '[DONE]') continue;
+
+                    try {
+                        const parsed = JSON.parse(dataStr);
+                        if (parsed?.meta && profile && parsed.meta.remaining_credits !== undefined) {
+                            setProfile({ ...profile, credits: parsed.meta.remaining_credits });
                         }
+                        if (typeof parsed?.content === 'string' && parsed.content) {
+                            full += parsed.content;
+                            setLetterOutput(full);
+                        }
+                        if (typeof parsed?.error === 'string') {
+                            openErrorModal({
+                                error: parsed.error,
+                                details: typeof parsed.details === 'string' ? parsed.details : undefined,
+                                traceId: typeof parsed.trace_id === 'string' ? parsed.trace_id : undefined,
+                            });
+                        }
+                    } catch {
+                        continue;
                     }
                 }
             }
         } catch {
-            setError('Erreur réseau.');
+            openErrorModal({ error: 'Erreur réseau.' });
         } finally {
             setIsStreaming(false);
         }
@@ -466,6 +517,25 @@ export default function CareerStudioPage() {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden text-gray-800">
+            {errorModal && (
+                <div className="gallery-modal-overlay" onClick={() => setErrorModal(null)}>
+                    <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
+                        <h3>Erreur</h3>
+                        <p className="text-[14px] font-semibold text-[var(--color-terracotta-dark)]">{errorModal.error}</p>
+                        {errorModal.details && (
+                            <p className="whitespace-pre-wrap break-words">{errorModal.details}</p>
+                        )}
+                        {errorModal.traceId && (
+                            <p className="text-[12px] text-gray-500">Trace ID: <span className="font-mono">{errorModal.traceId}</span></p>
+                        )}
+                        <div className="gallery-modal-actions">
+                            <button className="btn-secondary" onClick={() => setErrorModal(null)}>
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Elegant Background Gradients */}
             <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-400/10 blur-[150px] rounded-full pointer-events-none" />
             <div className="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-amber-400/10 blur-[150px] rounded-full pointer-events-none" />
@@ -675,7 +745,15 @@ export default function CareerStudioPage() {
                                 </span>
                             </button>
                         )}
-                        {error && <div className="mt-4 text-[13px] text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 font-medium flex items-center gap-2"><IconCheck size={16} className="text-red-500" /> {error}</div>}
+                        {error && (
+                            <button
+                                type="button"
+                                onClick={() => setErrorModal({ error })}
+                                className="mt-4 text-left w-full text-[13px] text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 font-medium flex items-center gap-2"
+                            >
+                                <IconCheck size={16} className="text-red-500" /> {error}
+                            </button>
+                        )}
                         
                     </div>
 
