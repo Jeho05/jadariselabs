@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
         color: '#D1D5DB', // gray-300
     },
     photoContainer: {
-        width: 100,
-        height: 100,
+        width: 120,
+        height: 120,
         borderRadius: 9999,
         overflow: 'hidden',
         border: `3px solid ${COLORS.gold}`,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         borderRadius: 9999,
-        objectFit: 'contain',
+        objectFit: 'cover',
         objectPosition: 'center',
     },
     // ---- BODY ----

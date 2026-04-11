@@ -208,9 +208,47 @@ export default function CareerStudioPage() {
                         return canvas;
                     };
 
+                    const buildPdfAvatarCanvas = (size: number) => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) throw new Error('Canvas context unavailable');
+
+                        const srcW = img.width || 1;
+                        const srcH = img.height || 1;
+
+                        // Background: cover + blur for a premium look (fills the circle nicely)
+                        const coverScale = Math.max(size / srcW, size / srcH);
+                        const coverW = srcW * coverScale;
+                        const coverH = srcH * coverScale;
+                        const coverX = (size - coverW) / 2;
+                        const coverY = (size - coverH) / 2;
+
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        // @ts-ignore - filter is supported in browsers, TS lib may vary
+                        ctx.filter = 'blur(14px)';
+                        ctx.drawImage(img, coverX, coverY, coverW, coverH);
+
+                        // Foreground: contain (no cropping)
+                        // @ts-ignore
+                        ctx.filter = 'none';
+                        const margin = Math.round(size * 0.10);
+                        const innerSize = size - margin * 2;
+                        const containScale = Math.min(innerSize / srcW, innerSize / srcH);
+                        const containW = srcW * containScale;
+                        const containH = srcH * containScale;
+                        const containX = (size - containW) / 2;
+                        const containY = (size - containH) / 2;
+                        ctx.drawImage(img, containX, containY, containW, containH);
+
+                        return canvas;
+                    };
+
                     try {
                         const previewCanvas = draw(700);
-                        const pdfCanvas = draw(2400);
+                        const pdfCanvas = buildPdfAvatarCanvas(1800);
 
                         resolve({
                             previewDataUrl: previewCanvas.toDataURL('image/jpeg', 0.9),
