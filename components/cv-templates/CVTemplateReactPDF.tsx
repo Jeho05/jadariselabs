@@ -78,15 +78,18 @@ const styles = StyleSheet.create({
     photoContainer: {
         width: 100,
         height: 100,
-        borderRadius: 50,
+        borderRadius: 9999,
         overflow: 'hidden',
         border: `3px solid ${COLORS.gold}`,
         marginLeft: 20,
+        backgroundColor: COLORS.white,
     },
     photo: {
         width: '100%',
         height: '100%',
+        borderRadius: 9999,
         objectFit: 'cover',
+        objectPosition: 'center',
     },
     // ---- BODY ----
     mainBody: {
