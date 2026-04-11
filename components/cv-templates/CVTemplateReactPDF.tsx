@@ -83,12 +83,13 @@ const styles = StyleSheet.create({
         border: `3px solid ${COLORS.gold}`,
         marginLeft: 20,
         backgroundColor: COLORS.white,
+        padding: 4,
     },
     photo: {
         width: '100%',
         height: '100%',
         borderRadius: 9999,
-        objectFit: 'cover',
+        objectFit: 'contain',
         objectPosition: 'center',
     },
     // ---- BODY ----
