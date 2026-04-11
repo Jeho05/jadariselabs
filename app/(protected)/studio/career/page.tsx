@@ -128,6 +128,7 @@ export default function CareerStudioPage() {
     const [website, setWebsite] = useState('');
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [photoPreviewPdf, setPhotoPreviewPdf] = useState<string | null>(null);
     const photoInputRef = useRef<HTMLInputElement>(null);
 
     // ── Professional info ──
@@ -187,33 +188,48 @@ export default function CareerStudioPage() {
         });
 
         try {
-            const normalizedDataUrl = await new Promise<string>((resolve, reject) => {
+            const { previewDataUrl, pdfDataUrl } = await new Promise<{ previewDataUrl: string; pdfDataUrl: string }>((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
-                    const maxSize = 900;
-                    const scale = Math.min(1, maxSize / Math.max(img.width || 1, img.height || 1));
-                    const targetW = Math.max(1, Math.round(img.width * scale));
-                    const targetH = Math.max(1, Math.round(img.height * scale));
+                    const draw = (maxSize: number) => {
+                        const scale = Math.min(1, maxSize / Math.max(img.width || 1, img.height || 1));
+                        const targetW = Math.max(1, Math.round(img.width * scale));
+                        const targetH = Math.max(1, Math.round(img.height * scale));
 
-                    const canvas = document.createElement('canvas');
-                    canvas.width = targetW;
-                    canvas.height = targetH;
-                    const ctx = canvas.getContext('2d');
-                    if (!ctx) return reject(new Error('Canvas context unavailable'));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = targetW;
+                        canvas.height = targetH;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) throw new Error('Canvas context unavailable');
 
-                    ctx.drawImage(img, 0, 0, targetW, targetH);
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, targetW, targetH);
+                        return canvas;
+                    };
 
-                    const out = canvas.toDataURL('image/jpeg', 0.86);
-                    resolve(out);
+                    try {
+                        const previewCanvas = draw(700);
+                        const pdfCanvas = draw(2400);
+
+                        resolve({
+                            previewDataUrl: previewCanvas.toDataURL('image/jpeg', 0.9),
+                            pdfDataUrl: pdfCanvas.toDataURL('image/png'),
+                        });
+                    } catch (e) {
+                        reject(e);
+                    }
                 };
                 img.onerror = () => reject(new Error('Image decode failed'));
                 img.src = originalDataUrl;
             });
 
-            setPhotoPreview(normalizedDataUrl);
+            setPhotoPreview(previewDataUrl);
+            setPhotoPreviewPdf(pdfDataUrl);
         } catch (err) {
             console.error('Photo normalization failed:', err);
             setPhotoPreview(originalDataUrl);
+            setPhotoPreviewPdf(originalDataUrl);
             setError('Photo non compatible pour le PDF. Utilisez plutôt une image JPG ou PNG.');
         }
     };
@@ -228,7 +244,7 @@ export default function CareerStudioPage() {
             location: address,
             linkedin,
             website,
-            photoUrl: photoPreview || undefined
+            photoUrl: photoPreviewPdf || undefined
         },
         summary,
         experience: experiences.filter(e => e.role || e.company).map(e => ({
@@ -261,7 +277,7 @@ export default function CareerStudioPage() {
             const { CVTemplateReactPDF } = await import('@/components/cv-templates/CVTemplateReactPDF');
             
             // Compilation
-            const documentComponent = <CVTemplateReactPDF data={liveCVData} photoPreview={photoPreview} />;
+            const documentComponent = <CVTemplateReactPDF data={liveCVData} photoPreview={photoPreviewPdf} />;
             
             // Génération
             const asPdf = pdf(documentComponent);
