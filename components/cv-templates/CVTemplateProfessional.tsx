@@ -47,44 +47,62 @@ export interface CVData {
 }
 
 /* ══════════════════════════════════════════════════════
-   CV Template — Professional Premium
-   Optimized for browser window.print() (Vector PDFs)
+   CV Template — "Prestige" Edition (HTML Preview)
+   Matches the React-PDF version pixel-perfectly
    ══════════════════════════════════════════════════════ */
 
-const COLORS = {
-    headerBg: '#111827', // darker premium slate
-    headerText: '#FFFFFF',
-    gold: '#C9A84C', // premium gold accent
-    goldLight: '#E8D9A0',
-    bodyText: '#1F2937',
-    bodyLight: '#4B5563',
-    bodyMuted: '#9CA3AF',
-    sidebarBg: '#F9FAFB',
-    border: '#E5E7EB',
-    white: '#FFFFFF',
-    badgeDark: '#1F2937',
-    badgeLight: '#E5E7EB',
-    dot: '#C9A84C',
+const C = {
+    navyDark:   '#0B1120',
+    navy:       '#111827',
+    navyMid:    '#1A2540',
+    gold:       '#C9A84C',
+    goldMuted:  '#D4BE7A',
+    goldPale:   '#F5EFDB',
+    white:      '#FFFFFF',
+    offWhite:   '#FAFBFC',
+    sidebar:    '#F4F5F7',
+    textDark:   '#111827',
+    textBody:   '#374151',
+    textLight:  '#6B7280',
+    textMuted:  '#9CA3AF',
+    border:     '#E5E7EB',
+    borderLight:'#F3F4F6',
+    badgeDark:  '#1F2937',
 };
 
 function SectionHeading({ title }: { title: string }) {
     return (
         <div style={{
-            borderBottom: `2px solid ${COLORS.gold}`,
-            paddingBottom: '4px',
-            marginBottom: '16px',
-            position: 'relative'
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '12px',
+            gap: '8px',
         }}>
+            {/* Gold dot */}
+            <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: C.gold,
+                flexShrink: 0,
+            }} />
             <span style={{
-                fontSize: '14px',
+                fontSize: '11px',
                 fontWeight: 700,
                 textTransform: 'uppercase' as const,
-                letterSpacing: '1.5px',
-                color: COLORS.headerBg,
-                fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif"
+                letterSpacing: '2px',
+                color: C.navy,
+                whiteSpace: 'nowrap' as const,
+                fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
             }}>
                 {title}
             </span>
+            {/* Extending line */}
+            <div style={{
+                flex: 1,
+                height: '1px',
+                backgroundColor: C.border,
+            }} />
         </div>
     );
 }
@@ -101,9 +119,16 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
     const hasSkills = skills && skills.length > 0;
     const hasSidebar = hasSkills || hasLanguages || hasCertifications || hasInterests || hasReferences;
 
+    const contactItems: Array<{ icon: string; text: string }> = [];
+    if (personalInfo?.email) contactItems.push({ icon: '✉', text: personalInfo.email });
+    if (personalInfo?.phone) contactItems.push({ icon: '☎', text: personalInfo.phone });
+    if (personalInfo?.location) contactItems.push({ icon: '📍', text: personalInfo.location });
+    if (personalInfo?.linkedin) contactItems.push({ icon: 'in', text: personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', '') });
+    if (personalInfo?.website) contactItems.push({ icon: '🌐', text: personalInfo.website.replace('https://', '') });
+
     return (
         <>
-            {/* Inline CSS targeting print & page breaking to make perfect Vector PDFs */}
+            {/* Inline CSS targeting print & page breaking */}
             <style jsx global>{`
                 @media print {
                     @page {
@@ -124,7 +149,6 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         box-shadow: none !important;
                         break-inside: avoid;
                     }
-                    /* Hide EVERYTHING outside the CV wrapper */
                     body > *:not(.cv-print-container) {
                         display: none !important;
                     }
@@ -135,8 +159,6 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         width: 100%;
                         display: block !important;
                     }
-                    
-                    /* Prevent page breaks breaking items in half */
                     .avoid-break {
                         page-break-inside: avoid;
                         break-inside: avoid;
@@ -150,174 +172,338 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                     style={{
                         width: '210mm',
                         minHeight: '297mm',
-                        backgroundColor: COLORS.white,
+                        backgroundColor: C.white,
                         fontFamily: "'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif",
-                        color: COLORS.bodyText,
+                        color: C.textDark,
                         boxSizing: 'border-box',
                         overflow: 'hidden',
                         display: 'flex',
-                        flexDirection: 'column'
+                        flexDirection: 'column',
+                        position: 'relative',
                     }}
                 >
                     {/* ═══ HEADER ═══ */}
                     <div style={{
-                        backgroundColor: COLORS.headerBg,
-                        padding: photoSrc ? '35px 45px' : '45px 45px',
+                        backgroundColor: C.navy,
+                        padding: '28px 36px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '30px',
+                        gap: '24px',
                         flexShrink: 0,
+                        position: 'relative',
+                        overflow: 'hidden',
                     }}>
-                        {/* Photo */}
+                        {/* Decorative corner accent */}
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            width: '80px',
+                            height: '80px',
+                            borderBottomLeftRadius: '80px',
+                            backgroundColor: C.navyMid,
+                            opacity: 0.5,
+                        }} />
+
+                        {/* Photo — BIG and prominent */}
                         {photoSrc && (
                             <div style={{
-                                width: '120px',
-                                height: '120px',
-                                borderRadius: '16px', // modern rounded square
-                                overflow: 'hidden',
-                                border: `3px solid ${COLORS.gold}`,
+                                width: '110px',
+                                height: '110px',
+                                borderRadius: '50%',
+                                background: C.gold,
+                                padding: '3px',
                                 flexShrink: 0,
-                                backgroundColor: '#fff'
                             }}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={photoSrc}
-                                    alt="Photo"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' as const, display: 'block' }}
-                                />
+                                <div style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '50%',
+                                    backgroundColor: C.white,
+                                    padding: '2px',
+                                    overflow: 'hidden',
+                                }}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={photoSrc}
+                                        alt="Photo"
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover' as const,
+                                            display: 'block',
+                                            borderRadius: '50%',
+                                        }}
+                                    />
+                                </div>
                             </div>
                         )}
 
                         {/* Name & Contact */}
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
                             <div style={{
-                                fontSize: '36px',
+                                fontSize: '26px',
                                 fontWeight: 800,
-                                color: COLORS.headerText,
-                                letterSpacing: '-0.5px',
+                                color: C.white,
+                                textTransform: 'uppercase' as const,
+                                letterSpacing: '2.5px',
                                 lineHeight: '1.2',
-                                marginBottom: '6px',
+                                marginBottom: '4px',
                             }}>
                                 {personalInfo?.fullName || 'Prénom Nom'}
                             </div>
                             <div style={{
-                                fontSize: '18px',
-                                fontWeight: 500,
-                                color: COLORS.gold,
-                                letterSpacing: '0.5px',
-                                marginBottom: '16px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                color: C.gold,
+                                letterSpacing: '1.5px',
+                                textTransform: 'uppercase' as const,
+                                marginBottom: '14px',
                             }}>
                                 {personalInfo?.jobTitle || 'Votre Poste'}
                             </div>
 
-                            {/* Contact row */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '16px', fontSize: '12px', color: '#D1D5DB' }}>
-                                {personalInfo?.email && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        ✉ {personalInfo.email}
-                                    </span>
-                                )}
-                                {personalInfo?.phone && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        ☎ {personalInfo.phone}
-                                    </span>
-                                )}
-                                {personalInfo?.location && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        📍 {personalInfo.location}
-                                    </span>
-                                )}
-                                {personalInfo?.linkedin && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        in/ {personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', '')}
-                                    </span>
-                                )}
-                                {personalInfo?.website && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        🌐 {personalInfo.website.replace('https://', '')}
-                                    </span>
-                                )}
+                            {/* Contact pills with gold dot separators */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', alignItems: 'center' }}>
+                                {contactItems.map((item, idx) => (
+                                    <React.Fragment key={idx}>
+                                        {idx > 0 && (
+                                            <div style={{
+                                                width: '3px',
+                                                height: '3px',
+                                                borderRadius: '50%',
+                                                backgroundColor: C.gold,
+                                                opacity: 0.6,
+                                            }} />
+                                        )}
+                                        <span style={{
+                                            fontSize: '10px',
+                                            color: '#D1D5DB',
+                                            backgroundColor: 'rgba(255,255,255,0.07)',
+                                            padding: '3px 9px',
+                                            borderRadius: '4px',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '5px',
+                                        }}>
+                                            <span style={{ fontSize: '9px' }}>{item.icon}</span> {item.text}
+                                        </span>
+                                    </React.Fragment>
+                                ))}
                             </div>
                         </div>
+
+                        {/* Bottom gold stripe */}
+                        <div style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: '4px',
+                            backgroundColor: C.gold,
+                        }} />
                     </div>
 
                     {/* ═══ BODY ═══ */}
                     <div style={{
                         display: 'flex',
-                        flex: 1, // fill remaining height
+                        flex: 1,
                     }}>
+                        {/* ── Sidebar ── */}
+                        {hasSidebar && (
+                            <div style={{
+                                width: '34%',
+                                flexShrink: 0,
+                                padding: '24px 20px',
+                                backgroundColor: C.sidebar,
+                                borderRight: `1px solid ${C.border}`,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '22px',
+                            }}>
+                                {/* Skills */}
+                                {hasSkills && (
+                                    <div className="avoid-break">
+                                        <SectionHeading title="Compétences" />
+                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '5px' }}>
+                                            {skills.map((skill, idx) => (
+                                                <span key={idx} style={{
+                                                    fontSize: '10px',
+                                                    fontWeight: 600,
+                                                    padding: '4px 9px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: idx < 5 ? C.badgeDark : C.white,
+                                                    color: idx < 5 ? C.white : C.textBody,
+                                                    border: idx >= 5 ? `1px solid ${C.border}` : 'none',
+                                                    display: 'inline-block',
+                                                }}>
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Languages */}
+                                {hasLanguages && (
+                                    <div className="avoid-break">
+                                        <SectionHeading title="Langues" />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                            {languages!.map((lang, idx) => (
+                                                <div key={idx} style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    padding: '5px 0',
+                                                    borderBottom: `1px solid ${C.borderLight}`,
+                                                }}>
+                                                    <span style={{ fontSize: '11px', fontWeight: 600, color: C.textDark }}>{lang.name}</span>
+                                                    <span style={{ fontSize: '10px', color: C.textMuted, fontStyle: 'italic' }}>{lang.level}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Certifications */}
+                                {hasCertifications && (
+                                    <div className="avoid-break">
+                                        <SectionHeading title="Certifications" />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {certifications!.map((cert, idx) => (
+                                                <div key={idx}>
+                                                    <div style={{ fontSize: '11px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{cert.name}</div>
+                                                    <div style={{ fontSize: '10px', color: C.textMuted, marginTop: '2px' }}>
+                                                        {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Interests */}
+                                {hasInterests && (
+                                    <div className="avoid-break">
+                                        <SectionHeading title="Intérêts" />
+                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '5px' }}>
+                                            {interests!.map((item, idx) => (
+                                                <span key={idx} style={{
+                                                    fontSize: '10px',
+                                                    padding: '3px 8px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: C.white,
+                                                    border: `1px solid ${C.border}`,
+                                                    color: C.textLight,
+                                                    display: 'inline-block',
+                                                }}>
+                                                    {item}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* References */}
+                                {hasReferences && (
+                                    <div className="avoid-break">
+                                        <SectionHeading title="Références" />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {references!.map((ref, idx) => (
+                                                <div key={idx}>
+                                                    <div style={{ fontSize: '11px', fontWeight: 600, color: C.textDark }}>{ref.name}</div>
+                                                    <div style={{ fontSize: '10px', color: C.textBody, marginTop: '1px' }}>{ref.role}</div>
+                                                    {ref.contact && <div style={{ fontSize: '10px', color: C.gold, marginTop: '2px' }}>{ref.contact}</div>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* ── Main Column ── */}
                         <div style={{
-                            flex: hasSidebar ? '2.2' : '1',
-                            padding: '35px 35px 35px 45px',
+                            flex: 1,
+                            padding: '24px 28px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '28px'
+                            gap: '22px',
                         }}>
                             {/* Summary */}
                             {summary && (
                                 <div className="avoid-break">
                                     <SectionHeading title="Profil Professionnel" />
                                     <p style={{
-                                        color: COLORS.bodyLight,
-                                        fontSize: '13.5px',
-                                        lineHeight: '1.7',
+                                        color: C.textBody,
+                                        fontSize: '11px',
+                                        lineHeight: '1.65',
                                         margin: 0,
-                                        textAlign: 'justify' as const
+                                        textAlign: 'justify' as const,
                                     }}>
                                         {summary}
                                     </p>
                                 </div>
                             )}
 
-                            {/* Experience */}
+                            {/* Experience — left border timeline */}
                             {experience && experience.length > 0 && (
                                 <div>
                                     <SectionHeading title="Expériences" />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                                         {experience.map((exp, idx) => (
-                                            <div key={idx} className="avoid-break">
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                                                    <div>
-                                                        <div style={{ fontSize: '15px', fontWeight: 700, color: COLORS.headerBg }}>
-                                                            {exp.role}
-                                                        </div>
-                                                        <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.gold, marginTop: '2px' }}>
-                                                            {exp.company}{exp.location ? ` — ${exp.location}` : ''}
-                                                        </div>
-                                                    </div>
-                                                    <div style={{
-                                                        fontSize: '11px',
-                                                        color: COLORS.bodyLight,
-                                                        backgroundColor: '#F3F4F6',
-                                                        padding: '3px 8px',
-                                                        borderRadius: '4px',
-                                                        fontWeight: 600,
-                                                        whiteSpace: 'nowrap' as const,
-                                                    }}>
-                                                        {exp.period}
-                                                    </div>
+                                            <div key={idx} className="avoid-break" style={{
+                                                paddingLeft: '14px',
+                                                borderLeft: `2px solid ${C.borderLight}`,
+                                                marginBottom: '16px',
+                                                position: 'relative',
+                                            }}>
+                                                {/* Timeline dot */}
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    left: '-6px',
+                                                    top: '4px',
+                                                    width: '10px',
+                                                    height: '10px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: C.gold,
+                                                    border: `2px solid ${C.white}`,
+                                                    boxShadow: `0 0 0 1px ${C.border}`,
+                                                }} />
+                                                <div style={{ fontSize: '13px', fontWeight: 700, color: C.navy }}>
+                                                    {exp.role}
                                                 </div>
-                                                {/* Achievements */}
+                                                <div style={{ fontSize: '11px', fontWeight: 600, color: C.gold, marginTop: '2px' }}>
+                                                    {exp.company}{exp.location ? ` • ${exp.location}` : ''}
+                                                </div>
+                                                <div style={{
+                                                    fontSize: '9px',
+                                                    color: C.textMuted,
+                                                    fontWeight: 500,
+                                                    marginTop: '2px',
+                                                    marginBottom: '6px',
+                                                }}>
+                                                    {exp.period}
+                                                </div>
                                                 {exp.achievements && exp.achievements.length > 0 && (
-                                                    <div style={{ marginTop: '8px' }}>
+                                                    <div style={{ marginTop: '4px' }}>
                                                         {exp.achievements.map((ach, i) => (
                                                             <div key={i} style={{
-                                                                fontSize: '13px',
-                                                                color: COLORS.bodyLight,
-                                                                paddingLeft: '16px',
-                                                                marginBottom: '5px',
-                                                                lineHeight: '1.6',
+                                                                fontSize: '10.5px',
+                                                                color: C.textBody,
+                                                                paddingLeft: '12px',
+                                                                marginBottom: '4px',
+                                                                lineHeight: '1.5',
                                                                 position: 'relative' as const,
                                                             }}>
                                                                 <span style={{
                                                                     position: 'absolute' as const,
                                                                     left: '0',
-                                                                    top: '8px',
-                                                                    width: '5px',
-                                                                    height: '5px',
+                                                                    top: '6px',
+                                                                    width: '4px',
+                                                                    height: '4px',
                                                                     borderRadius: '50%',
-                                                                    backgroundColor: COLORS.dot,
+                                                                    backgroundColor: C.gold,
                                                                     display: 'inline-block',
                                                                 }} />
                                                                 {ach}
@@ -335,132 +521,29 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                             {education && education.length > 0 && (
                                 <div>
                                     <SectionHeading title="Formations" />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                         {education.map((edu, idx) => (
                                             <div key={idx} className="avoid-break">
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                                    <span style={{ fontSize: '14px', fontWeight: 700, color: COLORS.headerBg }}>{edu.degree}</span>
-                                                    <span style={{ fontSize: '11px', color: COLORS.bodyMuted, fontWeight: 500 }}>{edu.period}</span>
+                                                    <span style={{ fontSize: '12px', fontWeight: 700, color: C.navy }}>{edu.degree}</span>
+                                                    <span style={{ fontSize: '9px', color: C.gold, fontWeight: 600 }}>{edu.period}</span>
                                                 </div>
-                                                <div style={{ fontSize: '13px', color: COLORS.bodyLight, marginTop: '2px', fontWeight: 500 }}>{edu.institution}</div>
-                                                {edu.details && <div style={{ fontSize: '12px', color: COLORS.bodyMuted, fontStyle: 'italic', marginTop: '2px' }}>{edu.details}</div>}
+                                                <div style={{ fontSize: '10.5px', color: C.textBody, marginTop: '2px', fontWeight: 500 }}>{edu.institution}</div>
+                                                {edu.details && <div style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic', marginTop: '2px' }}>{edu.details}</div>}
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
                         </div>
-
-                        {/* ── Sidebar ── */}
-                        {hasSidebar && (
-                            <div style={{
-                                width: '240px',
-                                flexShrink: 0,
-                                padding: '35px 35px 35px 25px',
-                                backgroundColor: COLORS.sidebarBg,
-                                borderLeft: `1px solid ${COLORS.border}`,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '28px'
-                            }}>
-                                {/* Skills */}
-                                {hasSkills && (
-                                    <div className="avoid-break">
-                                        <SectionHeading title="Compétences" />
-                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
-                                            {skills.map((skill, idx) => (
-                                                <span key={idx} style={{
-                                                    fontSize: '11px',
-                                                    fontWeight: 600,
-                                                    padding: '4px 10px',
-                                                    borderRadius: '6px',
-                                                    backgroundColor: idx < 5 ? COLORS.badgeDark : COLORS.badgeLight,
-                                                    color: idx < 5 ? COLORS.white : COLORS.bodyText,
-                                                    display: 'inline-block',
-                                                }}>
-                                                    {skill}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Languages */}
-                                {hasLanguages && (
-                                    <div className="avoid-break">
-                                        <SectionHeading title="Langues" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                            {languages!.map((lang, idx) => (
-                                                <div key={idx} style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                }}>
-                                                    <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.bodyText }}>{lang.name}</span>
-                                                    <span style={{ fontSize: '11px', color: COLORS.bodyMuted, fontStyle: 'italic' }}>{lang.level}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Certifications */}
-                                {hasCertifications && (
-                                    <div className="avoid-break">
-                                        <SectionHeading title="Certifications" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            {certifications!.map((cert, idx) => (
-                                                <div key={idx}>
-                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.bodyText, lineHeight: '1.3' }}>{cert.name}</div>
-                                                    <div style={{ fontSize: '11.5px', color: COLORS.bodyMuted, marginTop: '2px' }}>
-                                                        {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Interests */}
-                                {hasInterests && (
-                                    <div className="avoid-break">
-                                        <SectionHeading title="Intérêts" />
-                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
-                                            {interests!.map((item, idx) => (
-                                                <span key={idx} style={{
-                                                    fontSize: '11px',
-                                                    padding: '4px 10px',
-                                                    borderRadius: '6px',
-                                                    backgroundColor: COLORS.white,
-                                                    border: `1px solid ${COLORS.border}`,
-                                                    color: COLORS.bodyLight,
-                                                    display: 'inline-block',
-                                                }}>
-                                                    {item}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* References */}
-                                {hasReferences && (
-                                    <div className="avoid-break">
-                                        <SectionHeading title="Références" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            {references!.map((ref, idx) => (
-                                                <div key={idx}>
-                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.bodyText }}>{ref.name}</div>
-                                                    <div style={{ fontSize: '11.5px', color: COLORS.bodyLight, marginTop: '1px' }}>{ref.role}</div>
-                                                    {ref.contact && <div style={{ fontSize: '11.5px', color: COLORS.gold, marginTop: '2px' }}>{ref.contact}</div>}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </div>
+
+                    {/* ── Bottom gold stripe ── */}
+                    <div style={{
+                        height: '3px',
+                        backgroundColor: C.gold,
+                        flexShrink: 0,
+                    }} />
                 </div>
             </div>
         </>

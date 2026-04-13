@@ -192,67 +192,43 @@ export default function CareerStudioPage() {
             const { previewDataUrl, pdfDataUrl } = await new Promise<{ previewDataUrl: string; pdfDataUrl: string }>((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
-                    const draw = (maxSize: number) => {
-                        const scale = Math.min(1, maxSize / Math.max(img.width || 1, img.height || 1));
-                        const targetW = Math.max(1, Math.round(img.width * scale));
-                        const targetH = Math.max(1, Math.round(img.height * scale));
-
-                        const canvas = document.createElement('canvas');
-                        canvas.width = targetW;
-                        canvas.height = targetH;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) throw new Error('Canvas context unavailable');
-
-                        ctx.imageSmoothingEnabled = true;
-                        ctx.imageSmoothingQuality = 'high';
-                        ctx.drawImage(img, 0, 0, targetW, targetH);
-                        return canvas;
-                    };
-
-                    const buildPdfAvatarCanvas = (size: number) => {
+                    /**
+                     * buildCoverCropCanvas: Creates a square canvas with a clean
+                     * center-crop (cover fit) — like a professional headshot.
+                     * No blur, no contain — just a crisp, high-quality crop.
+                     */
+                    const buildCoverCropCanvas = (size: number, quality: 'high' | 'medium' = 'high') => {
                         const canvas = document.createElement('canvas');
                         canvas.width = size;
                         canvas.height = size;
                         const ctx = canvas.getContext('2d');
                         if (!ctx) throw new Error('Canvas context unavailable');
 
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = quality;
+
                         const srcW = img.width || 1;
                         const srcH = img.height || 1;
 
-                        // Background: cover + blur for a premium look (fills the circle nicely)
+                        // Center-crop: cover fit (fills the square, crops overflow)
                         const coverScale = Math.max(size / srcW, size / srcH);
-                        const coverW = srcW * coverScale;
-                        const coverH = srcH * coverScale;
-                        const coverX = (size - coverW) / 2;
-                        const coverY = (size - coverH) / 2;
+                        const drawW = srcW * coverScale;
+                        const drawH = srcH * coverScale;
+                        const drawX = (size - drawW) / 2;
+                        const drawY = (size - drawH) / 2;
 
-                        ctx.imageSmoothingEnabled = true;
-                        ctx.imageSmoothingQuality = 'high';
-                        // @ts-ignore - filter is supported in browsers, TS lib may vary
-                        ctx.filter = 'blur(14px)';
-                        ctx.drawImage(img, coverX, coverY, coverW, coverH);
-
-                        // Foreground: contain (no cropping)
-                        // @ts-ignore
-                        ctx.filter = 'none';
-                        const margin = Math.round(size * 0.10);
-                        const innerSize = size - margin * 2;
-                        const containScale = Math.min(innerSize / srcW, innerSize / srcH);
-                        const containW = srcW * containScale;
-                        const containH = srcH * containScale;
-                        const containX = (size - containW) / 2;
-                        const containY = (size - containH) / 2;
-                        ctx.drawImage(img, containX, containY, containW, containH);
-
+                        ctx.drawImage(img, drawX, drawY, drawW, drawH);
                         return canvas;
                     };
 
                     try {
-                        const previewCanvas = draw(700);
-                        const pdfCanvas = buildPdfAvatarCanvas(1800);
+                        // Preview: 600px square, JPEG for speed
+                        const previewCanvas = buildCoverCropCanvas(600, 'high');
+                        // PDF: 1200px square, PNG for maximum quality (lossless)
+                        const pdfCanvas = buildCoverCropCanvas(1200, 'high');
 
                         resolve({
-                            previewDataUrl: previewCanvas.toDataURL('image/jpeg', 0.9),
+                            previewDataUrl: previewCanvas.toDataURL('image/jpeg', 0.92),
                             pdfDataUrl: pdfCanvas.toDataURL('image/png'),
                         });
                     } catch (e) {
@@ -346,7 +322,7 @@ export default function CareerStudioPage() {
             const { pdf } = await import('@react-pdf/renderer');
             const { CoverLetterReactPDF } = await import('@/components/cv-templates/CoverLetterReactPDF');
             
-            const documentComponent = <CoverLetterReactPDF content={letterOutput} personalInfo={liveCVData.personalInfo} companyName={companyName} />;
+            const documentComponent = <CoverLetterReactPDF content={letterOutput} personalInfo={liveCVData.personalInfo} companyName={companyName} companyAddress={companyAddress} jobTitle={jobTitle} />;
             
             const asPdf = pdf(documentComponent);
             const blob = await asPdf.toBlob();
@@ -724,6 +700,7 @@ export default function CareerStudioPage() {
                                 </div>
                                 <div className="space-y-4">
                                     <FormField label="Entreprise ciblée *" hint="Requis pour personnaliser la lettre"><input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nom entreprise" className={inputClass} /></FormField>
+                                    <FormField label="Adresse de l'entreprise" hint="Apparaîtra sur la lettre (format international)"><input type="text" value={companyAddress} onChange={e => setCompanyAddress(e.target.value)} placeholder="123 Rue Exemple, Ville" className={inputClass} /></FormField>
                                     <FormField label="Vos principales forces"><input type="text" value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="Adaptabilité, Leadership..." className={inputClass} /></FormField>
                                     <FormField label="Pourquoi cette entreprise ?"><textarea value={motivation} onChange={e => setMotivation(e.target.value)} placeholder="Pourquoi les rejoignez-vous ?" rows={3} className={textareaClass} /></FormField>
                                 </div>
