@@ -13,6 +13,9 @@ export interface CVData {
         linkedin?: string;
         website?: string;
         photoUrl?: string;
+        dateOfBirth?: string;
+        nationality?: string;
+        drivingLicense?: string;
     };
     summary: string;
     experience: Array<{
@@ -43,6 +46,27 @@ export interface CVData {
         name: string;
         role: string;
         contact?: string;
+    }>;
+    projects?: Array<{
+        name: string;
+        description?: string;
+        technologies?: string;
+        url?: string;
+    }>;
+    volunteer?: Array<{
+        role: string;
+        organization: string;
+        period?: string;
+        description?: string;
+    }>;
+    awards?: Array<{
+        name: string;
+        issuer?: string;
+        year?: string;
+    }>;
+    customSections?: Array<{
+        title: string;
+        items: string[];
     }>;
 }
 
@@ -109,7 +133,7 @@ function SectionHeading({ title }: { title: string }) {
 
 export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; photoPreview?: string | null }) {
     if (!data) return null;
-    const { personalInfo, summary, experience, education, skills, languages, certifications, interests, references } = data;
+    const { personalInfo, summary, experience, education, skills, languages, certifications, interests, references, projects, volunteer, awards, customSections } = data;
     const photoSrc = photoPreview || personalInfo?.photoUrl;
 
     const hasLanguages = languages && languages.length > 0;
@@ -117,7 +141,11 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
     const hasInterests = interests && interests.length > 0;
     const hasReferences = references && references.length > 0;
     const hasSkills = skills && skills.length > 0;
-    const hasSidebar = hasSkills || hasLanguages || hasCertifications || hasInterests || hasReferences;
+    const hasProjects = projects && projects.length > 0;
+    const hasVolunteer = volunteer && volunteer.length > 0;
+    const hasAwards = awards && awards.length > 0;
+    const hasCustom = customSections && customSections.length > 0;
+    const hasSidebar = hasSkills || hasLanguages || hasCertifications || hasInterests || hasReferences || hasAwards;
 
     const contactItems: Array<{ icon: string; text: string }> = [];
     if (personalInfo?.email) contactItems.push({ icon: '✉', text: personalInfo.email });
@@ -125,6 +153,9 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
     if (personalInfo?.location) contactItems.push({ icon: '📍', text: personalInfo.location });
     if (personalInfo?.linkedin) contactItems.push({ icon: 'in', text: personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', '') });
     if (personalInfo?.website) contactItems.push({ icon: '🌐', text: personalInfo.website.replace('https://', '') });
+    if (personalInfo?.dateOfBirth) contactItems.push({ icon: '🎂', text: personalInfo.dateOfBirth });
+    if (personalInfo?.nationality) contactItems.push({ icon: '🏳', text: personalInfo.nationality });
+    if (personalInfo?.drivingLicense) contactItems.push({ icon: '🚗', text: `Permis ${personalInfo.drivingLicense}` });
 
     return (
         <>
@@ -419,6 +450,23 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Awards */}
+                                {hasAwards && (
+                                    <div className="avoid-break">
+                                        <SectionHeading title="Distinctions" />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {awards!.map((aw, idx) => (
+                                                <div key={idx}>
+                                                    <div style={{ fontSize: '11px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{aw.name}</div>
+                                                    <div style={{ fontSize: '10px', color: C.textMuted, marginTop: '2px' }}>
+                                                        {[aw.issuer, aw.year].filter(Boolean).join(' — ')}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -535,6 +583,74 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                     </div>
                                 </div>
                             )}
+
+                            {/* Projects */}
+                            {hasProjects && (
+                                <div>
+                                    <SectionHeading title="Projets" />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {projects!.map((proj, idx) => (
+                                            <div key={idx} className="avoid-break">
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                                                    <span style={{ fontSize: '12px', fontWeight: 700, color: C.navy }}>{proj.name}</span>
+                                                    {proj.url && <span style={{ fontSize: '9px', color: C.gold, fontWeight: 500 }}>{proj.url}</span>}
+                                                </div>
+                                                {proj.description && <div style={{ fontSize: '10.5px', color: C.textBody, marginTop: '2px', lineHeight: '1.5' }}>{proj.description}</div>}
+                                                {proj.technologies && <div style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic', marginTop: '3px' }}>{proj.technologies}</div>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Volunteer */}
+                            {hasVolunteer && (
+                                <div>
+                                    <SectionHeading title="Bénévolat" />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {volunteer!.map((vol, idx) => (
+                                            <div key={idx} className="avoid-break">
+                                                <div style={{ fontSize: '12px', fontWeight: 700, color: C.navy }}>{vol.role}</div>
+                                                <div style={{ fontSize: '11px', fontWeight: 600, color: C.gold, marginTop: '1px' }}>{vol.organization}</div>
+                                                {vol.period && <div style={{ fontSize: '9px', color: C.textMuted, fontWeight: 500, marginTop: '2px' }}>{vol.period}</div>}
+                                                {vol.description && <div style={{ fontSize: '10.5px', color: C.textBody, marginTop: '3px', lineHeight: '1.5' }}>{vol.description}</div>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Custom Sections */}
+                            {hasCustom && customSections!.map((sec, sIdx) => (
+                                sec.items.length > 0 && (
+                                    <div key={sIdx}>
+                                        <SectionHeading title={sec.title} />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            {sec.items.map((item, i) => (
+                                                <div key={i} style={{
+                                                    fontSize: '10.5px',
+                                                    color: C.textBody,
+                                                    paddingLeft: '12px',
+                                                    lineHeight: '1.5',
+                                                    position: 'relative' as const,
+                                                }}>
+                                                    <span style={{
+                                                        position: 'absolute' as const,
+                                                        left: '0',
+                                                        top: '6px',
+                                                        width: '4px',
+                                                        height: '4px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: C.gold,
+                                                        display: 'inline-block',
+                                                    }} />
+                                                    {item}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )
+                            ))}
                         </div>
                     </div>
 

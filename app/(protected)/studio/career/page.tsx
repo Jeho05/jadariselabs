@@ -15,6 +15,9 @@ import {
     IconMail,
     IconUser,
     IconAward,
+    IconGlobe,
+    IconStar,
+    IconCode,
 } from '@/components/icons';
 import ChatMessageContent from '@/components/chat-message-content';
 import {
@@ -148,6 +151,17 @@ export default function CareerStudioPage() {
     const [skills, setSkills] = useState('');
     const [interests, setInterests] = useState('');
 
+    // ── Extra Personal Details ──
+    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [nationality, setNationality] = useState('');
+    const [drivingLicense, setDrivingLicense] = useState('');
+
+    // ── New Dynamic Lists ──
+    const [projects, setProjects] = useState([{ id: 'proj_1', name: '', description: '', technologies: '', url: '' }]);
+    const [volunteer, setVolunteer] = useState([{ id: 'vol_1', role: '', organization: '', period: '', description: '' }]);
+    const [awards, setAwards] = useState([{ id: 'aw_1', name: '', issuer: '', year: '' }]);
+    const [customSections, setCustomSections] = useState<Array<{ id: string; title: string; items: string }>>([]);
+
     // ── Cover Letter Exclusive fields ──
     const [companyName, setCompanyName] = useState('');
     const [companyAddress, setCompanyAddress] = useState('');
@@ -259,7 +273,10 @@ export default function CareerStudioPage() {
             location: address,
             linkedin,
             website,
-            photoUrl: photoPreviewPdf || undefined
+            photoUrl: photoPreviewPdf || undefined,
+            dateOfBirth: dateOfBirth || undefined,
+            nationality: nationality || undefined,
+            drivingLicense: drivingLicense || undefined
         },
         summary,
         experience: experiences.filter(e => e.role || e.company).map(e => ({
@@ -279,7 +296,14 @@ export default function CareerStudioPage() {
         languages: languages.filter(l => l.name).map(l => ({ name: l.name, level: l.level })),
         certifications: certifications.filter(c => c.name).map(c => ({ name: c.name, issuer: c.issuer, year: c.year })),
         interests: interests.split(',').map(s => s.trim()).filter(Boolean),
-        references: references.filter(r => r.name).map(r => ({ name: r.name, role: r.role, contact: r.contact }))
+        references: references.filter(r => r.name).map(r => ({ name: r.name, role: r.role, contact: r.contact })),
+        projects: projects.filter(p => p.name).map(p => ({ name: p.name, description: p.description, technologies: p.technologies, url: p.url })),
+        volunteer: volunteer.filter(v => v.role || v.organization).map(v => ({ role: v.role, organization: v.organization, period: v.period, description: v.description })),
+        awards: awards.filter(a => a.name).map(a => ({ name: a.name, issuer: a.issuer, year: a.year })),
+        customSections: customSections.filter(s => s.title && s.items.trim()).map(s => ({
+            title: s.title,
+            items: s.items.split('\n').map(i => i.replace(/^[-•*]\s*/, '').trim()).filter(Boolean)
+        }))
     };
 
     // ── Native PDF Generator (Vector Perfect PDF via @react-pdf/renderer) ──
@@ -598,8 +622,14 @@ export default function CareerStudioPage() {
                                     <FormField label="Site Web"><input type="text" value={website} onChange={e => setWebsite(e.target.value)} placeholder="portfolio.com" className={inputClass} /></FormField>
                                 </div>
                             </div>
+
+                            <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-100">
+                                <FormField label="Date de naissance"><input type="text" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} placeholder="01/01/1995" className={inputClass} /></FormField>
+                                <FormField label="Nationalité"><input type="text" value={nationality} onChange={e => setNationality(e.target.value)} placeholder="Béninoise" className={inputClass} /></FormField>
+                                <FormField label="Permis"><input type="text" value={drivingLicense} onChange={e => setDrivingLicense(e.target.value)} placeholder="B" className={inputClass} /></FormField>
+                            </div>
                             
-                            <div className="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-gray-100">
+                            <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-gray-100">
                                 <FormField label="Secteur">
                                     <select value={sector} onChange={e => setSector(e.target.value as SectorType)} className={inputClass}>
                                         {Object.entries(SECTOR_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
@@ -687,6 +717,79 @@ export default function CareerStudioPage() {
                                     <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Sport, Lecture, Tech..." className={inputClass} />
                                 </FormField>
                             </div>
+                        </FormSection>
+
+                        {/* ── Projets ── */}
+                        <FormSection title="Projets / Portfolio" icon={<IconCode size={18} />} accentColor="#06B6D4" defaultOpen={false}>
+                            {projects.map((proj) => (
+                                <div key={proj.id} className="relative p-4 bg-cyan-50/30 border border-cyan-100/50 rounded-[14px] mb-4 group transition-all hover:bg-cyan-50/50">
+                                    <button onClick={() => removeListItem(projects, setProjects, proj.id)} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors p-1 bg-white rounded-lg opacity-0 group-hover:opacity-100 shadow-sm"><MiniTrash /></button>
+                                    <div className="grid grid-cols-2 gap-3 mb-3 pr-8">
+                                        <FormField label="Nom du projet"><input type="text" value={proj.name} onChange={e => updateListItem(projects, setProjects, proj.id, 'name', e.target.value)} placeholder="Mon App" className={inputClass} /></FormField>
+                                        <FormField label="URL"><input type="text" value={proj.url} onChange={e => updateListItem(projects, setProjects, proj.id, 'url', e.target.value)} placeholder="github.com/..." className={inputClass} /></FormField>
+                                    </div>
+                                    <FormField label="Technologies"><input type="text" value={proj.technologies} onChange={e => updateListItem(projects, setProjects, proj.id, 'technologies', e.target.value)} placeholder="React, Node.js, PostgreSQL" className={inputClass} /></FormField>
+                                    <div className="mt-3">
+                                        <FormField label="Description"><textarea value={proj.description} onChange={e => updateListItem(projects, setProjects, proj.id, 'description', e.target.value)} placeholder="Description courte du projet..." rows={2} className={textareaClass} /></FormField>
+                                    </div>
+                                </div>
+                            ))}
+                            <button onClick={() => setProjects([...projects, { id: genId(), name: '', description: '', technologies: '', url: '' }])} className="w-full py-3 rounded-xl border border-dashed border-cyan-300 text-cyan-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-cyan-50 transition-colors mt-2">
+                                <MiniPlus /> Ajouter un projet
+                            </button>
+                        </FormSection>
+
+                        {/* ── Bénévolat ── */}
+                        <FormSection title="Bénévolat / Communauté" icon={<IconGlobe size={18} />} accentColor="#EC4899" defaultOpen={false}>
+                            {volunteer.map((vol) => (
+                                <div key={vol.id} className="relative p-4 bg-pink-50/30 border border-pink-100/50 rounded-[14px] mb-4 group transition-all hover:bg-pink-50/50">
+                                    <button onClick={() => removeListItem(volunteer, setVolunteer, vol.id)} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors p-1 bg-white rounded-lg opacity-0 group-hover:opacity-100 shadow-sm"><MiniTrash /></button>
+                                    <div className="grid grid-cols-2 gap-3 mb-3 pr-8">
+                                        <FormField label="Rôle"><input type="text" value={vol.role} onChange={e => updateListItem(volunteer, setVolunteer, vol.id, 'role', e.target.value)} placeholder="Mentor" className={inputClass} /></FormField>
+                                        <FormField label="Organisation"><input type="text" value={vol.organization} onChange={e => updateListItem(volunteer, setVolunteer, vol.id, 'organization', e.target.value)} placeholder="ONG Locale" className={inputClass} /></FormField>
+                                    </div>
+                                    <FormField label="Période"><input type="text" value={vol.period} onChange={e => updateListItem(volunteer, setVolunteer, vol.id, 'period', e.target.value)} placeholder="2021 - Présent" className={inputClass} /></FormField>
+                                    <div className="mt-3">
+                                        <FormField label="Description"><textarea value={vol.description} onChange={e => updateListItem(volunteer, setVolunteer, vol.id, 'description', e.target.value)} placeholder="Ce que vous avez fait..." rows={2} className={textareaClass} /></FormField>
+                                    </div>
+                                </div>
+                            ))}
+                            <button onClick={() => setVolunteer([...volunteer, { id: genId(), role: '', organization: '', period: '', description: '' }])} className="w-full py-3 rounded-xl border border-dashed border-pink-300 text-pink-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-pink-50 transition-colors mt-2">
+                                <MiniPlus /> Ajouter du bénévolat
+                            </button>
+                        </FormSection>
+
+                        {/* ── Distinctions / Prix ── */}
+                        <FormSection title="Distinctions & Prix" icon={<IconStar size={18} />} accentColor="#F97316" defaultOpen={false}>
+                            {awards.map((aw) => (
+                                <div key={aw.id} className="flex gap-2 mb-2 items-center group">
+                                    <input type="text" value={aw.name} onChange={e => updateListItem(awards, setAwards, aw.id, 'name', e.target.value)} placeholder="Prix d'excellence" className={`flex-1 ${inputClass} py-2`} />
+                                    <input type="text" value={aw.issuer} onChange={e => updateListItem(awards, setAwards, aw.id, 'issuer', e.target.value)} placeholder="Organisateur" className={`flex-1 ${inputClass} py-2`} />
+                                    <input type="text" value={aw.year} onChange={e => updateListItem(awards, setAwards, aw.id, 'year', e.target.value)} placeholder="2023" className={`w-20 ${inputClass} py-2 text-center`} />
+                                    <button onClick={() => removeListItem(awards, setAwards, aw.id)} className="text-gray-300 hover:text-red-500 p-2"><MiniTrash /></button>
+                                </div>
+                            ))}
+                            <button onClick={() => setAwards([...awards, { id: genId(), name: '', issuer: '', year: '' }])} className="text-xs font-bold text-orange-600 hover:text-orange-800 py-2 inline-flex items-center gap-1">+ Ajouter une distinction</button>
+                        </FormSection>
+
+                        {/* ── Sections Personnalisées ── */}
+                        <FormSection title="Sections libres" icon={<IconSparkles size={18} />} accentColor="#64748B" defaultOpen={false}>
+                            <p className="text-[11px] text-gray-500 mb-3">💡 Ajoutez vos propres rubriques : Publications, Conférences, Affiliations, etc.</p>
+                            {customSections.map((sec) => (
+                                <div key={sec.id} className="relative p-4 bg-slate-50/50 border border-slate-200/50 rounded-[14px] mb-4 group transition-all hover:bg-slate-50">
+                                    <button onClick={() => setCustomSections(customSections.filter(s => s.id !== sec.id))} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors p-1 bg-white rounded-lg opacity-0 group-hover:opacity-100 shadow-sm"><MiniTrash /></button>
+                                    <div className="pr-8 mb-3">
+                                        <FormField label="Titre de la section"><input type="text" value={sec.title} onChange={e => setCustomSections(customSections.map(s => s.id === sec.id ? { ...s, title: e.target.value } : s))} placeholder="Publications, Conférences..." className={inputClass} /></FormField>
+                                    </div>
+                                    <FormField label="Éléments (un par ligne)">
+                                        <textarea value={sec.items} onChange={e => setCustomSections(customSections.map(s => s.id === sec.id ? { ...s, items: e.target.value } : s))} placeholder="- Article publié dans...
+- Conférence à..." rows={3} className={textareaClass} />
+                                    </FormField>
+                                </div>
+                            ))}
+                            <button onClick={() => setCustomSections([...customSections, { id: genId(), title: '', items: '' }])} className="w-full py-3 rounded-xl border border-dashed border-slate-300 text-slate-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors mt-2">
+                                <MiniPlus /> Ajouter une section libre
+                            </button>
                         </FormSection>
 
                         {/* ── Lettre de motivation (si requis) ── */}

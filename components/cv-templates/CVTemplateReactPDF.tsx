@@ -391,7 +391,7 @@ const Heading = ({ title }: { title: string }) => (
 /* ── Main Component ── */
 export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photoPreview?: string | null }) => {
     if (!data) return null;
-    const { personalInfo, summary, experience, education, skills, languages, certifications, interests, references } = data;
+    const { personalInfo, summary, experience, education, skills, languages, certifications, interests, references, projects, volunteer, awards, customSections } = data;
     const photoSrc = photoPreview || personalInfo?.photoUrl;
     const shouldRenderPhoto = typeof photoSrc === 'string' && /^(data:image\/[a-zA-Z0-9.+-]+;base64,|https?:\/\/)/.test(photoSrc);
 
@@ -400,6 +400,10 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
     const hasCertifications = certifications && certifications.length > 0;
     const hasInterests = interests && interests.length > 0;
     const hasReferences = references && references.length > 0;
+    const hasProjects = projects && projects.length > 0;
+    const hasVolunteer = volunteer && volunteer.length > 0;
+    const hasAwards = awards && awards.length > 0;
+    const hasCustom = customSections && customSections.length > 0;
 
     const contactItems: string[] = [];
     if (personalInfo.email) contactItems.push(personalInfo.email);
@@ -407,6 +411,9 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
     if (personalInfo.location) contactItems.push(personalInfo.location);
     if (personalInfo.linkedin) contactItems.push(personalInfo.linkedin);
     if (personalInfo.website) contactItems.push(personalInfo.website);
+    if (personalInfo.dateOfBirth) contactItems.push(personalInfo.dateOfBirth);
+    if (personalInfo.nationality) contactItems.push(personalInfo.nationality);
+    if (personalInfo.drivingLicense) contactItems.push(`Permis ${personalInfo.drivingLicense}`);
 
     return (
         <Document>
@@ -507,6 +514,20 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                                 ))}
                             </View>
                         )}
+
+                        {hasAwards && (
+                            <View style={s.sideBlock} wrap={false}>
+                                <Heading title="Distinctions" />
+                                {awards!.map((aw, idx) => (
+                                    <View key={idx} style={{ marginBottom: 8 }}>
+                                        <Text style={s.certName}>{aw.name}</Text>
+                                        <Text style={s.certMeta}>
+                                            {[aw.issuer, aw.year].filter(Boolean).join(' — ')}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
                     </View>
 
                     {/* ── MAIN CONTENT ── */}
@@ -560,6 +581,52 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                                 ))}
                             </View>
                         )}
+
+                        {/* Projects */}
+                        {hasProjects && (
+                            <View style={s.mainBlock}>
+                                <Heading title="Projets" />
+                                {projects!.map((proj, idx) => (
+                                    <View key={idx} style={s.eduBlock} wrap={false}>
+                                        <Text style={s.eduDegree}>{proj.name}</Text>
+                                        {proj.description && <Text style={s.achieveText}>{proj.description}</Text>}
+                                        {proj.technologies && <Text style={s.eduDetails}>{proj.technologies}</Text>}
+                                        {proj.url && <Text style={{ fontSize: 9, color: C.gold, marginTop: 1 }}>{proj.url}</Text>}
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+
+                        {/* Volunteer */}
+                        {hasVolunteer && (
+                            <View style={s.mainBlock}>
+                                <Heading title="Bénévolat" />
+                                {volunteer!.map((vol, idx) => (
+                                    <View key={idx} style={s.expBlock} wrap={false}>
+                                        <View style={s.expDot} />
+                                        <Text style={s.expRole}>{vol.role}</Text>
+                                        <Text style={s.expCompany}>{vol.organization}</Text>
+                                        {vol.period && <Text style={s.expPeriod}>{vol.period}</Text>}
+                                        {vol.description && <Text style={s.achieveText}>{vol.description}</Text>}
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+
+                        {/* Custom Sections */}
+                        {hasCustom && customSections!.map((sec, sIdx) => (
+                            sec.items.length > 0 && (
+                                <View key={sIdx} style={s.mainBlock}>
+                                    <Heading title={sec.title} />
+                                    {sec.items.map((item, i) => (
+                                        <View key={i} style={s.achieveRow}>
+                                            <Text style={s.achieveBullet}>●</Text>
+                                            <Text style={s.achieveText}>{item}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            )
+                        ))}
                     </View>
                 </View>
 
