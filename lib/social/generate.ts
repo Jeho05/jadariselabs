@@ -161,13 +161,15 @@ export async function readStreamedContent(response: Response): Promise<string> {
 
     const decoder = new TextDecoder();
     let fullContent = '';
+    let buffer = '';
 
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
         for (let line of lines) {
             line = line.trim();
@@ -176,6 +178,20 @@ export async function readStreamedContent(response: Response): Promise<string> {
             const data = line.slice(6).trim();
             if (data === '[DONE]') continue;
 
+            try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) fullContent += content;
+            } catch {
+                // ignore
+            }
+        }
+    }
+
+    const finalLine = buffer.trim();
+    if (finalLine.startsWith('data: ')) {
+        const data = finalLine.slice(6).trim();
+        if (data !== '[DONE]') {
             try {
                 const parsed = JSON.parse(data);
                 const content = parsed.choices?.[0]?.delta?.content;

@@ -20,17 +20,25 @@ import {
     IconTrendingUp,
     IconClock,
     IconCheck,
+    IconX,
 } from '@/components/icons';
 import ChatMessageContent from '@/components/chat-message-content';
+import SocialShareButtons from '@/components/social-share-buttons';
 import {
     PLATFORM_CONFIG,
-    SOCIAL_TEMPLATES,
     SUGGESTED_HASHTAGS,
     type PlatformType,
-    getTemplatesByPlatform,
 } from '@/lib/prompts/social-templates';
 
 type PlatformKey = PlatformType;
+type SocialPlatformId = PlatformType | 'x';
+type SocialAccountSummary = {
+    id: string;
+    platform: SocialPlatformId;
+    accountName: string | null;
+    accountId: string;
+    expiresAt: string | null;
+};
 
 const PLATFORMS: Array<{ id: PlatformKey; name: string; icon: React.ComponentType<{ size?: number; className?: string }>; color: string; bestTimes: string }> = [
     { id: 'tiktok', name: 'TikTok', icon: IconTikTok, color: 'from-pink-500 to-purple-600', bestTimes: '12h • 19h • 21h' },
@@ -38,6 +46,15 @@ const PLATFORMS: Array<{ id: PlatformKey; name: string; icon: React.ComponentTyp
     { id: 'whatsapp', name: 'WhatsApp', icon: IconMessageCircle, color: 'from-green-500 to-green-600', bestTimes: '9h • 12h • 17h' },
     { id: 'linkedin', name: 'LinkedIn', icon: IconLinkedin, color: 'from-blue-600 to-blue-800', bestTimes: '8h • 12h • 17h' },
     { id: 'instagram', name: 'Instagram', icon: IconInstagram, color: 'from-purple-500 to-pink-500', bestTimes: '11h • 14h • 19h' },
+];
+
+const CONNECT_PLATFORMS: Array<{ id: SocialPlatformId; name: string; icon: React.ComponentType<{ size?: number; className?: string }>; enabled: boolean }> = [
+    { id: 'linkedin', name: 'LinkedIn', icon: IconLinkedin, enabled: true },
+    { id: 'x', name: 'X', icon: IconX, enabled: true },
+    { id: 'tiktok', name: 'TikTok', icon: IconTikTok, enabled: true },
+    { id: 'facebook', name: 'Facebook', icon: IconFacebook, enabled: false },
+    { id: 'instagram', name: 'Instagram', icon: IconInstagram, enabled: false },
+    { id: 'whatsapp', name: 'WhatsApp', icon: IconMessageCircle, enabled: false },
 ];
 
 const TONE_OPTIONS = [
@@ -79,9 +96,12 @@ export default function SocialStudioPage() {
     const [scheduleContext, setScheduleContext] = useState('');
     const [scheduleTone, setScheduleTone] = useState('authentique');
     const [scheduleSector, setScheduleSector] = useState('general');
+    const [scheduleAutoPublish, setScheduleAutoPublish] = useState(false);
 
     const [draftsLoading, setDraftsLoading] = useState(false);
     const [drafts, setDrafts] = useState<Array<any>>([]);
+    const [accountsLoading, setAccountsLoading] = useState(false);
+    const [accounts, setAccounts] = useState<SocialAccountSummary[]>([]);
     
     // Platform & options
     const [selectedPlatform, setSelectedPlatform] = useState<PlatformKey>('tiktok');
@@ -135,6 +155,7 @@ export default function SocialStudioPage() {
             setScheduleContext(String(cfg.context || ''));
             setScheduleTone(String(cfg.tone || 'authentique'));
             setScheduleSector(String(cfg.sector || 'general'));
+            setScheduleAutoPublish(!!cfg.auto_publish);
         } finally {
             setSchedulesLoading(false);
         }
@@ -152,10 +173,28 @@ export default function SocialStudioPage() {
         }
     };
 
+    const fetchAccounts = async () => {
+        setAccountsLoading(true);
+        try {
+            const res = await fetch('/api/social/accounts');
+            if (!res.ok) return;
+            const data = await res.json();
+            setAccounts(data.accounts || []);
+        } finally {
+            setAccountsLoading(false);
+        }
+    };
+
+    const handleDisconnectAccount = async (id: string) => {
+        await fetch(`/api/social/accounts/${id}`, { method: 'DELETE' });
+        fetchAccounts();
+    };
+
     useEffect(() => {
         if (!loading && activeTab === 'autopilot') {
             fetchSchedules();
             fetchDrafts();
+            fetchAccounts();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, loading]);
@@ -203,8 +242,13 @@ export default function SocialStudioPage() {
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                setError(data.details || data.error || 'Une erreur est survenue');
+                let data: any = null;
+                try {
+                    data = await res.json();
+                } catch {
+                    // ignore non-JSON errors
+                }
+                setError(data?.details || data?.error || 'Une erreur est survenue');
                 setIsStreaming(false);
                 return;
             }
@@ -212,35 +256,56 @@ export default function SocialStudioPage() {
             const reader = res.body?.getReader();
             const decoder = new TextDecoder();
             let fullContent = '';
+            let buffer = '';
 
-            if (reader) {
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('\n');
+            if (!reader) {
+                setError('Streaming indisponible. Veuillez reessayer.');
+                return;
+            }
 
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const data = line.slice(6).trim();
-                            if (data === '[DONE]') continue;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-                            try {
-                                const parsed = JSON.parse(data);
-                                if (parsed.meta) {
-                                    if (profile && parsed.meta.remaining_credits !== undefined) {
-                                        setProfile({ ...profile, credits: parsed.meta.remaining_credits });
-                                    }
-                                }
-                                if (parsed.content) {
-                                    fullContent += parsed.content;
-                                    setOutput(fullContent);
-                                }
-                            } catch {
-                                // ignore malformed chunk
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const rawLine of lines) {
+                    const line = rawLine.trim();
+                    if (!line.startsWith('data: ')) continue;
+                    const data = line.slice(6).trim();
+                    if (data === '[DONE]') continue;
+
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed.meta) {
+                            if (parsed.meta.remaining_credits !== undefined) {
+                                setProfile((prev) => prev ? { ...prev, credits: parsed.meta.remaining_credits } : prev);
                             }
                         }
+                        if (parsed.content) {
+                            fullContent += parsed.content;
+                            setOutput(fullContent);
+                        }
+                    } catch {
+                        // ignore malformed chunk
+                    }
+                }
+            }
+
+            const finalLine = buffer.trim();
+            if (finalLine.startsWith('data: ')) {
+                const data = finalLine.slice(6).trim();
+                if (data !== '[DONE]') {
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed.content) {
+                            fullContent += parsed.content;
+                            setOutput(fullContent);
+                        }
+                    } catch {
+                        // ignore malformed chunk
                     }
                 }
             }
@@ -277,6 +342,7 @@ export default function SocialStudioPage() {
                     tone: scheduleTone,
                     sector: scheduleSector,
                     content_type: 'tips',
+                    auto_publish: scheduleAutoPublish,
                 },
             };
 
@@ -307,6 +373,11 @@ export default function SocialStudioPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status }),
         });
+        fetchDrafts();
+    };
+
+    const handlePublishDraft = async (id: string) => {
+        await fetch(`/api/social/publish/${id}`, { method: 'POST' });
         fetchDrafts();
     };
 
@@ -421,7 +492,64 @@ export default function SocialStudioPage() {
 
                 {activeTab === 'autopilot' ? (
                     <div className="grid lg:grid-cols-2 gap-6">
-                        <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
+
+                        <div className="space-y-6">
+                            <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
+                                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <IconMegaphone size={18} className="text-[var(--color-terracotta)]" />
+                                    Comptes connectes
+                                </h3>
+                                <div className="space-y-3">
+                                    {accountsLoading ? (
+                                        <div className="text-sm text-gray-500">Chargement...</div>
+                                    ) : (
+                                        <div className="grid sm:grid-cols-2 gap-3">
+                                            {CONNECT_PLATFORMS.map((p) => {
+                                                const account = accounts.find((a) => a.platform === p.id);
+                                                const Icon = p.icon;
+                                                return (
+                                                    <div key={p.id} className={`flex items-center justify-between gap-3 p-3 rounded-xl border ${
+                                                        p.enabled ? 'border-gray-200 bg-white/60' : 'border-dashed border-gray-200 bg-gray-50/60'
+                                                    }`}>
+                                                        <div className="flex items-center gap-2">
+                                                            <Icon size={16} className="text-gray-600" />
+                                                            <div>
+                                                                <div className="text-sm font-semibold text-gray-800">{p.name}</div>
+                                                                {account && (
+                                                                    <div className="text-[11px] text-gray-500">{account.accountName || account.accountId}</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {p.enabled ? (
+                                                            account ? (
+                                                                <button
+                                                                    onClick={() => handleDisconnectAccount(account.id)}
+                                                                    className="px-3 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200"
+                                                                >
+                                                                    Deconnecter
+                                                                </button>
+                                                            ) : (
+                                                                <a
+                                                                    href={`/api/social/connect/${p.id}`}
+                                                                    className="px-3 py-2 rounded-xl text-xs font-bold bg-[var(--color-terracotta)] text-white"
+                                                                >
+                                                                    Connecter
+                                                                </a>
+                                                            )
+                                                        ) : (
+                                                            <span className="text-[10px] font-semibold text-gray-400 uppercase">Bientot</span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    <p className="text-xs text-gray-500">
+                                        Connectez vos comptes pour activer la publication automatique.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
                             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                                 <IconClock size={18} className="text-[var(--color-gold)]" />
                                 Planification
@@ -439,6 +567,19 @@ export default function SocialStudioPage() {
                                         }`}
                                     >
                                         {scheduleEnabled ? 'ON' : 'OFF'}
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-gray-700">Publication auto</span>
+                                    <button
+                                        onClick={() => setScheduleAutoPublish((v) => !v)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold border ${
+                                            scheduleAutoPublish
+                                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                                : 'bg-gray-50 text-gray-600 border-gray-200'
+                                        }`}
+                                    >
+                                        {scheduleAutoPublish ? 'ON' : 'OFF'}
                                     </button>
                                 </div>
 
@@ -555,11 +696,12 @@ export default function SocialStudioPage() {
                                 </button>
 
                                 <p className="text-xs text-gray-500">
-                                    Autopilot génère des drafts à valider. La publication reste manuelle pour fiabilité.
+                                    Autopilot genere des drafts. Activez &quot;Publication auto&quot; pour publier sans intervention.
                                 </p>
                             </div>
                         </div>
 
+                        </div>
                         <div className="bg-white rounded-[24px] shadow-lg overflow-hidden border border-gray-100">
                             <div className="bg-gray-50 px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-gray-100">
                                 <span className="text-gray-700 font-medium text-sm">Drafts à valider</span>
@@ -579,40 +721,56 @@ export default function SocialStudioPage() {
                                 ) : drafts.length === 0 ? (
                                     <div className="text-sm text-gray-500">Aucun draft pour l’instant.</div>
                                 ) : (
-                                    drafts.map((d) => (
-                                        <div key={d.id} className="border border-gray-100 rounded-2xl p-4">
-                                            <div className="flex items-center justify-between gap-3 mb-2">
-                                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                                    {String(d.platform).toUpperCase()}
+                                    drafts.map((d) => {
+                                        const account = accounts.find((a) => a.platform === d.platform);
+                                        const isApproved = d.status === 'approved';
+                                        return (
+                                            <div key={d.id} className="border border-gray-100 rounded-2xl p-4">
+                                                <div className="flex items-center justify-between gap-3 mb-2">
+                                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                                                        {String(d.platform).toUpperCase()}
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">
+                                                            {String(d.status || 'draft')}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => navigator.clipboard.writeText(d.content || '')}
+                                                            className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                                            title="Copier"
+                                                        >
+                                                            <IconCopy size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDraftStatus(d.id, 'approved')}
+                                                            disabled={isApproved}
+                                                            className="px-3 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200 disabled:opacity-60"
+                                                        >
+                                                            Valider
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handlePublishDraft(d.id)}
+                                                            disabled={!account || !isApproved}
+                                                            className="px-3 py-2 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 disabled:opacity-60"
+                                                        >
+                                                            Publier
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDraftStatus(d.id, 'archived')}
+                                                            className="px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 text-gray-600 border border-gray-200"
+                                                        >
+                                                            Archiver
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        onClick={() => navigator.clipboard.writeText(d.content || '')}
-                                                        className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-                                                        title="Copier"
-                                                    >
-                                                        <IconCopy size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDraftStatus(d.id, 'approved')}
-                                                        className="px-3 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200"
-                                                    >
-                                                        Valider
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDraftStatus(d.id, 'archived')}
-                                                        className="px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 text-gray-600 border border-gray-200"
-                                                    >
-                                                        Archiver
-                                                    </button>
+                                                <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                                    {String(d.content || '').slice(0, 600)}
+                                                    {String(d.content || '').length > 600 ? '...' : ''}
                                                 </div>
+                                                <SocialShareButtons text={String(d.content || '')} showLabel={false} size="sm" className="mt-3" />
                                             </div>
-                                            <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                                                {String(d.content || '').slice(0, 600)}
-                                                {String(d.content || '').length > 600 ? '…' : ''}
-                                            </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
                         </div>
@@ -898,7 +1056,8 @@ export default function SocialStudioPage() {
 
                         {/* Platform Tips Footer */}
                         {output && (
-                            <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
+                            <div className="bg-gray-50 px-5 py-3 border-t border-gray-100 space-y-3">
+                                <SocialShareButtons text={output} />
                                 <div className="flex items-center gap-4 text-xs text-gray-500">
                                     <span className="flex items-center gap-1">
                                         <IconCheck size={12} />

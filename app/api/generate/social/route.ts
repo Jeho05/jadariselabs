@@ -148,6 +148,7 @@ export async function POST(request: NextRequest) {
                 }
 
                 const encoder = new TextEncoder();
+                let buffer = '';
 
                 // Send metadata first
                 const meta = {
@@ -166,29 +167,49 @@ export async function POST(request: NextRequest) {
                         const { done, value } = await reader.read();
                         if (done) break;
 
-                        const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split('\n');
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
 
                         for (let line of lines) {
                             line = line.trim();
-                            if (line.startsWith('data: ')) {
-                                const data = line.slice(6).trim();
-                                if (data === '[DONE]') {
-                                    controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-                                    continue;
-                                }
+                            if (!line.startsWith('data: ')) continue;
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') {
+                                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                                continue;
+                            }
 
-                                try {
-                                    const parsed = JSON.parse(data);
-                                    const content = parsed.choices?.[0]?.delta?.content;
-                                    if (content) {
-                                        controller.enqueue(
-                                            encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
-                                        );
-                                    }
-                                } catch {
-                                    // Skip malformed JSON chunks
+                            try {
+                                const parsed = JSON.parse(data);
+                                const content = parsed.choices?.[0]?.delta?.content;
+                                if (content) {
+                                    controller.enqueue(
+                                        encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
+                                    );
                                 }
+                            } catch {
+                                // Skip malformed JSON chunks
+                            }
+                        }
+                    }
+
+                    const finalLine = buffer.trim();
+                    if (finalLine.startsWith('data: ')) {
+                        const data = finalLine.slice(6).trim();
+                        if (data === '[DONE]') {
+                            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                        } else {
+                            try {
+                                const parsed = JSON.parse(data);
+                                const content = parsed.choices?.[0]?.delta?.content;
+                                if (content) {
+                                    controller.enqueue(
+                                        encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
+                                    );
+                                }
+                            } catch {
+                                // Skip malformed JSON chunks
                             }
                         }
                     }

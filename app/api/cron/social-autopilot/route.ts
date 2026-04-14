@@ -6,6 +6,7 @@ import {
     readStreamedContent,
     type SocialGenerateInput,
 } from '@/lib/social/generate';
+import { publishDraftById } from '@/lib/social/publish';
 
 function unauthorized() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -98,6 +99,7 @@ async function runCron() {
             const tone = (config.tone as string) || 'authentique';
             const sector = (config.sector as string) || 'general';
             const contentType = (config.content_type as any) || 'tips';
+            const autoPublish = !!config.auto_publish;
 
             const generation = await generateSocial({
                 input: {
@@ -126,7 +128,7 @@ async function runCron() {
                     .eq('id', userId);
             }
 
-            await supabase.from('social_drafts').insert({
+            const { data: draftRow } = await supabase.from('social_drafts').insert({
                 user_id: userId,
                 schedule_id: scheduleId,
                 platform,
@@ -136,14 +138,18 @@ async function runCron() {
                 tone,
                 sector,
                 content,
-                status: 'draft',
-                planned_for: null,
+                status: autoPublish ? 'approved' : 'draft',
+                planned_for: autoPublish ? now.toISOString() : null,
                 metadata: {
                     provider: generation.provider,
                     template_id: generation.templateId,
                 },
                 credits_used: creditsRequired,
-            });
+            }).select('id').single();
+
+            if (autoPublish && draftRow?.id) {
+                await publishDraftById(draftRow.id);
+            }
 
             await supabase
                 .from('generations')
