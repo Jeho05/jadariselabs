@@ -7,11 +7,13 @@ import {
     IconPalette,
     ImageIcon,
     IconUser,
+    IconMegaphone,
 } from '@/components/icons';
 
 const NAV_ITEMS = [
     { href: '/dashboard', label: 'Dashboard', icon: IconChart },
-    { href: '/studio/image', label: 'Studio', icon: IconPalette, matchPrefix: '/studio' },
+    { href: '/studio/image', label: 'Studio', icon: IconPalette, matchPrefix: '/studio/image' },
+    { href: '/studio/social', label: 'Social', icon: IconMegaphone },
     { href: '/gallery', label: 'Galerie', icon: ImageIcon },
     { href: '/dashboard/profile', label: 'Profil', icon: IconUser },
 ];

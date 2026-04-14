@@ -21,6 +21,7 @@ import {
     IconInfinity,
     IconSparkle,
     IconCrown,
+    IconMegaphone,
 } from '@/components/icons';
 
 /**
@@ -120,6 +121,7 @@ export default function Header() {
     const navLinks = [
         { href: '/dashboard', label: t('nav.dashboard'), icon: IconChart },
         { href: '/studio/image', label: t('nav.studio'), icon: IconPalette },
+        { href: '/studio/social', label: 'Social', icon: IconMegaphone },
         { href: '/gallery', label: t('nav.gallery'), icon: ImageIcon },
     ];
 

@@ -555,32 +555,51 @@ export default function SocialStudioPage() {
                                 Planification
                             </h3>
 
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-700">Activé</span>
-                                    <button
-                                        onClick={() => setScheduleEnabled((v) => !v)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold border ${
-                                            scheduleEnabled
-                                                ? 'bg-green-50 text-green-700 border-green-200'
-                                                : 'bg-gray-50 text-gray-600 border-gray-200'
-                                        }`}
-                                    >
-                                        {scheduleEnabled ? 'ON' : 'OFF'}
-                                    </button>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-700">Publication auto</span>
-                                    <button
-                                        onClick={() => setScheduleAutoPublish((v) => !v)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold border ${
-                                            scheduleAutoPublish
-                                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                                : 'bg-gray-50 text-gray-600 border-gray-200'
-                                        }`}
-                                    >
-                                        {scheduleAutoPublish ? 'ON' : 'OFF'}
-                                    </button>
+                            <div className="space-y-6">
+                                {/* -- Premium Banner 100% Auto -- */}
+                                <div className={`relative overflow-hidden rounded-[16px] p-4 transition-all duration-500 border ${scheduleAutoPublish ? 'bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-pink-500/10 border-indigo-500/20 shadow-[inset_0_0_20px_rgba(99,102,241,0.1)]' : 'bg-gray-50 border-gray-100'}`}>
+                                    {scheduleAutoPublish && (
+                                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
+                                    )}
+                                    <div className="relative z-10 flex flex-col gap-4">
+                                        {/* Autopilot General Power */}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                                    Autopilot Général
+                                                    {scheduleEnabled && <span className="flex h-2 w-2 relative"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>}
+                                                </span>
+                                                <span className="text-xs text-gray-500 mt-0.5">La machine IA génère des brouillons</span>
+                                            </div>
+                                            <button
+                                                onClick={() => setScheduleEnabled((v) => !v)}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${scheduleEnabled ? 'bg-[var(--color-savanna)]' : 'bg-gray-200'}`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${scheduleEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            </button>
+                                        </div>
+
+                                        <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+                                        {/* ZERO Intervention */}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold flex items-center gap-2">
+                                                    <span className={scheduleAutoPublish ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-500' : 'text-gray-700'}>
+                                                        Mode 100% Automatique
+                                                    </span>
+                                                    <IconSparkles size={14} className={scheduleAutoPublish ? 'text-pink-500 animate-pulse' : 'text-gray-400'} />
+                                                </span>
+                                                <span className="text-xs text-gray-500 mt-0.5">Zéro validation requise (Publication auto.)</span>
+                                            </div>
+                                            <button
+                                                onClick={() => setScheduleAutoPublish((v) => !v)}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${scheduleAutoPublish ? 'bg-gradient-to-r from-indigo-500 to-pink-500' : 'bg-gray-200'}`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-sm ${scheduleAutoPublish ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div>
