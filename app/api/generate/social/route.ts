@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { runProviderChain, ProviderError } from '@/lib/provider-router';
-import type { ProviderTask } from '@/lib/provider-router';
+import { ProviderError } from '@/lib/provider-router';
+import {
+    generateSocial,
+    getCreditsRequired,
+    type SocialGenerateInput,
+} from '@/lib/social/generate';
 
 /**
  * POST /api/generate/social — Générateur de posts social media
@@ -17,209 +21,6 @@ import type { ProviderTask } from '@/lib/provider-router';
  *   multiVariant?: boolean
  * }
  */
-
-const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
-
-const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
-const GEMINI_MODEL = process.env.GEMINI_API_KEY ? 'gemini-2.5-flash' : null;
-
-const CREDITS_PER_POST = 1;
-const CREDITS_PER_PACK = 2; // 3 variantes
-
-// Configuration des plateformes
-const PLATFORM_CONFIG: Record<string, { maxChars: number; style: string; bestTimes: string }> = {
-    tiktok: {
-        maxChars: 2200,
-        style: 'authentique, viral, court',
-        bestTimes: '12h, 19h, 21h',
-    },
-    facebook: {
-        maxChars: 5000,
-        style: 'communautaire, engageant',
-        bestTimes: '9h, 13h, 15h',
-    },
-    whatsapp: {
-        maxChars: 1000,
-        style: 'professionnel mais chaleureux, sans hashtags',
-        bestTimes: '9h, 12h, 17h',
-    },
-    linkedin: {
-        maxChars: 3000,
-        style: 'professionnel, expert mais accessible',
-        bestTimes: '8h, 12h, 17h',
-    },
-    instagram: {
-        maxChars: 2200,
-        style: 'visuel, storytelling, hashtags',
-        bestTimes: '11h, 14h, 19h',
-    },
-};
-
-function getSystemPrompt(platform: string): string {
-    const basePrompt = `Tu es SocialGen, expert en marketing digital pour l'Afrique de l'Ouest.
-Tu connais parfaitement les codes culturels et les tendances du Bénin, Togo, Côte d'Ivoire, Sénégal.
-`;
-
-    const platformSpecific: Record<string, string> = {
-        tiktok: `${basePrompt}
-Spécialité TikTok:
-- Hook immédiat (3 premières secondes cruciales)
-- Ton authentique, "proche de la rue"
-- Rythme rapide, phrases courtes
-- Références culturelles locales quand pertinent
-- Appel à l'action viral (like, follow, commente)
-- JAMAIS de hashtags dans le script vidéo`,
-
-        facebook: `${basePrompt}
-Spécialité Facebook:
-- Communauté avant vente
-- Storytelling personnel
-- Questions engageantes
-- Preuve sociale (témoignages)
-- 2-3 hashtags maximum en fin de post`,
-
-        whatsapp: `${basePrompt}
-Spécialité WhatsApp Business:
-- Messages courts et directs
-- Professionnel mais chaleureux
-- Emojis pertinents (max 3-4)
-- Question ouverte en fin
-- JAMAIS de hashtags
-- Format mobile-friendly`,
-
-        linkedin: `${basePrompt}
-Spécialité LinkedIn Afrique:
-- Paragraphes très courts (1-2 phrases max)
-- Espacement entre paragraphes obligatoire
-- Insight professionnel ou leçon de vie
-- Storytelling authentique
-- 3-5 hashtags professionnels ciblés`,
-
-        instagram: `${basePrompt}
-Spécialité Instagram:
-- Première ligne accrocheuse (sinon tronquée)
-- Corps: storytelling ou valeur ajoutée
-- CTA clair (lien en bio, commente, tag)
-- Emojis stratégiques
-- Hashtags variés en fin (5-10)`,
-    };
-
-    return platformSpecific[platform] || basePrompt;
-}
-
-function buildPrompt(
-    platform: string,
-    topic: string,
-    context: string,
-    tone: string,
-    multiVariant: boolean
-): string {
-    const config = PLATFORM_CONFIG[platform];
-    
-    let prompt = `Crée un post ${platform.toUpperCase()} pour: "${topic}"
-
-CONTEXTE: ${context || 'Non spécifié'}
-TON: ${tone}
-STYLE: ${config.style}
-MEILLEURS HORAIRES: ${config.bestTimes}
-
-`;
-
-    // Spécificités par plateforme
-    if (platform === 'tiktok') {
-        prompt += `FORMAT SCRIPT TIKTOK:
-[HOOK 0-3s] Accroche viral
-[PROBLÈME] Pain point
-[SOLUTION] Réponse
-[PREUVE] Exemple concret
-[CTA] Like + follow + commente
-
-Indique les [PAUSES] et les moments [ZOOM]`;
-    } else if (platform === 'facebook') {
-        prompt += `FORMAT POST FACEBOOK:
-Accroche personnelle ou question
-Story/contexte (2-3 phrases max)
-Présentation subtile de l'offre
-Bénéfices (pas features)
-Preuve sociale
-CTA conversationnel
-2-3 hashtags max`;
-    } else if (platform === 'whatsapp') {
-        prompt += `FORMAT MESSAGE WHATSAPP:
-Salutation courte
-Valeur en 1 phrase
-Bénéfice clé
-Offre/prix si applicable
-Question engageante
-JAMAIS de hashtags`;
-    } else if (platform === 'linkedin') {
-        prompt += `FORMAT POST LINKEDIN:
-Accroche personnelle
-Leçon/insight partagé
-Conseil actionnable
-CTA qui génère des commentaires
-3-5 hashtags professionnels en fin`;
-    } else if (platform === 'instagram') {
-        prompt += `FORMAT CAPTION INSTAGRAM:
-Hook première ligne
-Story ou valeur
-CTA précis
-Emojis stratégiques
-5-10 hashtags en fin`;
-    }
-
-    if (multiVariant) {
-        prompt += `\n\nGÉNÈRE 3 VARIANTES du même post:
-- Variante 1: Version standard
-- Variante 2: Version plus directe/punchy  
-- Variante 3: Version storytelling émotionnel
-\nSépare clairement chaque variante avec ---`;
-    }
-
-    prompt += `\n\nRéponds en français (adapté au contexte ouest-africain si pertinent).`;
-
-    return prompt;
-}
-
-async function runOpenAICompatibleChat({
-    provider,
-    baseUrl,
-    apiKey,
-    model,
-    messages,
-    maxTokens = 2048,
-}: {
-    provider: 'groq' | 'gemini';
-    baseUrl: string;
-    apiKey: string;
-    model: string;
-    messages: Array<{ role: string; content: string }>;
-    maxTokens?: number;
-}): Promise<Response> {
-    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            model,
-            messages,
-            stream: true,
-            temperature: 0.8, // Plus créatif pour le social media
-            max_tokens: maxTokens,
-            top_p: 0.9,
-        }),
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new ProviderError(provider, errorText.substring(0, 200), response.status);
-    }
-
-    return response;
-}
 
 export async function POST(request: NextRequest) {
     const supabase = await createClient();
@@ -242,6 +43,8 @@ export async function POST(request: NextRequest) {
 
         const {
             platform,
+            contentType,
+            templateId,
             topic,
             context = '',
             tone = 'professionnel',
@@ -269,7 +72,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Profil non trouvé', trace_id: traceId }, { status: 404 });
         }
 
-        const creditsRequired = multiVariant ? CREDITS_PER_PACK : CREDITS_PER_POST;
+        const creditsRequired = getCreditsRequired({
+            platform,
+            contentType,
+            templateId,
+            topic,
+            context,
+            tone,
+            sector,
+            multiVariant,
+        } as SocialGenerateInput);
 
         if (profile.credits !== -1 && profile.credits < creditsRequired) {
             return NextResponse.json({
@@ -279,65 +91,21 @@ export async function POST(request: NextRequest) {
             }, { status: 402 });
         }
 
-        // 5. Build prompt
-        const systemPrompt = getSystemPrompt(platform);
-        const userPrompt = buildPrompt(platform, topic.trim(), context, tone, multiVariant);
-
-        const messages = [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-        ];
-
-        // 6. Configure providers
-        const groqApiKey = process.env.GROQ_API_KEY;
-        const geminiApiKey = process.env.GEMINI_API_KEY;
-
-        const hasAnyProvider = groqApiKey || geminiApiKey;
-        if (!hasAnyProvider) {
-            return NextResponse.json({
-                error: 'Configuration manquante',
-                details: 'Aucun fournisseur IA configuré.',
-                trace_id: traceId,
-            }, { status: 503 });
-        }
-
-        // 7. Build provider chain
-        const tasks: ProviderTask<Response>[] = [];
-        const maxTokens = multiVariant ? 3072 : 2048;
-
-        if (geminiApiKey && GEMINI_MODEL) {
-            tasks.push({
-                name: 'gemini',
-                run: () => runOpenAICompatibleChat({
-                    provider: 'gemini',
-                    baseUrl: GEMINI_API_BASE,
-                    apiKey: geminiApiKey,
-                    model: GEMINI_MODEL,
-                    messages,
-                    maxTokens,
-                }),
-                canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
-            });
-        }
-
-        if (groqApiKey) {
-            tasks.push({
-                name: 'groq',
-                run: () => runOpenAICompatibleChat({
-                    provider: 'groq',
-                    baseUrl: GROQ_API_BASE,
-                    apiKey: groqApiKey,
-                    model: GROQ_MODEL,
-                    messages,
-                    maxTokens,
-                }),
-                canFallback: (err: ProviderError) => err.status === 429 || (err.status ?? 0) >= 500,
-            });
-        }
-
-        // 8. Execute generation
-        const providerResult = await runProviderChain<Response>(tasks, { purpose: 'social' });
-        const response = providerResult.result;
+        // 5. Execute generation
+        const generation = await generateSocial({
+            input: {
+                platform,
+                contentType,
+                templateId,
+                topic: topic.trim(),
+                context,
+                tone,
+                sector,
+                multiVariant,
+            } as SocialGenerateInput,
+            stream: true,
+        });
+        const response = generation.response;
 
         // 9. Deduct credits before streaming
         if (profile.credits !== -1) {
@@ -355,14 +123,14 @@ export async function POST(request: NextRequest) {
             result_url: null,
             metadata: {
                 platform,
+                content_type: contentType,
+                template_id: templateId,
                 tone,
                 sector,
                 multi_variant: multiVariant,
-                provider: providerResult.provider,
+                provider: generation.provider,
                 router: {
-                    provider: providerResult.provider,
-                    attempts: providerResult.attempts,
-                    duration_ms: providerResult.latency_ms,
+                    provider: generation.provider,
                 },
             },
             credits_used: creditsRequired,
@@ -386,7 +154,7 @@ export async function POST(request: NextRequest) {
                     trace_id: traceId,
                     credits_used: creditsRequired,
                     remaining_credits: profile.credits === -1 ? -1 : profile.credits - creditsRequired,
-                    provider: providerResult.provider,
+                    provider: generation.provider,
                     platform,
                 };
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ meta })}

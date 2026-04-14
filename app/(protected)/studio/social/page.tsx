@@ -65,6 +65,23 @@ export default function SocialStudioPage() {
 
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const [activeTab, setActiveTab] = useState<'studio' | 'autopilot'>('studio');
+
+    const [schedulesLoading, setSchedulesLoading] = useState(false);
+    const [scheduleId, setScheduleId] = useState<string | null>(null);
+    const [scheduleEnabled, setScheduleEnabled] = useState(true);
+    const [schedulePlatforms, setSchedulePlatforms] = useState<PlatformKey[]>(['tiktok', 'instagram', 'facebook', 'linkedin', 'whatsapp']);
+    const [schedulePostsPerWeek, setSchedulePostsPerWeek] = useState(3);
+    const [scheduleCreditsBudgetWeekly, setScheduleCreditsBudgetWeekly] = useState(10);
+
+    const [scheduleTopic, setScheduleTopic] = useState('');
+    const [scheduleContext, setScheduleContext] = useState('');
+    const [scheduleTone, setScheduleTone] = useState('authentique');
+    const [scheduleSector, setScheduleSector] = useState('general');
+
+    const [draftsLoading, setDraftsLoading] = useState(false);
+    const [drafts, setDrafts] = useState<Array<any>>([]);
     
     // Platform & options
     const [selectedPlatform, setSelectedPlatform] = useState<PlatformKey>('tiktok');
@@ -95,6 +112,53 @@ export default function SocialStudioPage() {
         };
         fetchProfile();
     }, [supabase]);
+
+    const fetchSchedules = async () => {
+        setSchedulesLoading(true);
+        try {
+            const res = await fetch('/api/social/schedules');
+            if (!res.ok) return;
+            const data = await res.json();
+            const first = data.schedules?.[0];
+            if (!first) {
+                setScheduleId(null);
+                return;
+            }
+            setScheduleId(first.id);
+            setScheduleEnabled(!!first.enabled);
+            setSchedulePlatforms((first.platforms || []) as PlatformKey[]);
+            setSchedulePostsPerWeek(Number(first.posts_per_week || 3));
+            setScheduleCreditsBudgetWeekly(Number(first.credits_budget_weekly || 10));
+
+            const cfg = (first.config || {}) as any;
+            setScheduleTopic(String(cfg.topic || ''));
+            setScheduleContext(String(cfg.context || ''));
+            setScheduleTone(String(cfg.tone || 'authentique'));
+            setScheduleSector(String(cfg.sector || 'general'));
+        } finally {
+            setSchedulesLoading(false);
+        }
+    };
+
+    const fetchDrafts = async () => {
+        setDraftsLoading(true);
+        try {
+            const res = await fetch('/api/social/drafts?status=draft');
+            if (!res.ok) return;
+            const data = await res.json();
+            setDrafts(data.drafts || []);
+        } finally {
+            setDraftsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!loading && activeTab === 'autopilot') {
+            fetchSchedules();
+            fetchDrafts();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab, loading]);
 
     useEffect(() => {
         if (!output) return;
@@ -198,6 +262,54 @@ export default function SocialStudioPage() {
         }
     };
 
+    const handleSaveSchedule = async () => {
+        setSchedulesLoading(true);
+        try {
+            const payload = {
+                enabled: scheduleEnabled,
+                platforms: schedulePlatforms,
+                posts_per_week: schedulePostsPerWeek,
+                credits_budget_weekly: scheduleCreditsBudgetWeekly,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Africa/Porto-Novo',
+                config: {
+                    topic: scheduleTopic,
+                    context: scheduleContext,
+                    tone: scheduleTone,
+                    sector: scheduleSector,
+                    content_type: 'tips',
+                },
+            };
+
+            const res = await fetch(scheduleId ? `/api/social/schedules/${scheduleId}` : '/api/social/schedules', {
+                method: scheduleId ? 'PATCH' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.schedule?.id) setScheduleId(data.schedule.id);
+        } finally {
+            setSchedulesLoading(false);
+        }
+    };
+
+    const handleTogglePlatform = (platform: PlatformKey) => {
+        setSchedulePlatforms((prev) => {
+            if (prev.includes(platform)) return prev.filter((p) => p !== platform);
+            return [...prev, platform];
+        });
+    };
+
+    const handleDraftStatus = async (id: string, status: 'approved' | 'archived') => {
+        await fetch(`/api/social/drafts/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+        });
+        fetchDrafts();
+    };
+
     const getSuggestedHashtags = () => {
         return SUGGESTED_HASHTAGS[sector] || SUGGESTED_HASHTAGS.general;
     };
@@ -284,8 +396,232 @@ export default function SocialStudioPage() {
                     )}
                 </div>
 
-                {/* Platform Selector */}
-                <div className="grid grid-cols-5 gap-2 mb-6">
+                <div className="flex gap-2 mb-6">
+                    <button
+                        onClick={() => setActiveTab('studio')}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                            activeTab === 'studio'
+                                ? 'bg-[var(--color-terracotta)] text-white border-[var(--color-terracotta)]'
+                                : 'bg-white/60 text-gray-700 border-white'
+                        }`}
+                    >
+                        Studio
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('autopilot')}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                            activeTab === 'autopilot'
+                                ? 'bg-[var(--color-savanna)] text-white border-[var(--color-savanna)]'
+                                : 'bg-white/60 text-gray-700 border-white'
+                        }`}
+                    >
+                        Autopilot
+                    </button>
+                </div>
+
+                {activeTab === 'autopilot' ? (
+                    <div className="grid lg:grid-cols-2 gap-6">
+                        <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <IconClock size={18} className="text-[var(--color-gold)]" />
+                                Planification
+                            </h3>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-gray-700">Activé</span>
+                                    <button
+                                        onClick={() => setScheduleEnabled((v) => !v)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold border ${
+                                            scheduleEnabled
+                                                ? 'bg-green-50 text-green-700 border-green-200'
+                                                : 'bg-gray-50 text-gray-600 border-gray-200'
+                                        }`}
+                                    >
+                                        {scheduleEnabled ? 'ON' : 'OFF'}
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Plateformes</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {PLATFORMS.map((p) => (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => handleTogglePlatform(p.id)}
+                                                className={`px-3 py-2 rounded-full text-xs font-bold border transition-all ${
+                                                    schedulePlatforms.includes(p.id)
+                                                        ? 'bg-[var(--color-savanna)] text-white border-[var(--color-savanna)]'
+                                                        : 'bg-white/60 text-gray-700 border-gray-200'
+                                                }`}
+                                            >
+                                                {p.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Sujet (Autopilot)</label>
+                                    <input
+                                        value={scheduleTopic}
+                                        onChange={(e) => setScheduleTopic(e.target.value)}
+                                        className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/60 focus:outline-none focus:border-[var(--color-savanna)]"
+                                        placeholder="Ex: Promouvoir mon service, éduquer sur..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Contexte (Autopilot)</label>
+                                    <textarea
+                                        value={scheduleContext}
+                                        onChange={(e) => setScheduleContext(e.target.value)}
+                                        className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/60 focus:outline-none focus:border-[var(--color-savanna)] min-h-[90px]"
+                                        placeholder="Ex: produit, audience, offre, localisation, lien, contraintes"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Ton</label>
+                                        <select
+                                            value={scheduleTone}
+                                            onChange={(e) => setScheduleTone(e.target.value)}
+                                            className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/60 focus:outline-none focus:border-[var(--color-savanna)]"
+                                        >
+                                            {TONE_OPTIONS.map((t) => (
+                                                <option key={t.value} value={t.value}>{t.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Secteur</label>
+                                        <select
+                                            value={scheduleSector}
+                                            onChange={(e) => setScheduleSector(e.target.value)}
+                                            className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/60 focus:outline-none focus:border-[var(--color-savanna)]"
+                                        >
+                                            {SECTOR_OPTIONS.map((s) => (
+                                                <option key={s.value} value={s.value}>{s.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Posts / semaine</label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            max={21}
+                                            value={schedulePostsPerWeek}
+                                            onChange={(e) => setSchedulePostsPerWeek(Number(e.target.value))}
+                                            className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/60 focus:outline-none focus:border-[var(--color-savanna)]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wider">Budget crédits / semaine</label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            max={1000}
+                                            value={scheduleCreditsBudgetWeekly}
+                                            onChange={(e) => setScheduleCreditsBudgetWeekly(Number(e.target.value))}
+                                            className="w-full p-3 rounded-xl border-2 border-gray-200 bg-white/60 focus:outline-none focus:border-[var(--color-savanna)]"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleSaveSchedule}
+                                    disabled={schedulesLoading}
+                                    className="w-full flex items-center justify-center gap-2.5 py-3 rounded-[16px] font-bold text-white transition-all disabled:opacity-50"
+                                    style={{
+                                        background: 'linear-gradient(135deg, var(--color-savanna) 0%, #2a9d8f 100%)',
+                                    }}
+                                >
+                                    {schedulesLoading ? (
+                                        <>
+                                            <IconLoader2 size={18} className="animate-spin" />
+                                            Enregistrement...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IconCheck size={18} />
+                                            Enregistrer
+                                        </>
+                                    )}
+                                </button>
+
+                                <p className="text-xs text-gray-500">
+                                    Autopilot génère des drafts à valider. La publication reste manuelle pour fiabilité.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-[24px] shadow-lg overflow-hidden border border-gray-100">
+                            <div className="bg-gray-50 px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-gray-100">
+                                <span className="text-gray-700 font-medium text-sm">Drafts à valider</span>
+                                <button
+                                    onClick={fetchDrafts}
+                                    disabled={draftsLoading}
+                                    className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                    title="Rafraîchir"
+                                >
+                                    <IconRefresh size={16} className={draftsLoading ? 'animate-spin' : ''} />
+                                </button>
+                            </div>
+
+                            <div className="max-h-[520px] overflow-y-auto p-5 space-y-4">
+                                {draftsLoading ? (
+                                    <div className="text-sm text-gray-500">Chargement...</div>
+                                ) : drafts.length === 0 ? (
+                                    <div className="text-sm text-gray-500">Aucun draft pour l’instant.</div>
+                                ) : (
+                                    drafts.map((d) => (
+                                        <div key={d.id} className="border border-gray-100 rounded-2xl p-4">
+                                            <div className="flex items-center justify-between gap-3 mb-2">
+                                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                                    {String(d.platform).toUpperCase()}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => navigator.clipboard.writeText(d.content || '')}
+                                                        className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        title="Copier"
+                                                    >
+                                                        <IconCopy size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDraftStatus(d.id, 'approved')}
+                                                        className="px-3 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200"
+                                                    >
+                                                        Valider
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDraftStatus(d.id, 'archived')}
+                                                        className="px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 text-gray-600 border border-gray-200"
+                                                    >
+                                                        Archiver
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                                {String(d.content || '').slice(0, 600)}
+                                                {String(d.content || '').length > 600 ? '…' : ''}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+
+                    {/* Platform Selector */}
+                    <div className="grid grid-cols-5 gap-2 mb-6">
                     {PLATFORMS.map((platform) => {
                         const Icon = platform.icon;
                         const isSelected = selectedPlatform === platform.id;
@@ -581,7 +917,9 @@ export default function SocialStudioPage() {
                             </div>
                         )}
                     </div>
-                </div>
+                    </div>
+                    </>
+                )}
             </div>
         </div>
     );
