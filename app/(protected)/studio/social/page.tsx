@@ -467,6 +467,79 @@ export default function SocialStudioPage() {
                     )}
                 </div>
 
+                {/* -- Connection Section (Always Visible) -- */}
+                <div className="glass-card-premium rounded-[20px] p-6 shadow-sm mb-8">
+                    <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <IconMegaphone size={18} className="text-[var(--color-terracotta)]" />
+                        Comptes connectés
+                    </h3>
+                    <div className="space-y-3">
+                        {accountsLoading ? (
+                            <div className="text-sm text-gray-500 animate-pulse">Chargement sécurisé des clés...</div>
+                        ) : (
+                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {CONNECT_PLATFORMS.map((p) => {
+                                    const account = accounts.find((a) => a.platform === p.id);
+                                    const Icon = p.icon;
+                                    return (
+                                        <div key={p.id} className={`group relative flex items-center justify-between gap-3 p-4 rounded-[16px] transition-all duration-300 border ${
+                                            p.enabled 
+                                                ? account 
+                                                    ? 'border-green-500/20 bg-green-50/30 hover:bg-green-50/50 shadow-[inset_0_0_15px_rgba(34,197,94,0.05)]' 
+                                                    : 'border-gray-200 bg-white/60 hover:bg-white/80 hover:shadow-md' 
+                                                : 'border-dashed border-gray-200 bg-gray-50/60 opacity-70'
+                                        }`}>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2.5 rounded-xl ${account ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/20' : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'} transition-colors`}>
+                                                    <Icon size={20} />
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                                        {p.name}
+                                                        {account && <span className="flex h-1.5 w-1.5 relative"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span></span>}
+                                                    </div>
+                                                    {account && (
+                                                        <div className="text-[11px] font-medium text-emerald-600 mt-0.5 max-w-[100px] truncate" title={account.accountName || account.accountId}>
+                                                            {account.accountName || account.accountId}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {p.enabled ? (
+                                                account ? (
+                                                    <button
+                                                        onClick={() => handleDisconnectAccount(account.id)}
+                                                        className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-gray-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all"
+                                                    >
+                                                        <IconX size={14} />
+                                                    </button>
+                                                ) : (
+                                                    <a
+                                                        href={`/api/social/connect/${p.id}`}
+                                                        className={`px-4 py-2 rounded-xl text-xs font-bold text-white transition-all duration-300 shadow-md flex items-center gap-1.5
+                                                            bg-gradient-to-r ${p.id === 'tiktok' ? 'from-pink-500 to-purple-600 hover:shadow-pink-500/25' : 
+                                                            p.id === 'x' ? 'from-gray-800 to-black hover:shadow-gray-900/25' : 
+                                                            'from-blue-600 to-blue-800 hover:shadow-blue-600/25'} hover:-translate-y-0.5
+                                                        `}
+                                                    >
+                                                        <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm"><IconZap size={10} className="text-white" /></div>
+                                                        Connecter
+                                                    </a>
+                                                )
+                                            ) : (
+                                                <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full uppercase tracking-wide">Bientôt</span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        <p className="text-xs text-gray-500 mt-3">
+                            Connectez vos comptes pour activer la publication automatique et le Studio.
+                        </p>
+                    </div>
+                </div>
+
                 <div className="flex gap-2 mb-6">
                     <button
                         onClick={() => setActiveTab('studio')}
@@ -494,61 +567,6 @@ export default function SocialStudioPage() {
                     <div className="grid lg:grid-cols-2 gap-6">
 
                         <div className="space-y-6">
-                            <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
-                                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                    <IconMegaphone size={18} className="text-[var(--color-terracotta)]" />
-                                    Comptes connectes
-                                </h3>
-                                <div className="space-y-3">
-                                    {accountsLoading ? (
-                                        <div className="text-sm text-gray-500">Chargement...</div>
-                                    ) : (
-                                        <div className="grid sm:grid-cols-2 gap-3">
-                                            {CONNECT_PLATFORMS.map((p) => {
-                                                const account = accounts.find((a) => a.platform === p.id);
-                                                const Icon = p.icon;
-                                                return (
-                                                    <div key={p.id} className={`flex items-center justify-between gap-3 p-3 rounded-xl border ${
-                                                        p.enabled ? 'border-gray-200 bg-white/60' : 'border-dashed border-gray-200 bg-gray-50/60'
-                                                    }`}>
-                                                        <div className="flex items-center gap-2">
-                                                            <Icon size={16} className="text-gray-600" />
-                                                            <div>
-                                                                <div className="text-sm font-semibold text-gray-800">{p.name}</div>
-                                                                {account && (
-                                                                    <div className="text-[11px] text-gray-500">{account.accountName || account.accountId}</div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        {p.enabled ? (
-                                                            account ? (
-                                                                <button
-                                                                    onClick={() => handleDisconnectAccount(account.id)}
-                                                                    className="px-3 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200"
-                                                                >
-                                                                    Deconnecter
-                                                                </button>
-                                                            ) : (
-                                                                <a
-                                                                    href={`/api/social/connect/${p.id}`}
-                                                                    className="px-3 py-2 rounded-xl text-xs font-bold bg-[var(--color-terracotta)] text-white"
-                                                                >
-                                                                    Connecter
-                                                                </a>
-                                                            )
-                                                        ) : (
-                                                            <span className="text-[10px] font-semibold text-gray-400 uppercase">Bientot</span>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                    <p className="text-xs text-gray-500">
-                                        Connectez vos comptes pour activer la publication automatique.
-                                    </p>
-                                </div>
-                            </div>
                             <div className="glass-card-premium rounded-[20px] p-6 shadow-sm">
                             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                                 <IconClock size={18} className="text-[var(--color-gold)]" />
