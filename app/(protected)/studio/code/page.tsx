@@ -10,33 +10,79 @@ import {
     IconAlertCircle,
     IconCopy,
     IconRefresh,
+    IconSparkles,
+    IconRocket,
+    IconLightbulb,
+    IconFileText,
+    IconCheck,
+    IconChevronDown,
+    IconDownload,
+    IconFolder,
+    IconGlobe,
+    IconEdit,
+    IconShield,
 } from '@/components/icons';
 import ChatMessageContent from '@/components/chat-message-content';
+import {
+    CODE_TEMPLATES,
+    CODE_CATEGORIES,
+    STACK_OPTIONS,
+    COMPLEXITY_OPTIONS,
+    QUICK_SUGGESTIONS,
+    calculateCodeCredits,
+    type CodeDeliverable,
+    type CodeComplexity,
+    type CodeTemplate,
+} from '@/lib/prompts/code-templates';
 
-type CodeMode = 'agentic' | 'speed' | 'long';
-
-const CODE_MODES: Array<{ id: CodeMode; label: string; model: string; hint: string }> = [
-    { id: 'agentic', label: 'Agentique', model: 'Zhipu GLM', hint: 'Planification' },
-    { id: 'speed', label: 'Rapide', model: 'Groq LLaMA 3.3', hint: 'Faible latence' },
-    { id: 'long', label: 'Contexte long', model: 'Gemini 2.5 Flash', hint: 'Grand contexte' },
-];
-
+type StudioMode = 'quick' | 'project';
 type CodeMessage = { role: 'user' | 'assistant'; content: string };
+
+// Icon mapping for categories
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+    app: IconCode,
+    cahier: IconFileText,
+    plan: IconFolder,
+    ideas: IconLightbulb,
+    architecture: IconShield,
+    docs: IconEdit,
+    audit: IconGlobe,
+};
 
 export default function CodeStudioPage() {
     const supabase = createClient();
     const outputRef = useRef<HTMLDivElement>(null);
 
+    // Core state
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
-    const [mode, setMode] = useState<CodeMode>('agentic');
-    const [input, setInput] = useState('');
+    const [mode, setMode] = useState<StudioMode>('quick');
+
+    // Template & config state
+    const [selectedCategory, setSelectedCategory] = useState<CodeDeliverable | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<CodeTemplate | null>(null);
+    const [stack, setStack] = useState('');
+    const [complexity, setComplexity] = useState<CodeComplexity>('standard');
+    const [context, setContext] = useState('');
     const [systemInstruction, setSystemInstruction] = useState('');
+
+    // Input/output state
+    const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
     const [history, setHistory] = useState<CodeMessage[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
 
+    // Metadata from server
+    const [genMeta, setGenMeta] = useState<{
+        provider?: string;
+        model?: string;
+        credits_used?: number;
+        remaining_credits?: number;
+    } | null>(null);
+
+    // Fetch profile
     useEffect(() => {
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -53,6 +99,7 @@ export default function CodeStudioPage() {
         fetchProfile();
     }, [supabase]);
 
+    // Auto-scroll output
     useEffect(() => {
         if (!output) return;
         const container = outputRef.current?.parentElement;
@@ -63,11 +110,29 @@ export default function CodeStudioPage() {
         }
     }, [output]);
 
+    // Credits calculation
+    const creditsNeeded = mode === 'project'
+        ? calculateCodeCredits(selectedTemplate, complexity)
+        : 1;
+
+    // Filtered templates
+    const filteredTemplates = selectedCategory
+        ? CODE_TEMPLATES.filter((t) => t.category === selectedCategory)
+        : CODE_TEMPLATES;
+
+    // === GENERATE ===
     const handleGenerate = async () => {
         if (!input.trim() || isStreaming) return;
+
+        if (profile && profile.credits !== -1 && profile.credits < creditsNeeded) {
+            setError(`Crédits insuffisants. Il vous faut ${creditsNeeded} crédit(s).`);
+            return;
+        }
+
         setIsStreaming(true);
         setError(null);
         setOutput('');
+        setGenMeta(null);
 
         const userMessage = { role: 'user' as const, content: input.trim() };
         const historyPayload = history.slice(-6);
@@ -78,8 +143,11 @@ export default function CodeStudioPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMessage.content,
-                    mode,
                     history: historyPayload,
+                    templateId: mode === 'project' ? selectedTemplate?.id : undefined,
+                    stack: mode === 'project' ? stack : undefined,
+                    complexity: mode === 'project' ? complexity : undefined,
+                    context: mode === 'project' ? context.trim() || undefined : undefined,
                     systemInstruction: systemInstruction.trim() || undefined,
                 }),
             });
@@ -108,6 +176,12 @@ export default function CodeStudioPage() {
                             if (data === '[DONE]') continue;
                             try {
                                 const parsed = JSON.parse(data);
+                                if (parsed.meta) {
+                                    setGenMeta(parsed.meta);
+                                    if (profile && parsed.meta.remaining_credits !== undefined) {
+                                        setProfile({ ...profile, credits: parsed.meta.remaining_credits });
+                                    }
+                                }
                                 if (parsed.content) {
                                     fullContent += parsed.content;
                                     setOutput(fullContent);
@@ -121,9 +195,6 @@ export default function CodeStudioPage() {
             }
 
             setHistory((prev) => [...prev, userMessage, { role: 'assistant', content: fullContent }]);
-            if (profile && profile.credits !== -1) {
-                setProfile({ ...profile, credits: profile.credits - 1 });
-            }
         } catch {
             setError('Erreur réseau. Vérifiez votre connexion et réessayez.');
         } finally {
@@ -131,15 +202,58 @@ export default function CodeStudioPage() {
         }
     };
 
+    // === ACTIONS ===
     const handleCopy = async () => {
         if (!output) return;
         try {
             await navigator.clipboard.writeText(output);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
         } catch {
             // no-op
         }
     };
 
+    const handleDownload = () => {
+        if (!output) return;
+        const blob = new Blob([output], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = selectedTemplate
+            ? `${selectedTemplate.id}-${Date.now()}.md`
+            : `jadacode-${Date.now()}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleClear = () => {
+        setOutput('');
+        setInput('');
+        setError(null);
+        setGenMeta(null);
+    };
+
+    const handleNewSession = () => {
+        handleClear();
+        setHistory([]);
+        setSelectedCategory(null);
+        setSelectedTemplate(null);
+        setStack('');
+        setComplexity('standard');
+        setContext('');
+        setSystemInstruction('');
+    };
+
+    const selectTemplate = (template: CodeTemplate) => {
+        setSelectedTemplate(template);
+        setStack(template.defaultStack);
+        setComplexity(template.defaultComplexity);
+    };
+
+    // === LOADING STATE ===
     if (loading) {
         return (
             <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
@@ -152,96 +266,250 @@ export default function CodeStudioPage() {
         );
     }
 
-    const modeConfig = CODE_MODES.find((m) => m.id === mode) || CODE_MODES[0];
-
     return (
         <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
+            {/* Background */}
             <div
                 className="fixed inset-0 pointer-events-none opacity-[0.04]"
                 style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
             />
-            
-            {/* Ambient glows behind cards */}
-            <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
-            <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
+            <div className="absolute top-[15%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.12] pointer-events-none" />
+            <div className="absolute bottom-[5%] right-[-8%] w-[35%] h-[45%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.10] pointer-events-none" />
+            <div className="absolute top-[50%] left-[50%] w-[20%] h-[20%] bg-[var(--color-savanna)] rounded-full blur-[100px] opacity-[0.08] pointer-events-none" />
 
-            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col flex-1 min-h-0">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 shrink-0">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+                {/* === HEADER === */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div className="flex items-center gap-4">
-                        <div className="module-icon-premium earth shadow-lg">
+                        <div className="module-icon-premium earth shadow-lg" style={{
+                            background: 'linear-gradient(135deg, var(--color-earth) 0%, #A0714D 50%, var(--color-gold) 100%)',
+                        }}>
                             <IconCode size={28} />
                         </div>
                         <div>
                             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-                                Assistant Code
+                                Studio Code Pro
                             </h1>
-                            <p className="text-[var(--color-text-secondary)] text-sm mt-1">
-                                Planification, débogage et refactoring assistés par IA.
+                            <p className="text-[var(--color-text-secondary)] text-sm mt-0.5">
+                                Apps, cahiers des charges, plans d&apos;action, architecture et plus
                             </p>
                         </div>
                     </div>
-                    {profile && (
-                        <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md border border-white shadow-sm">
-                            <IconZap size={18} className="text-[var(--color-earth)]" />
-                            <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits restants</span>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {profile && (
+                            <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md border border-white shadow-sm">
+                                <IconZap size={18} className="text-[var(--color-earth)]" />
+                                <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <div className="grid lg:grid-cols-5 gap-6 gap-y-8 flex-1 overflow-hidden min-h-0 pb-8">
-                    {/* Colonne de gauche (2/5) : Contrôles */}
-                    <div className="lg:col-span-2 flex flex-col gap-6 h-full overflow-y-auto hide-scrollbar pb-6">
-                        <div className="glass-card-premium rounded-[20px] p-6 space-y-7 shadow-sm border border-white/60">
-                            <div>
+                {/* === MODE SELECTOR === */}
+                <div className="flex gap-2 mb-6">
+                    <button
+                        onClick={() => setMode('quick')}
+                        disabled={isStreaming}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                            mode === 'quick'
+                                ? 'bg-[var(--color-earth)] text-white shadow-md'
+                                : 'bg-white/50 text-gray-600 hover:bg-white'
+                        }`}
+                    >
+                        <IconRocket size={18} />
+                        <span>Mode rapide</span>
+                    </button>
+                    <button
+                        onClick={() => setMode('project')}
+                        disabled={isStreaming}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                            mode === 'project'
+                                ? 'bg-[var(--color-earth)] text-white shadow-md'
+                                : 'bg-white/50 text-gray-600 hover:bg-white'
+                        }`}
+                    >
+                        <IconSparkles size={18} />
+                        <span>Mode projet</span>
+                    </button>
+                </div>
+
+                {/* === MAIN GRID === */}
+                <div className="grid lg:grid-cols-5 gap-6 gap-y-8">
+                    {/* === LEFT PANEL (2/5) === */}
+                    <div className="lg:col-span-2 flex flex-col gap-5 lg:max-h-[calc(100vh-220px)] overflow-y-auto hide-scrollbar pb-6">
+
+                        {/* Category Selection (Project Mode) */}
+                        {mode === 'project' && (
+                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60">
                                 <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
-                                    Modèle & Stratégie
+                                    Type de livrable
                                 </label>
-                                <div className="space-y-3">
-                                    {CODE_MODES.map((m) => (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {CODE_CATEGORIES.map((cat) => {
+                                        const CatIcon = CATEGORY_ICONS[cat.id] || IconCode;
+                                        const isSelected = selectedCategory === cat.id;
+                                        return (
+                                            <button
+                                                key={cat.id}
+                                                onClick={() => {
+                                                    setSelectedCategory(isSelected ? null : cat.id);
+                                                    if (!isSelected) setSelectedTemplate(null);
+                                                }}
+                                                disabled={isStreaming}
+                                                className={`p-3 rounded-xl text-left transition-all flex items-start gap-2.5 ${
+                                                    isSelected
+                                                        ? 'bg-[var(--color-earth)]/10 border-2 border-[var(--color-earth)] shadow-sm'
+                                                        : 'bg-white/40 border-2 border-transparent hover:bg-white hover:border-gray-200'
+                                                }`}
+                                            >
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                                    isSelected ? 'bg-[var(--color-earth)]/20' : 'bg-gray-100'
+                                                }`}>
+                                                    <CatIcon size={16} className={isSelected ? 'text-[var(--color-earth-dark)]' : 'text-gray-500'} />
+                                                </div>
+                                                <div>
+                                                    <p className={`font-bold text-[13px] leading-tight ${isSelected ? 'text-[var(--color-earth-dark)]' : 'text-gray-800'}`}>
+                                                        {cat.name}
+                                                    </p>
+                                                    <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">{cat.description}</p>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Template Selection (Project Mode + Category Selected) */}
+                        {mode === 'project' && selectedCategory && (
+                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60">
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
+                                    Template
+                                </label>
+                                <div className="space-y-2 max-h-44 overflow-y-auto hide-scrollbar">
+                                    {filteredTemplates.map((template) => (
                                         <button
-                                            key={m.id}
-                                            className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex flex-col gap-1.5 ${
-                                                mode === m.id
-                                                    ? 'border-[var(--color-earth)] bg-white shadow-md transform -translate-y-[2px]'
-                                                    : 'border-transparent bg-white/50 hover:bg-white hover:border-gray-200'
-                                            }`}
-                                            onClick={() => setMode(m.id)}
+                                            key={template.id}
+                                            onClick={() => selectTemplate(template)}
                                             disabled={isStreaming}
+                                            className={`w-full text-left p-3.5 rounded-xl transition-all ${
+                                                selectedTemplate?.id === template.id
+                                                    ? 'bg-[var(--color-earth)]/10 border-2 border-[var(--color-earth)]'
+                                                    : 'bg-white/40 border-2 border-transparent hover:bg-white hover:border-gray-200'
+                                            }`}
                                         >
-                                            <div className="flex items-center justify-between w-full">
-                                                <span className={`font-bold text-[15px] ${mode === m.id ? 'text-[var(--color-earth-dark)]' : 'text-gray-800'}`}>
-                                                    {m.label}
+                                            <div className="flex items-center justify-between">
+                                                <p className={`font-bold text-sm ${selectedTemplate?.id === template.id ? 'text-[var(--color-earth-dark)]' : 'text-gray-800'}`}>
+                                                    {template.name}
+                                                </p>
+                                                <span className="text-[11px] text-gray-400 shrink-0 ml-2">
+                                                    {template.creditsBase}+ cr.
                                                 </span>
-                                                {mode === m.id && <div className="w-2 h-2 rounded-full bg-[var(--color-earth)]" />}
                                             </div>
-                                            <span className="text-[13px] text-[var(--color-text-muted)] font-medium">
-                                                {m.model} • {m.hint}
-                                            </span>
+                                            <p className="text-xs text-gray-500 mt-1">{template.description}</p>
                                         </button>
                                     ))}
                                 </div>
                             </div>
+                        )}
 
+                        {/* Configuration (Project Mode + Template Selected) */}
+                        {mode === 'project' && selectedTemplate && (
+                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60 space-y-4">
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] block">
+                                    Configuration
+                                </label>
+
+                                {/* Stack */}
+                                {['app', 'architecture', 'audit'].includes(selectedTemplate.category) && (
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 mb-1.5 block">
+                                            Stack technique
+                                        </label>
+                                        <div className="relative">
+                                            <select
+                                                value={stack}
+                                                onChange={(e) => setStack(e.target.value)}
+                                                disabled={isStreaming}
+                                                className="w-full p-3 pr-8 rounded-xl border border-gray-200 bg-white text-sm appearance-none focus:outline-none focus:border-[var(--color-earth)]"
+                                            >
+                                                {STACK_OPTIONS.map((opt) => (
+                                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                                ))}
+                                            </select>
+                                            <IconChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Complexity */}
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 mb-1.5 block">
+                                        Complexité
+                                    </label>
+                                    <div className="flex gap-2">
+                                        {COMPLEXITY_OPTIONS.map((opt) => (
+                                            <button
+                                                key={opt.value}
+                                                onClick={() => setComplexity(opt.value)}
+                                                disabled={isStreaming}
+                                                className={`flex-1 p-2.5 rounded-xl text-center transition-all border-2 ${
+                                                    complexity === opt.value
+                                                        ? 'border-[var(--color-earth)] bg-[var(--color-earth)]/5'
+                                                        : 'border-gray-200 hover:border-gray-300'
+                                                }`}
+                                            >
+                                                <p className="font-bold text-xs">{opt.label}</p>
+                                                <p className="text-[10px] text-gray-500 mt-0.5">{opt.description}</p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Context */}
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 mb-1.5 flex items-center gap-2">
+                                        Contexte additionnel
+                                        <span className="text-[10px] font-normal bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Optionnel</span>
+                                    </label>
+                                    <textarea
+                                        value={context}
+                                        onChange={(e) => setContext(e.target.value)}
+                                        placeholder="Détails importants : contraintes, références, cible, budget..."
+                                        rows={3}
+                                        maxLength={2000}
+                                        disabled={isStreaming}
+                                        className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:border-[var(--color-earth)] transition-all resize-none text-[13px]"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* === MAIN INPUT === */}
+                        <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60 space-y-4">
+                            {/* System instruction */}
                             <div>
-                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 flex items-center gap-2">
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-2 flex items-center gap-2">
                                     Instructions système
                                     <span className="text-[10px] font-normal normal-case tracking-normal bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Optionnel</span>
                                 </label>
                                 <textarea
-                                    className="w-full p-4 rounded-2xl border-2 border-transparent bg-white/50 shadow-sm focus:outline-none focus:border-[var(--color-gold)] transition-colors resize-none text-[14px] leading-relaxed text-gray-700 placeholder-gray-400"
+                                    className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:border-[var(--color-gold)] transition-colors resize-none text-[13px] leading-relaxed text-gray-700 placeholder-gray-400"
                                     value={systemInstruction}
                                     onChange={(e) => setSystemInstruction(e.target.value)}
-                                    placeholder="Ex: Tu es un expert React/TypeScript. Réponds toujours en français. Utilise les bonnes pratiques..."
-                                    rows={3}
+                                    placeholder="Ex: Utilise les conventions du projet existant. Commente en français..."
+                                    rows={2}
                                     maxLength={1000}
                                     disabled={isStreaming}
                                 />
-                                <div className="text-right text-[11px] text-gray-400 mt-1">{systemInstruction.length}/1000</div>
                             </div>
 
+                            {/* Main prompt */}
                             <div>
-                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
-                                    Vos instructions
+                                <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-2 block">
+                                    {mode === 'project' && selectedTemplate
+                                        ? `Décrivez votre ${selectedTemplate.name.toLowerCase()}`
+                                        : 'Votre demande'}
                                 </label>
                                 <div className="relative">
                                     <textarea
@@ -254,22 +522,27 @@ export default function CodeStudioPage() {
                                                 handleGenerate();
                                             }
                                         }}
-                                        placeholder="Décrivez votre problème ou demandez du code... (Entrée pour envoyer, Maj+Entrée pour saut de ligne)"
-                                        rows={6}
-                                        maxLength={6000}
+                                        placeholder={
+                                            mode === 'project' && selectedTemplate
+                                                ? `Décrivez en détail votre projet pour générer un(e) ${selectedTemplate.name.toLowerCase()}...`
+                                                : 'Décrivez ce que vous voulez : une app, un cahier des charges, un plan, des idées...'
+                                        }
+                                        rows={5}
+                                        maxLength={8000}
                                         disabled={isStreaming}
                                     />
                                     <div className="absolute bottom-3 right-4 text-[11px] font-medium text-gray-400">
-                                        {input.length}/6000
+                                        {input.length}/8000
                                     </div>
                                 </div>
                             </div>
 
+                            {/* Generate button */}
                             <button
-                                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[16px] font-bold text-white transition-all hover:-translate-y-1"
-                                style={{ 
-                                    background: 'linear-gradient(135deg, var(--color-earth) 0%, var(--color-earth-dark) 100%)',
-                                    boxShadow: '0 8px 16px -4px rgba(123, 79, 46, 0.4)'
+                                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[16px] font-bold text-white transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
+                                style={{
+                                    background: 'linear-gradient(135deg, var(--color-earth) 0%, #5a3520 50%, var(--color-gold) 100%)',
+                                    boxShadow: '0 8px 20px -4px rgba(123, 79, 46, 0.5)',
                                 }}
                                 onClick={handleGenerate}
                                 disabled={!input.trim() || isStreaming}
@@ -277,81 +550,189 @@ export default function CodeStudioPage() {
                                 {isStreaming ? (
                                     <>
                                         <IconLoader2 size={20} className="animate-spin" />
-                                        <span>Génération {modeConfig.label}...</span>
+                                        <span>Génération en cours...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <IconCode size={20} />
-                                        <span>Générer le code</span>
+                                        <IconSparkles size={20} />
+                                        <span>
+                                            Générer
+                                            {creditsNeeded > 1 ? ` (${creditsNeeded} crédits)` : ' (1 crédit)'}
+                                        </span>
                                     </>
                                 )}
                             </button>
 
+                            {/* Error */}
                             {error && (
-                                <div className="flex items-start gap-3 mt-4 text-sm text-[var(--color-terracotta-dark)] bg-[rgba(231,111,81,0.1)] border border-[rgba(231,111,81,0.2)] p-4 rounded-xl">
+                                <div className="flex items-start gap-3 text-sm text-[var(--color-terracotta-dark)] bg-[rgba(231,111,81,0.1)] border border-[rgba(231,111,81,0.2)] p-4 rounded-xl">
                                     <IconAlertCircle size={20} className="shrink-0 mt-0.5" />
                                     <span className="leading-snug">{error}</span>
                                 </div>
                             )}
                         </div>
+
+                        {/* Quick Suggestions (Quick Mode Only) */}
+                        {mode === 'quick' && !output && !isStreaming && (
+                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60">
+                                <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm">
+                                    <IconLightbulb size={16} className="text-[var(--color-gold)]" />
+                                    Suggestions rapides
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {QUICK_SUGGESTIONS.map((suggestion) => (
+                                        <button
+                                            key={suggestion}
+                                            onClick={() => setInput(suggestion)}
+                                            disabled={isStreaming}
+                                            className="px-3 py-2 bg-white/50 hover:bg-white border border-gray-200 hover:border-[var(--color-earth)] rounded-xl text-xs text-gray-600 hover:text-gray-800 transition-all leading-snug"
+                                        >
+                                            {suggestion}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Colonne de droite (3/5) : Résultat */}
-                    <div className="lg:col-span-3 flex flex-col min-h-[400px] lg:h-full bg-[#1E1E1E] rounded-[24px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] overflow-hidden border border-[#333]">
-                        {/* Header de l'éditeur */}
-                        <div className="bg-[#2D2D2D] px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-[#3A3A3A]">
+                    {/* === RIGHT PANEL (3/5) — Output === */}
+                    <div className="lg:col-span-3 flex flex-col min-h-[450px] lg:h-[calc(100vh-220px)] bg-[#1A1A2E] rounded-[24px] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] overflow-hidden border border-[#2A2A3E]">
+                        {/* Editor Header */}
+                        <div className="bg-[#16162A] px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-[#2A2A3E]">
                             <div className="flex flex-col">
-                                <span className="text-white font-medium text-[14px]">{(output || isStreaming) ? 'Résultat de la génération' : 'Terminal en attente'}</span>
-                                {(output || isStreaming) && (
-                                    <span className="text-[#A0A0A0] text-[11px] mt-0.5">{modeConfig.model}</span>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-3 h-3 rounded-full bg-[#FF6B6B]" />
+                                        <div className="w-3 h-3 rounded-full bg-[#FFD93D]" />
+                                        <div className="w-3 h-3 rounded-full bg-[#6BCB77]" />
+                                    </div>
+                                    <span className="text-white/90 font-medium text-[13px]">
+                                        {output || isStreaming
+                                            ? selectedTemplate
+                                                ? selectedTemplate.name
+                                                : 'Résultat'
+                                            : 'Studio Code Pro'}
+                                    </span>
+                                </div>
+                                {genMeta && (
+                                    <span className="text-[11px] text-white/40 mt-1 ml-[54px]">
+                                        {genMeta.model} • via {genMeta.provider}
+                                    </span>
                                 )}
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button 
-                                    className="p-2.5 rounded-lg text-[#A0A0A0] hover:text-white hover:bg-[#3A3A3A] transition-colors" 
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    className={`p-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-1.5 ${
+                                        copied
+                                            ? 'text-[#6BCB77] bg-[#6BCB77]/10'
+                                            : 'text-white/50 hover:text-white hover:bg-white/10'
+                                    }`}
                                     onClick={handleCopy}
-                                    title="Copier tout le format markdown"
+                                    title="Copier tout"
+                                    disabled={!output}
                                 >
-                                    <IconCopy size={16} />
+                                    {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                                    <span className="hidden sm:inline text-xs">{copied ? 'Copié !' : 'Copier'}</span>
                                 </button>
                                 <button
-                                    className="p-2.5 rounded-lg text-[#A0A0A0] hover:text-white hover:bg-[#3A3A3A] transition-colors flex items-center gap-2 text-sm font-medium"
-                                    onClick={() => {
-                                        setOutput('');
-                                        setInput('');
-                                        setError(null);
-                                    }}
+                                    className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
+                                    onClick={handleDownload}
+                                    title="Télécharger en .md"
+                                    disabled={!output}
                                 >
-                                    <IconRefresh size={16} />
-                                    <span className="hidden sm:inline">Effacer</span>
+                                    <IconDownload size={14} />
+                                    <span className="hidden sm:inline text-xs">.md</span>
+                                </button>
+                                <div className="w-px h-5 bg-white/10 mx-1" />
+                                <button
+                                    className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
+                                    onClick={handleClear}
+                                >
+                                    <IconRefresh size={14} />
+                                    <span className="hidden sm:inline text-xs">Effacer</span>
+                                </button>
+                                <button
+                                    className="p-2 rounded-lg text-[var(--color-gold)] hover:bg-[var(--color-gold)]/10 transition-colors flex items-center gap-1.5"
+                                    onClick={handleNewSession}
+                                    title="Nouvelle session"
+                                >
+                                    <IconRocket size={14} />
+                                    <span className="hidden sm:inline text-xs">Nouveau</span>
                                 </button>
                             </div>
                         </div>
 
-                        {/* Corps de l'éditeur */}
+                        {/* Editor Body */}
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar scroll-smooth">
                             {isStreaming && !output ? (
-                                <div className="flex flex-col items-center justify-center h-full gap-4 text-[#888]">
-                                    <IconLoader2 size={32} className="animate-spin text-[var(--color-gold)]" />
-                                    <p className="text-[15px] font-medium animate-pulse text-[#BBB]">Le modèle analyse votre demande...</p>
+                                <div className="flex flex-col items-center justify-center h-full gap-4">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 rounded-full border-2 border-[var(--color-gold)]/30 flex items-center justify-center">
+                                            <IconLoader2 size={28} className="animate-spin text-[var(--color-gold)]" />
+                                        </div>
+                                        <div className="absolute -inset-3 rounded-full border border-[var(--color-gold)]/10 animate-ping" />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[15px] font-medium text-white/70">
+                                            {selectedTemplate
+                                                ? `Génération : ${selectedTemplate.name}...`
+                                                : 'L\'IA analyse votre demande...'}
+                                        </p>
+                                        <p className="text-[12px] text-white/30 mt-1">
+                                            Multi-provider intelligent • Meilleur résultat possible
+                                        </p>
+                                    </div>
                                 </div>
                             ) : output ? (
-                                <div className="prose prose-invert prose-pre:bg-[#151515] prose-pre:border prose-pre:border-[#333] max-w-none text-[15px] leading-relaxed">
+                                <div className="prose prose-invert prose-pre:bg-[#0F0F1E] prose-pre:border prose-pre:border-[#2A2A3E] max-w-none text-[15px] leading-relaxed">
                                     <ChatMessageContent content={output} />
                                     <div ref={outputRef} />
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full gap-4 text-[#555]">
-                                    <div className="w-16 h-16 rounded-full border border-[#444] bg-[#252525] flex items-center justify-center">
-                                        <IconCode size={28} className="text-[#666]" />
+                                <div className="flex flex-col items-center justify-center h-full gap-5">
+                                    <div className="w-20 h-20 rounded-2xl border border-[#2A2A3E] bg-[#16162A] flex items-center justify-center">
+                                        <IconCode size={36} className="text-[#444]" />
                                     </div>
-                                    <p className="text-[15px] font-medium text-[#777]">Le résultat de votre requête s&apos;affichera ici.</p>
-                                    <p className="text-[13px] text-[#555] max-w-sm text-center mt-2">
-                                        Le code sera formaté avec coloration syntaxique.
-                                    </p>
+                                    <div className="text-center max-w-md">
+                                        <p className="text-[16px] font-bold text-white/60 mb-2">
+                                            Bienvenue dans le Studio Code Pro
+                                        </p>
+                                        <p className="text-[13px] text-white/30 leading-relaxed">
+                                            Générez des applications complètes, cahiers des charges, plans d&apos;action,
+                                            architecture technique, documentation et plus — le tout propulsé par les meilleurs modèles IA.
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 mt-2 justify-center max-w-md">
+                                        {['Application', 'Cahier des charges', 'Plan d\'action', 'Architecture', 'Brainstorming'].map((tag) => (
+                                            <span
+                                                key={tag}
+                                                className="px-3 py-1.5 rounded-full bg-[#1E1E35] text-white/40 text-[11px] font-medium border border-[#2A2A3E]"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
+
+                        {/* Editor Footer — Provider info */}
+                        {(output || isStreaming) && (
+                            <div className="bg-[#16162A] px-5 py-2 border-t border-[#2A2A3E] flex items-center justify-between text-[11px] text-white/30 shrink-0">
+                                <div className="flex items-center gap-3">
+                                    {isStreaming && (
+                                        <span className="flex items-center gap-1.5 text-[var(--color-gold)]">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-gold)] animate-pulse" />
+                                            Streaming…
+                                        </span>
+                                    )}
+                                    {genMeta?.credits_used && (
+                                        <span>{genMeta.credits_used} crédit{genMeta.credits_used > 1 ? 's' : ''} utilisé{genMeta.credits_used > 1 ? 's' : ''}</span>
+                                    )}
+                                </div>
+                                <span>JadaRiseLabs • Studio Code Pro</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

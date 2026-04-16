@@ -22,7 +22,10 @@ export type ProviderName =
     | 'siliconflow'
     | 'iflytek'
     | 'qwen-tts'
-    | 'dashscope-image';
+    | 'dashscope-image'
+    | 'openrouter'
+    | 'dmx'
+    | 'cohere';
 
 export interface ProviderAttempt {
     provider: ProviderName;
