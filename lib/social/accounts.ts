@@ -1,4 +1,4 @@
-﻿import { createAdminClient } from '@/lib/supabase/admin';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { decryptToken, encryptToken } from '@/lib/social/crypto';
 
 export type SocialPlatform = 'linkedin' | 'x' | 'tiktok' | 'facebook' | 'instagram' | 'whatsapp';
@@ -33,28 +33,48 @@ export async function upsertSocialAccount(input: SocialAccountInput): Promise<So
     const encryptedAccess = encryptToken(input.accessToken);
     const encryptedRefresh = input.refreshToken ? encryptToken(input.refreshToken) : null;
 
-    const { data, error } = await supabase
-        .from('social_accounts')
-        .upsert({
-            user_id: input.userId,
-            platform: input.platform,
-            account_id: input.accountId,
-            account_name: input.accountName || null,
-            access_token: encryptedAccess,
-            refresh_token: encryptedRefresh,
-            expires_at: input.expiresAt || null,
-            scopes: input.scopes || null,
-            metadata: input.metadata || {},
-            is_default: true,
-        }, { onConflict: 'user_id,platform' })
-        .select('*')
-        .single();
+    const payload = {
+        user_id: input.userId,
+        platform: input.platform,
+        account_id: input.accountId,
+        account_name: input.accountName || null,
+        access_token: encryptedAccess,
+        refresh_token: encryptedRefresh,
+        expires_at: input.expiresAt || null,
+        scopes: input.scopes || null,
+        metadata: input.metadata || {},
+        is_default: true,
+    };
 
-    if (error || !data) {
-        throw new Error(`Failed to upsert social account: ${error?.message || 'unknown error'}`);
+    // Vérifier si le compte existe déjà pour éviter l'erreur de contrainte ON CONFLICT de Postgres
+    const { data: existing } = await supabase
+        .from('social_accounts')
+        .select('id')
+        .eq('user_id', input.userId)
+        .eq('platform', input.platform)
+        .maybeSingle();
+
+    let result;
+    if (existing?.id) {
+        result = await supabase
+            .from('social_accounts')
+            .update(payload)
+            .eq('id', existing.id)
+            .select('*')
+            .single();
+    } else {
+        result = await supabase
+            .from('social_accounts')
+            .insert(payload)
+            .select('*')
+            .single();
     }
 
-    return data as SocialAccountRecord;
+    if (result.error || !result.data) {
+        throw new Error(`Failed to save social account: ${result.error?.message || 'unknown error'}`);
+    }
+
+    return result.data as SocialAccountRecord;
 }
 
 export async function listSocialAccounts(userId: string): Promise<Array<{ id: string; platform: SocialPlatform; accountId: string; accountName: string | null; expiresAt: string | null; metadata: Record<string, unknown> | null }>> {
