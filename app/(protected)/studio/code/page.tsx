@@ -267,15 +267,15 @@ export default function CodeStudioPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-b from-[var(--color-cream)] via-[var(--color-cream)] to-white relative overflow-hidden">
             {/* Background */}
             <div
-                className="fixed inset-0 pointer-events-none opacity-[0.04]"
+                className="fixed inset-0 pointer-events-none opacity-[0.025]"
                 style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
             />
-            <div className="absolute top-[15%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.12] pointer-events-none" />
-            <div className="absolute bottom-[5%] right-[-8%] w-[35%] h-[45%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.10] pointer-events-none" />
-            <div className="absolute top-[50%] left-[50%] w-[20%] h-[20%] bg-[var(--color-savanna)] rounded-full blur-[100px] opacity-[0.08] pointer-events-none" />
+            <div className="absolute top-[12%] left-[-12%] w-[42%] h-[42%] bg-[var(--color-earth)] rounded-full blur-[120px] opacity-[0.10] pointer-events-none" />
+            <div className="absolute bottom-[2%] right-[-10%] w-[38%] h-[48%] bg-[var(--color-gold)] rounded-full blur-[120px] opacity-[0.09] pointer-events-none" />
+            <div className="absolute top-[52%] left-[52%] w-[22%] h-[22%] bg-[var(--color-savanna)] rounded-full blur-[100px] opacity-[0.06] pointer-events-none" />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
                 {/* === HEADER === */}
@@ -290,14 +290,14 @@ export default function CodeStudioPage() {
                             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                                 Studio Code Pro
                             </h1>
-                            <p className="text-[var(--color-text-secondary)] text-sm mt-0.5">
+                            <p className="text-[var(--color-text-secondary)] text-sm mt-0.5 leading-snug">
                                 Apps, cahiers des charges, plans d&apos;action, architecture et plus
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         {profile && (
-                            <div className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-[14px] bg-white/60 backdrop-blur-md border border-white shadow-sm">
+                            <div className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-[14px] bg-white/70 backdrop-blur-md border border-white/70 shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
                                 <IconZap size={18} className="text-[var(--color-earth)]" />
                                 <span className="text-gray-800">{profile.credits === -1 ? '∞' : profile.credits} crédits</span>
                             </div>
@@ -306,14 +306,15 @@ export default function CodeStudioPage() {
                 </div>
 
                 {/* === MODE SELECTOR === */}
-                <div className="flex gap-2 mb-6">
+                <div className="mb-6">
+                    <div className="inline-flex rounded-2xl bg-white/55 backdrop-blur-md border border-white/70 p-1 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
                     <button
                         onClick={() => setMode('quick')}
                         disabled={isStreaming}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-[14px] font-semibold text-sm transition-all ${
                             mode === 'quick'
-                                ? 'bg-[var(--color-earth)] text-white shadow-md'
-                                : 'bg-white/50 text-gray-600 hover:bg-white'
+                                ? 'bg-[var(--color-earth)] text-white shadow-[0_10px_24px_rgba(123,79,46,0.25)]'
+                                : 'text-gray-700 hover:bg-white/70'
                         }`}
                     >
                         <IconRocket size={18} />
@@ -322,15 +323,16 @@ export default function CodeStudioPage() {
                     <button
                         onClick={() => setMode('project')}
                         disabled={isStreaming}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-[14px] font-semibold text-sm transition-all ${
                             mode === 'project'
-                                ? 'bg-[var(--color-earth)] text-white shadow-md'
-                                : 'bg-white/50 text-gray-600 hover:bg-white'
+                                ? 'bg-[var(--color-earth)] text-white shadow-[0_10px_24px_rgba(123,79,46,0.25)]'
+                                : 'text-gray-700 hover:bg-white/70'
                         }`}
                     >
                         <IconSparkles size={18} />
                         <span>Mode projet</span>
                     </button>
+                    </div>
                 </div>
 
                 {/* === MAIN GRID === */}
@@ -340,7 +342,7 @@ export default function CodeStudioPage() {
 
                         {/* Category Selection (Project Mode) */}
                         {mode === 'project' && (
-                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60">
+                            <div className="glass-card-premium rounded-[22px] p-5 shadow-sm border border-white/70">
                                 <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
                                     Type de livrable
                                 </label>
@@ -356,10 +358,10 @@ export default function CodeStudioPage() {
                                                     if (!isSelected) setSelectedTemplate(null);
                                                 }}
                                                 disabled={isStreaming}
-                                                className={`p-3 rounded-xl text-left transition-all flex items-start gap-2.5 ${
+                                                className={`p-3.5 rounded-2xl text-left transition-all flex items-start gap-2.5 ${
                                                     isSelected
                                                         ? 'bg-[var(--color-earth)]/10 border-2 border-[var(--color-earth)] shadow-sm'
-                                                        : 'bg-white/40 border-2 border-transparent hover:bg-white hover:border-gray-200'
+                                                        : 'bg-white/50 border-2 border-transparent hover:bg-white/80 hover:border-gray-200'
                                                 }`}
                                             >
                                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
@@ -382,7 +384,7 @@ export default function CodeStudioPage() {
 
                         {/* Template Selection (Project Mode + Category Selected) */}
                         {mode === 'project' && selectedCategory && (
-                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60">
+                            <div className="glass-card-premium rounded-[22px] p-5 shadow-sm border border-white/70">
                                 <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-3 block">
                                     Template
                                 </label>
@@ -392,10 +394,10 @@ export default function CodeStudioPage() {
                                             key={template.id}
                                             onClick={() => selectTemplate(template)}
                                             disabled={isStreaming}
-                                            className={`w-full text-left p-3.5 rounded-xl transition-all ${
+                                            className={`w-full text-left p-3.5 rounded-2xl transition-all ${
                                                 selectedTemplate?.id === template.id
                                                     ? 'bg-[var(--color-earth)]/10 border-2 border-[var(--color-earth)]'
-                                                    : 'bg-white/40 border-2 border-transparent hover:bg-white hover:border-gray-200'
+                                                    : 'bg-white/50 border-2 border-transparent hover:bg-white/80 hover:border-gray-200'
                                             }`}
                                         >
                                             <div className="flex items-center justify-between">
@@ -415,7 +417,7 @@ export default function CodeStudioPage() {
 
                         {/* Configuration (Project Mode + Template Selected) */}
                         {mode === 'project' && selectedTemplate && (
-                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60 space-y-4">
+                            <div className="glass-card-premium rounded-[22px] p-5 shadow-sm border border-white/70 space-y-4">
                                 <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] block">
                                     Configuration
                                 </label>
@@ -431,7 +433,7 @@ export default function CodeStudioPage() {
                                                 value={stack}
                                                 onChange={(e) => setStack(e.target.value)}
                                                 disabled={isStreaming}
-                                                className="w-full p-3 pr-8 rounded-xl border border-gray-200 bg-white text-sm appearance-none focus:outline-none focus:border-[var(--color-earth)]"
+                                                className="w-full p-3 pr-8 rounded-2xl border border-gray-200/80 bg-white/80 text-sm appearance-none focus:outline-none focus:border-[var(--color-earth)] focus:ring-4 focus:ring-[var(--color-earth)]/10 transition"
                                             >
                                                 {STACK_OPTIONS.map((opt) => (
                                                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -453,7 +455,7 @@ export default function CodeStudioPage() {
                                                 key={opt.value}
                                                 onClick={() => setComplexity(opt.value)}
                                                 disabled={isStreaming}
-                                                className={`flex-1 p-2.5 rounded-xl text-center transition-all border-2 ${
+                                                className={`flex-1 p-2.5 rounded-2xl text-center transition-all border-2 ${
                                                     complexity === opt.value
                                                         ? 'border-[var(--color-earth)] bg-[var(--color-earth)]/5'
                                                         : 'border-gray-200 hover:border-gray-300'
@@ -479,14 +481,14 @@ export default function CodeStudioPage() {
                                         rows={3}
                                         maxLength={2000}
                                         disabled={isStreaming}
-                                        className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:border-[var(--color-earth)] transition-all resize-none text-[13px]"
+                                        className="w-full p-3 rounded-2xl border border-gray-200/80 bg-white/60 focus:outline-none focus:border-[var(--color-earth)] focus:ring-4 focus:ring-[var(--color-earth)]/10 transition resize-none text-[13px]"
                                     />
                                 </div>
                             </div>
                         )}
 
                         {/* === MAIN INPUT === */}
-                        <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60 space-y-4">
+                        <div className="glass-card-premium rounded-[22px] p-5 shadow-sm border border-white/70 space-y-4">
                             {/* System instruction */}
                             <div>
                                 <label className="text-[13px] uppercase tracking-wider font-bold text-[var(--color-text-secondary)] mb-2 flex items-center gap-2">
@@ -494,7 +496,7 @@ export default function CodeStudioPage() {
                                     <span className="text-[10px] font-normal normal-case tracking-normal bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Optionnel</span>
                                 </label>
                                 <textarea
-                                    className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:border-[var(--color-gold)] transition-colors resize-none text-[13px] leading-relaxed text-gray-700 placeholder-gray-400"
+                                    className="w-full p-3 rounded-2xl border border-gray-200/80 bg-white/60 focus:outline-none focus:border-[var(--color-gold)] focus:ring-4 focus:ring-[var(--color-gold)]/10 transition-colors resize-none text-[13px] leading-relaxed text-gray-700 placeholder-gray-400"
                                     value={systemInstruction}
                                     onChange={(e) => setSystemInstruction(e.target.value)}
                                     placeholder="Ex: Utilise les conventions du projet existant. Commente en français..."
@@ -513,7 +515,7 @@ export default function CodeStudioPage() {
                                 </label>
                                 <div className="relative">
                                     <textarea
-                                        className="w-full p-4 pb-10 rounded-2xl border-2 border-gray-100 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus:outline-none focus:border-[var(--color-earth)] focus:ring-4 focus:ring-[var(--color-earth)]/10 transition-all resize-none text-[15px] leading-relaxed text-gray-800 placeholder-gray-400"
+                                        className="w-full p-4 pb-10 rounded-[22px] border-2 border-gray-100/80 bg-white/80 shadow-[0_10px_30px_rgba(0,0,0,0.06)] focus:outline-none focus:border-[var(--color-earth)] focus:ring-4 focus:ring-[var(--color-earth)]/10 transition-all resize-none text-[15px] leading-relaxed text-gray-800 placeholder-gray-400"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         onKeyDown={(e) => {
@@ -539,7 +541,7 @@ export default function CodeStudioPage() {
 
                             {/* Generate button */}
                             <button
-                                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[16px] font-bold text-white transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
+                                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[18px] font-bold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                                 style={{
                                     background: 'linear-gradient(135deg, var(--color-earth) 0%, #5a3520 50%, var(--color-gold) 100%)',
                                     boxShadow: '0 8px 20px -4px rgba(123, 79, 46, 0.5)',
@@ -574,7 +576,7 @@ export default function CodeStudioPage() {
 
                         {/* Quick Suggestions (Quick Mode Only) */}
                         {mode === 'quick' && !output && !isStreaming && (
-                            <div className="glass-card-premium rounded-[20px] p-5 shadow-sm border border-white/60">
+                            <div className="glass-card-premium rounded-[22px] p-5 shadow-sm border border-white/70">
                                 <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm">
                                     <IconLightbulb size={16} className="text-[var(--color-gold)]" />
                                     Suggestions rapides
@@ -585,7 +587,7 @@ export default function CodeStudioPage() {
                                             key={suggestion}
                                             onClick={() => setInput(suggestion)}
                                             disabled={isStreaming}
-                                            className="px-3 py-2 bg-white/50 hover:bg-white border border-gray-200 hover:border-[var(--color-earth)] rounded-xl text-xs text-gray-600 hover:text-gray-800 transition-all leading-snug"
+                                            className="px-3 py-2 bg-white/60 hover:bg-white/90 border border-gray-200/80 hover:border-[var(--color-earth)] rounded-2xl text-xs text-gray-700 hover:text-gray-900 transition-all leading-snug"
                                         >
                                             {suggestion}
                                         </button>
@@ -596,9 +598,9 @@ export default function CodeStudioPage() {
                     </div>
 
                     {/* === RIGHT PANEL (3/5) — Output === */}
-                    <div className="lg:col-span-3 flex flex-col min-h-[450px] lg:h-[calc(100vh-220px)] bg-[#1A1A2E] rounded-[24px] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] overflow-hidden border border-[#2A2A3E]">
+                    <div className="lg:col-span-3 flex flex-col min-h-[450px] lg:h-[calc(100vh-220px)] bg-[#0B1020] rounded-[24px] shadow-[0_30px_70px_-25px_rgba(0,0,0,0.65)] overflow-hidden border border-white/10">
                         {/* Editor Header */}
-                        <div className="bg-[#16162A] px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-[#2A2A3E]">
+                        <div className="bg-[#0A0F1E] px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-white/10">
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-3">
                                     <div className="flex gap-1.5">
@@ -684,14 +686,14 @@ export default function CodeStudioPage() {
                                     </div>
                                 </div>
                             ) : output ? (
-                                <div className="prose prose-invert prose-pre:bg-[#0F0F1E] prose-pre:border prose-pre:border-[#2A2A3E] max-w-none text-[15px] leading-relaxed">
+                                <div className="prose prose-invert prose-pre:bg-[#070B18] prose-pre:border prose-pre:border-white/10 max-w-none text-[15px] leading-relaxed">
                                     <ChatMessageContent content={output} />
                                     <div ref={outputRef} />
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full gap-5">
-                                    <div className="w-20 h-20 rounded-2xl border border-[#2A2A3E] bg-[#16162A] flex items-center justify-center">
-                                        <IconCode size={36} className="text-[#444]" />
+                                    <div className="w-20 h-20 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center">
+                                        <IconCode size={36} className="text-white/20" />
                                     </div>
                                     <div className="text-center max-w-md">
                                         <p className="text-[16px] font-bold text-white/60 mb-2">
@@ -706,7 +708,7 @@ export default function CodeStudioPage() {
                                         {['Application', 'Cahier des charges', 'Plan d\'action', 'Architecture', 'Brainstorming'].map((tag) => (
                                             <span
                                                 key={tag}
-                                                className="px-3 py-1.5 rounded-full bg-[#1E1E35] text-white/40 text-[11px] font-medium border border-[#2A2A3E]"
+                                                className="px-3 py-1.5 rounded-full bg-white/5 text-white/40 text-[11px] font-medium border border-white/10"
                                             >
                                                 {tag}
                                             </span>
@@ -718,7 +720,7 @@ export default function CodeStudioPage() {
 
                         {/* Editor Footer — Provider info */}
                         {(output || isStreaming) && (
-                            <div className="bg-[#16162A] px-5 py-2 border-t border-[#2A2A3E] flex items-center justify-between text-[11px] text-white/30 shrink-0">
+                            <div className="bg-[#0A0F1E] px-5 py-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/30 shrink-0">
                                 <div className="flex items-center gap-3">
                                     {isStreaming && (
                                         <span className="flex items-center gap-1.5 text-[var(--color-gold)]">
