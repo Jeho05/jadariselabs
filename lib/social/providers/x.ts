@@ -1,4 +1,4 @@
-﻿const X_AUTH_URL = 'https://x.com/i/oauth2/authorize';
+const X_AUTH_URL = 'https://x.com/i/oauth2/authorize';
 const X_TOKEN_URL = 'https://api.x.com/2/oauth2/token';
 const X_ME_URL = 'https://api.x.com/2/users/me';
 const X_POST_URL = 'https://api.x.com/2/tweets';
@@ -59,7 +59,9 @@ export async function exchangeXCode({
     };
 
     if (clientSecret) {
-        const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+        const encodedId = encodeURIComponent(clientId);
+        const encodedSecret = encodeURIComponent(clientSecret);
+        const auth = Buffer.from(`${encodedId}:${encodedSecret}`).toString('base64');
         headers.Authorization = `Basic ${auth}`;
     }
 
