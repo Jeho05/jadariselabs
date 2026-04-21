@@ -89,7 +89,7 @@ export default function PrivacyPage() {
                             </p>
                         </section>
 
-                        <section>
+                        <section id="deletion">
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">6. Suppression des données</h2>
                             <p>
                                 Vous pouvez déconnecter vos réseaux sociaux à tout moment depuis votre tableau de bord. 
