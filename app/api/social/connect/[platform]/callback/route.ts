@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { upsertSocialAccount } from '@/lib/social/accounts';
 import { exchangeLinkedInCode, fetchLinkedInProfile, getLinkedInScopes } from '@/lib/social/providers/linkedin';
@@ -62,12 +62,12 @@ export async function GET(request: Request, { params }: { params: { platform: st
                 },
             });
         } else if (platform === 'x') {
-            const clientId = process.env.X_CLIENT_ID;
+            const clientId = process.env.X_CLIENT_ID?.trim();
             if (!clientId) {
                 return NextResponse.json({ error: 'X credentials manquants' }, { status: 500 });
             }
-            const clientSecret = process.env.X_CLIENT_SECRET;
-            const redirectUri = process.env.X_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/x/callback`;
+            const clientSecret = process.env.X_CLIENT_SECRET?.trim();
+            const redirectUri = process.env.X_REDIRECT_URI?.trim() || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/x/callback`;
             const verifierCookie = cookies
                 .split(';')
                 .map((c) => c.trim())

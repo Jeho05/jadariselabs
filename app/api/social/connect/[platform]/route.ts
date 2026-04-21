@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { buildLinkedInAuthUrl } from '@/lib/social/providers/linkedin';
@@ -39,11 +39,11 @@ export async function GET(_: Request, { params }: { params: { platform: string }
         const redirectUrl = process.env.LINKEDIN_REDIRECT_URI || `${appUrl}/api/social/connect/linkedin/callback`;
         authUrl = buildLinkedInAuthUrl({ clientId, redirectUri: redirectUrl, state });
     } else if (platform === 'x') {
-        const clientId = process.env.X_CLIENT_ID;
+        const clientId = process.env.X_CLIENT_ID?.trim();
         if (!clientId) {
             return NextResponse.json({ error: 'X_CLIENT_ID manquant' }, { status: 500 });
         }
-        const redirectUrl = process.env.X_REDIRECT_URI || `${appUrl}/api/social/connect/x/callback`;
+        const redirectUrl = process.env.X_REDIRECT_URI?.trim() || `${appUrl}/api/social/connect/x/callback`;
         codeVerifier = toBase64Url(crypto.randomBytes(32));
         const codeChallenge = toBase64Url(crypto.createHash('sha256').update(codeVerifier).digest());
         authUrl = buildXAuthUrl({
