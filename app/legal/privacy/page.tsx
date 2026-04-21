@@ -80,7 +80,26 @@ export default function PrivacyPage() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">5. Cookies</h2>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">5. Intégration des Réseaux Sociaux</h2>
+                            <p>
+                                JadaRiseLabs permet de connecter vos comptes X (Twitter), LinkedIn et TikTok. 
+                                Nous utilisons ces connexions via OAuth pour publier du contenu en votre nom uniquement 
+                                sur votre demande explicite. Nous ne stockons que les jetons d&apos;accès nécessaires 
+                                et nous ne vendons jamais vos données de profil à des tiers.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">6. Suppression des données</h2>
+                            <p>
+                                Vous pouvez déconnecter vos réseaux sociaux à tout moment depuis votre tableau de bord. 
+                                Pour demander la suppression totale de vos données JadaRiseLabs et des jetons associés, 
+                                envoyez un email à contact@jadariselabs.com. Vos données seront supprimées sous 30 jours.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">7. Cookies</h2>
                             <p>
                                 Nous utilisons des cookies essentiels pour le fonctionnement du site et des cookies
                                 analytiques anonymes pour améliorer nos services.
@@ -88,7 +107,7 @@ export default function PrivacyPage() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">6. Contact</h2>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">8. Contact</h2>
                             <p>
                                 Pour toute question concernant cette politique, contactez-nous à :
                                 <span className="text-[var(--color-earth)] font-medium"> contact@jadariselabs.com</span>
