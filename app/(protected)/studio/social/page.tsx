@@ -191,10 +191,16 @@ export default function SocialStudioPage() {
     };
 
     useEffect(() => {
+        if (!loading) {
+            fetchAccounts();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading]);
+
+    useEffect(() => {
         if (!loading && activeTab === 'autopilot') {
             fetchSchedules();
             fetchDrafts();
-            fetchAccounts();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, loading]);
