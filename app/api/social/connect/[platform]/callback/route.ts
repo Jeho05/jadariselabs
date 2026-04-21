@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { upsertSocialAccount } from '@/lib/social/accounts';
@@ -27,13 +28,9 @@ export async function GET(request: Request, { params }: { params: { platform: st
         return NextResponse.json({ error: 'Code ou state manquant' }, { status: 400 });
     }
 
-    const cookies = request.headers.get('cookie') || '';
-    const stateCookie = cookies
-        .split(';')
-        .map((c) => c.trim())
-        .find((c) => c.startsWith(`social_oauth_state_${platform}=`));
+    const stateCookie = cookies().get(`social_oauth_state_${platform}`)?.value;
 
-    if (!stateCookie || !stateCookie.endsWith(state)) {
+    if (!stateCookie || stateCookie !== state) {
         return NextResponse.json({ error: 'State invalide' }, { status: 400 });
     }
 
@@ -68,16 +65,12 @@ export async function GET(request: Request, { params }: { params: { platform: st
             }
             const clientSecret = process.env.X_CLIENT_SECRET?.trim();
             const redirectUri = process.env.X_REDIRECT_URI?.trim() || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/x/callback`;
-            const verifierCookie = cookies
-                .split(';')
-                .map((c) => c.trim())
-                .find((c) => c.startsWith('social_oauth_verifier_x='));
+            const codeVerifier = cookies().get('social_oauth_verifier_x')?.value;
 
-            if (!verifierCookie) {
+            if (!codeVerifier) {
                 return NextResponse.json({ error: 'PKCE verifier manquant' }, { status: 400 });
             }
 
-            const codeVerifier = decodeURIComponent(verifierCookie.split('=')[1] || '');
             const token = await exchangeXCode({ code, clientId, clientSecret, redirectUri, codeVerifier });
             const profile = await fetchXProfile(token.accessToken);
 

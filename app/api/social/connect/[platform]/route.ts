@@ -65,9 +65,11 @@ export async function GET(_: Request, { params }: { params: { platform: string }
     }
 
     const response = NextResponse.redirect(authUrl);
+    const isProd = process.env.NODE_ENV === 'production';
+    
     response.cookies.set(`social_oauth_state_${platform}`, state, {
         httpOnly: true,
-        secure: true,
+        secure: isProd,
         sameSite: 'lax',
         maxAge: 600,
         path: '/',
@@ -76,7 +78,7 @@ export async function GET(_: Request, { params }: { params: { platform: string }
     if (codeVerifier) {
         response.cookies.set(`social_oauth_verifier_${platform}`, codeVerifier, {
             httpOnly: true,
-            secure: true,
+            secure: isProd,
             sameSite: 'lax',
             maxAge: 600,
             path: '/',
