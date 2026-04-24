@@ -88,8 +88,9 @@ export async function POST(request: Request) {
             provider_post_id: providerPostId,
             message: `Contenu publié sur ${platform} avec succès !`,
         });
-    } catch (err) {
-        const message = err instanceof Error ? err.message : 'Échec de la publication';
-        return NextResponse.json({ error: message }, { status: 500 });
+    } catch (err: any) {
+        console.error('Direct publish error:', err);
+        const message = err?.message || 'Échec de la publication';
+        return NextResponse.json({ error: message, details: err?.stack }, { status: 500 });
     }
 }
