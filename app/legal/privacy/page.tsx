@@ -84,25 +84,25 @@ export default function PrivacyPage() {
                             <p className="mb-4">
                                 JadaRiseLabs permet de connecter vos comptes X (Twitter), LinkedIn et TikTok. 
                                 Nous utilisons ces connexions via OAuth pour publier du contenu en votre nom uniquement 
-                                sur votre demande explicite. Nous ne stockons que les jetons d'accès nécessaires 
+                                sur votre demande explicite. Nous ne stockons que les jetons d&apos;accès nécessaires 
                                 et nous ne vendons jamais vos données de profil à des tiers.
                             </p>
                             <p className="mb-4">
-                                <strong>Concernant spécifiquement TikTok :</strong> Notre application utilise les produits suivants de l'API TikTok :
+                                <strong>Concernant spécifiquement TikTok :</strong> Notre application utilise les produits suivants de l&apos;API TikTok :
                             </p>
                             <ul className="list-disc pl-6 mb-4">
-                                <li><strong>Login Kit :</strong> Utilisé pour authentifier l'utilisateur de manière sécurisée et accéder à ses informations de profil basiques (avatar, nom d'utilisateur) afin de personnaliser son tableau de bord.</li>
-                                <li><strong>Web Video Kit (Share Kit) :</strong> Utilisé pour permettre aux utilisateurs de publier directement depuis l'interface JadaRiseLabs les vidéos générées par notre IA vers leur compte TikTok personnel. Aucune vidéo n'est publiée sans une action explicite de validation de la part de l'utilisateur.</li>
+                                <li><strong>Login Kit :</strong> Utilisé pour authentifier l&apos;utilisateur de manière sécurisée et accéder à ses informations de profil basiques (avatar, nom d&apos;utilisateur) afin de personnaliser son tableau de bord.</li>
+                                <li><strong>Web Video Kit (Share Kit) :</strong> Utilisé pour permettre aux utilisateurs de publier directement depuis l&apos;interface JadaRiseLabs les vidéos générées par notre IA vers leur compte TikTok personnel. Aucune vidéo n&apos;est publiée sans une action explicite de validation de la part de l&apos;utilisateur.</li>
                             </ul>
                             <p>
-                                En utilisant l'intégration TikTok, vous acceptez également les Conditions d'utilisation de TikTok. Vous pouvez révoquer l'accès à tout moment depuis les paramètres de votre compte TikTok ou depuis le tableau de bord JadaRiseLabs.
+                                En utilisant l&apos;intégration TikTok, vous acceptez également les Conditions d&apos;utilisation de TikTok. Vous pouvez révoquer l&apos;accès à tout moment depuis les paramètres de votre compte TikTok ou depuis le tableau de bord JadaRiseLabs.
                             </p>
                         </section>
 
                         <section id="deletion">
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">6. Suppression des données et Révocation</h2>
                             <p>
-                                Vous pouvez déconnecter vos réseaux sociaux à tout moment depuis votre tableau de bord JadaRiseLabs. Pour TikTok en particulier, vous pouvez également révoquer l'accès directement depuis vos paramètres de sécurité TikTok. Pour demander la suppression totale de vos données JadaRiseLabs et des jetons associés, envoyez un email à contact@jadariselabs.com. Vos données seront supprimées sous 30 jours.
+                                Vous pouvez déconnecter vos réseaux sociaux à tout moment depuis votre tableau de bord JadaRiseLabs. Pour TikTok en particulier, vous pouvez également révoquer l&apos;accès directement depuis vos paramètres de sécurité TikTok. Pour demander la suppression totale de vos données JadaRiseLabs et des jetons associés, envoyez un email à contact@jadariselabs.com. Vos données seront supprimées sous 30 jours.
                             </p>
                         </section>
 
