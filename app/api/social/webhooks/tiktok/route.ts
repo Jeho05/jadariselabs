@@ -16,11 +16,16 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         
-        // Nous logguons le payload pour un éventuel débogage futur (statut de la vidéo, etc.)
+        // Log the webhook payload
         console.log('TikTok Webhook event received:', JSON.stringify(body, null, 2));
         
-        // Il est crucial de renvoyer un statut 200 rapidement pour que TikTok sache
-        // que nous avons bien reçu l'événement.
+        // TikTok webhook verification
+        // TikTok sends a POST request with a challenge string
+        if (body.challenge) {
+            return NextResponse.json({ challenge: body.challenge }, { status: 200 });
+        }
+        
+        // Acknowledge receipt for other events
         return NextResponse.json({ success: true, message: 'Event received' }, { status: 200 });
     } catch (error) {
         console.error('Erreur lors du traitement du webhook TikTok:', error);
