@@ -126,27 +126,27 @@ export async function publishTikTokPhoto({
     description: string;
     privacyLevel: string;
 }): Promise<{ publishId: string }>{
-    const payload = {
+    const makePayload = (level: string) => ({
         media_type: 'PHOTO',
         post_mode: 'DIRECT_POST',
         post_info: {
             description,
-            privacy_level: privacyLevel,
+            privacy_level: level,
         },
         source_info: {
             source: 'PULL_FROM_URL',
             photo_images: imageUrls,
             photo_cover_index: 0,
         },
-    };
+    });
 
-    const res = await fetch(TIKTOK_PUBLISH_URL, {
+    let res = await fetch(TIKTOK_PUBLISH_URL, {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(makePayload(privacyLevel)),
     });
 
     if (!res.ok) {
@@ -154,7 +154,28 @@ export async function publishTikTokPhoto({
         throw new Error(`TikTok publish failed: ${text}`);
     }
 
-    const data = await res.json();
+    let data = await res.json();
+    
+    // Si l'application est en Sandbox (Unaudited), elle ne peut publier qu'en privé (SELF_ONLY)
+    // Nous interceptons cette erreur spécifique et nous réessayons automatiquement en privé.
+    if (data?.error?.code === 'unaudited_client_can_only_post_to_private_accounts') {
+        console.warn("Client unaudited : retry with SELF_ONLY privacy");
+        res = await fetch(TIKTOK_PUBLISH_URL, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: JSON.stringify(makePayload('SELF_ONLY')),
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`TikTok publish failed on retry: ${text}`);
+        }
+        data = await res.json();
+    }
+
     if (data?.error?.code && data.error.code !== 'ok') {
         throw new Error(`TikTok publish error: ${data.error.message || data.error.code}`);
     }
