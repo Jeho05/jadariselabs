@@ -1,11 +1,11 @@
-﻿const TIKTOK_AUTH_URL = 'https://www.tiktok.com/v2/auth/authorize/';
+const TIKTOK_AUTH_URL = 'https://www.tiktok.com/v2/auth/authorize/';
 const TIKTOK_TOKEN_URL = 'https://open.tiktokapis.com/v2/oauth/token/';
 const TIKTOK_REVOKE_URL = 'https://open.tiktokapis.com/v2/oauth/revoke/';
 const TIKTOK_CREATOR_INFO_URL = 'https://open.tiktokapis.com/v2/post/publish/creator_info/query/';
 const TIKTOK_PUBLISH_URL = 'https://open.tiktokapis.com/v2/post/publish/content/init/';
 
 export function getTikTokScopes(): string {
-    return process.env.TIKTOK_SCOPES || 'user.info.basic,video.publish';
+    return process.env.TIKTOK_SCOPES?.trim() || 'user.info.basic,video.publish';
 }
 
 export function buildTikTokAuthUrl({

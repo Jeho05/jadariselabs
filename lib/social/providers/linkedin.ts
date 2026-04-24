@@ -1,10 +1,10 @@
-﻿const LINKEDIN_AUTH_URL = 'https://www.linkedin.com/oauth/v2/authorization';
+const LINKEDIN_AUTH_URL = 'https://www.linkedin.com/oauth/v2/authorization';
 const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken';
-const LINKEDIN_ME_URL = 'https://api.linkedin.com/v2/me';
+const LINKEDIN_ME_URL = 'https://api.linkedin.com/v2/userinfo';
 const LINKEDIN_UGC_URL = 'https://api.linkedin.com/v2/ugcPosts';
 
 export function getLinkedInScopes(): string {
-    return process.env.LINKEDIN_SCOPES || 'w_member_social r_liteprofile';
+    return process.env.LINKEDIN_SCOPES?.trim() || 'openid profile email w_member_social';
 }
 
 export function buildLinkedInAuthUrl({
@@ -81,10 +81,8 @@ export async function fetchLinkedInProfile(accessToken: string): Promise<{ id: s
     }
 
     const data = await res.json();
-    const id = data.id as string;
-    const first = data.localizedFirstName || '';
-    const last = data.localizedLastName || '';
-    const name = `${first} ${last}`.trim() || id;
+    const id = data.sub as string;
+    const name = data.name || id;
 
     return {
         id,

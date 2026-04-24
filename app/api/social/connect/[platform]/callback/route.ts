@@ -24,8 +24,13 @@ export async function GET(request: Request, { params }: { params: { platform: st
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
 
+    if (url.searchParams.get('error')) {
+        const errorMsg = url.searchParams.get('error_description') || url.searchParams.get('error');
+        return NextResponse.json({ error: `Erreur OAuth: ${errorMsg}` }, { status: 400 });
+    }
+
     if (!code || !state) {
-        return NextResponse.json({ error: 'Code ou state manquant' }, { status: 400 });
+        return NextResponse.json({ error: 'Code ou state manquant dans la reponse' }, { status: 400 });
     }
 
     const stateCookie = cookies().get(`social_oauth_state_${platform}`)?.value;
@@ -36,12 +41,12 @@ export async function GET(request: Request, { params }: { params: { platform: st
 
     try {
         if (platform === 'linkedin') {
-            const clientId = process.env.LINKEDIN_CLIENT_ID;
-            const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+            const clientId = process.env.LINKEDIN_CLIENT_ID?.trim();
+            const clientSecret = process.env.LINKEDIN_CLIENT_SECRET?.trim();
             if (!clientId || !clientSecret) {
                 return NextResponse.json({ error: 'LinkedIn credentials manquants' }, { status: 500 });
             }
-            const redirectUri = process.env.LINKEDIN_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/linkedin/callback`;
+            const redirectUri = process.env.LINKEDIN_REDIRECT_URI?.trim() || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/linkedin/callback`;
             const token = await exchangeLinkedInCode({ code, clientId, clientSecret, redirectUri });
             const profile = await fetchLinkedInProfile(token.accessToken);
 
@@ -88,12 +93,12 @@ export async function GET(request: Request, { params }: { params: { platform: st
                 },
             });
         } else if (platform === 'tiktok') {
-            const clientKey = process.env.TIKTOK_CLIENT_KEY;
-            const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+            const clientKey = process.env.TIKTOK_CLIENT_KEY?.trim();
+            const clientSecret = process.env.TIKTOK_CLIENT_SECRET?.trim();
             if (!clientKey || !clientSecret) {
                 return NextResponse.json({ error: 'TikTok credentials manquants' }, { status: 500 });
             }
-            const redirectUri = process.env.TIKTOK_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/tiktok/callback`;
+            const redirectUri = process.env.TIKTOK_REDIRECT_URI?.trim() || `${process.env.NEXT_PUBLIC_APP_URL}/api/social/connect/tiktok/callback`;
             const token = await exchangeTikTokCode({ code, clientKey, clientSecret, redirectUri });
 
             await upsertSocialAccount({

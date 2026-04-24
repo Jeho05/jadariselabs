@@ -32,11 +32,11 @@ export async function GET(_: Request, { params }: { params: { platform: string }
     let codeVerifier: string | null = null;
 
     if (platform === 'linkedin') {
-        const clientId = process.env.LINKEDIN_CLIENT_ID;
+        const clientId = process.env.LINKEDIN_CLIENT_ID?.trim();
         if (!clientId) {
             return NextResponse.json({ error: 'LINKEDIN_CLIENT_ID manquant' }, { status: 500 });
         }
-        const redirectUrl = process.env.LINKEDIN_REDIRECT_URI || `${appUrl}/api/social/connect/linkedin/callback`;
+        const redirectUrl = process.env.LINKEDIN_REDIRECT_URI?.trim() || `${appUrl}/api/social/connect/linkedin/callback`;
         authUrl = buildLinkedInAuthUrl({ clientId, redirectUri: redirectUrl, state });
     } else if (platform === 'x') {
         const clientId = process.env.X_CLIENT_ID?.trim();
@@ -54,11 +54,11 @@ export async function GET(_: Request, { params }: { params: { platform: string }
             codeChallengeMethod: 's256',
         });
     } else if (platform === 'tiktok') {
-        const clientKey = process.env.TIKTOK_CLIENT_KEY;
+        const clientKey = process.env.TIKTOK_CLIENT_KEY?.trim();
         if (!clientKey) {
             return NextResponse.json({ error: 'TIKTOK_CLIENT_KEY manquant' }, { status: 500 });
         }
-        const redirectUrl = process.env.TIKTOK_REDIRECT_URI || `${appUrl}/api/social/connect/tiktok/callback`;
+        const redirectUrl = process.env.TIKTOK_REDIRECT_URI?.trim() || `${appUrl}/api/social/connect/tiktok/callback`;
         authUrl = buildTikTokAuthUrl({ clientKey, redirectUri: redirectUrl, state });
     } else {
         return NextResponse.json({ error: 'Plateforme non supportee' }, { status: 400 });
