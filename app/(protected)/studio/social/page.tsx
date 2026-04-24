@@ -107,58 +107,64 @@ function DirectPublishBar({
     if (connectedPublishable.length === 0) return null;
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-3">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Publier directement</span>
             <div className="flex flex-wrap gap-2">
                 {connectedPublishable.map((p) => {
                     const Icon = p.icon;
                     const state = publishStates[p.id] || 'idle';
-                    const errorMsg = publishErrors[p.id];
 
                     return (
-                        <div key={p.id} className="flex flex-col">
-                            <button
-                                onClick={() => handleDirectPublish(p.id)}
-                                disabled={state === 'publishing'}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 ${
-                                    state === 'success'
-                                        ? 'bg-gradient-to-r from-green-500 to-emerald-600'
-                                        : state === 'error'
-                                        ? 'bg-gradient-to-r from-red-500 to-red-600'
-                                        : `bg-gradient-to-r ${p.gradient}`
-                                }`}
-                            >
-                                {state === 'publishing' ? (
-                                    <>
-                                        <IconLoader2 size={14} className="animate-spin" />
-                                        Publication...
-                                    </>
-                                ) : state === 'success' ? (
-                                    <>
-                                        <IconCheck size={14} />
-                                        Publié !
-                                    </>
-                                ) : state === 'error' ? (
-                                    <>
-                                        <IconAlertCircle size={14} />
-                                        Erreur
-                                    </>
-                                ) : (
-                                    <>
-                                        <Icon size={14} />
-                                        Publier sur {p.name}
-                                    </>
-                                )}
-                            </button>
-                            {state === 'error' && errorMsg && (
-                                <span className="text-[10px] text-red-500 mt-1 max-w-[200px] truncate" title={errorMsg}>
-                                    {errorMsg}
-                                </span>
+                        <button
+                            key={p.id}
+                            onClick={() => handleDirectPublish(p.id)}
+                            disabled={state === 'publishing'}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 ${
+                                state === 'success'
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                                    : state === 'error'
+                                    ? 'bg-gradient-to-r from-red-500 to-red-600'
+                                    : `bg-gradient-to-r ${p.gradient}`
+                            }`}
+                        >
+                            {state === 'publishing' ? (
+                                <>
+                                    <IconLoader2 size={14} className="animate-spin" />
+                                    Publication...
+                                </>
+                            ) : state === 'success' ? (
+                                <>
+                                    <IconCheck size={14} />
+                                    Publié !
+                                </>
+                            ) : state === 'error' ? (
+                                <>
+                                    <IconAlertCircle size={14} />
+                                    Erreur
+                                </>
+                            ) : (
+                                <>
+                                    <Icon size={14} />
+                                    Publier sur {p.name}
+                                </>
                             )}
-                        </div>
+                        </button>
                     );
                 })}
             </div>
+            
+            {/* Affichage des erreurs en clair */}
+            {connectedPublishable.map((p) => {
+                const errorMsg = publishErrors[p.id];
+                if (!errorMsg || publishStates[p.id] !== 'error') return null;
+                
+                return (
+                    <div key={`err-${p.id}`} className="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600 font-mono overflow-x-auto whitespace-pre-wrap">
+                        <strong>Erreur {p.name} :</strong><br />
+                        {errorMsg}
+                    </div>
+                );
+            })}
         </div>
     );
 }
