@@ -40,6 +40,129 @@ type SocialAccountSummary = {
     expiresAt: string | null;
 };
 
+type PublishState = 'idle' | 'publishing' | 'success' | 'error';
+
+function DirectPublishBar({
+    content,
+    topic,
+    accounts,
+    selectedPlatform,
+}: {
+    content: string;
+    topic: string;
+    accounts: SocialAccountSummary[];
+    selectedPlatform: PlatformKey;
+}) {
+    const [publishStates, setPublishStates] = useState<Record<string, PublishState>>({});
+    const [publishErrors, setPublishErrors] = useState<Record<string, string>>({});
+
+    // Map of platforms that support direct publishing via API
+    const publishablePlatforms: Array<{ id: SocialPlatformId; name: string; icon: React.ComponentType<{ size?: number; className?: string }>; gradient: string }> = [
+        { id: 'tiktok', name: 'TikTok', icon: IconTikTok, gradient: 'from-pink-500 to-purple-600' },
+        { id: 'linkedin', name: 'LinkedIn', icon: IconLinkedin, gradient: 'from-blue-600 to-blue-800' },
+        { id: 'x', name: 'X', icon: IconX, gradient: 'from-gray-800 to-black' },
+    ];
+
+    const connectedPublishable = publishablePlatforms.filter((p) =>
+        accounts.some((a) => a.platform === p.id)
+    );
+
+    const handleDirectPublish = async (platformId: SocialPlatformId) => {
+        if (publishStates[platformId] === 'publishing') return;
+
+        setPublishStates((prev) => ({ ...prev, [platformId]: 'publishing' }));
+        setPublishErrors((prev) => ({ ...prev, [platformId]: '' }));
+
+        try {
+            const res = await fetch('/api/social/publish/direct', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    platform: platformId,
+                    content,
+                    topic,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Échec de la publication');
+            }
+
+            setPublishStates((prev) => ({ ...prev, [platformId]: 'success' }));
+            setTimeout(() => {
+                setPublishStates((prev) => ({ ...prev, [platformId]: 'idle' }));
+            }, 3000);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Erreur inconnue';
+            setPublishErrors((prev) => ({ ...prev, [platformId]: message }));
+            setPublishStates((prev) => ({ ...prev, [platformId]: 'error' }));
+            setTimeout(() => {
+                setPublishStates((prev) => ({ ...prev, [platformId]: 'idle' }));
+            }, 5000);
+        }
+    };
+
+    if (connectedPublishable.length === 0) return null;
+
+    return (
+        <div className="space-y-2">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Publier directement</span>
+            <div className="flex flex-wrap gap-2">
+                {connectedPublishable.map((p) => {
+                    const Icon = p.icon;
+                    const state = publishStates[p.id] || 'idle';
+                    const errorMsg = publishErrors[p.id];
+
+                    return (
+                        <div key={p.id} className="flex flex-col">
+                            <button
+                                onClick={() => handleDirectPublish(p.id)}
+                                disabled={state === 'publishing'}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 ${
+                                    state === 'success'
+                                        ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                                        : state === 'error'
+                                        ? 'bg-gradient-to-r from-red-500 to-red-600'
+                                        : `bg-gradient-to-r ${p.gradient}`
+                                }`}
+                            >
+                                {state === 'publishing' ? (
+                                    <>
+                                        <IconLoader2 size={14} className="animate-spin" />
+                                        Publication...
+                                    </>
+                                ) : state === 'success' ? (
+                                    <>
+                                        <IconCheck size={14} />
+                                        Publié !
+                                    </>
+                                ) : state === 'error' ? (
+                                    <>
+                                        <IconAlertCircle size={14} />
+                                        Erreur
+                                    </>
+                                ) : (
+                                    <>
+                                        <Icon size={14} />
+                                        Publier sur {p.name}
+                                    </>
+                                )}
+                            </button>
+                            {state === 'error' && errorMsg && (
+                                <span className="text-[10px] text-red-500 mt-1 max-w-[200px] truncate" title={errorMsg}>
+                                    {errorMsg}
+                                </span>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 const PLATFORMS: Array<{ id: PlatformKey; name: string; icon: React.ComponentType<{ size?: number; className?: string }>; color: string; bestTimes: string }> = [
     { id: 'tiktok', name: 'TikTok', icon: IconTikTok, color: 'from-pink-500 to-purple-600', bestTimes: '12h • 19h • 21h' },
     { id: 'facebook', name: 'Facebook', icon: IconFacebook, color: 'from-blue-500 to-blue-700', bestTimes: '9h • 13h • 15h' },
@@ -1100,6 +1223,13 @@ export default function SocialStudioPage() {
                         {/* Platform Tips Footer */}
                         {output && (
                             <div className="bg-gray-50 px-5 py-3 border-t border-gray-100 space-y-3">
+                                {/* Direct Publish to Connected Accounts */}
+                                <DirectPublishBar
+                                    content={output}
+                                    topic={topic}
+                                    accounts={accounts}
+                                    selectedPlatform={selectedPlatform}
+                                />
                                 <SocialShareButtons text={output} />
                                 <div className="flex items-center gap-4 text-xs text-gray-500">
                                     <span className="flex items-center gap-1">
