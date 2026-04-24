@@ -160,15 +160,15 @@ export async function publishTikTokPhoto({
 
     // Intercepter l'erreur Sandbox (même si res.ok est false)
     if (data?.error?.code === 'unaudited_client_can_only_post_to_private_accounts') {
-        console.warn("Client unaudited : retry with MUTUAL_FOLLOW_FRIENDS privacy");
+        console.warn("Client unaudited : retry with SELF_ONLY privacy");
         res = await fetch(TIKTOK_PUBLISH_URL, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json; charset=UTF-8',
             },
-            // Pour le bac à sable, parfois SELF_ONLY ne suffit pas, MUTUAL_FOLLOW_FRIENDS est plus sûr
-            body: JSON.stringify(makePayload('MUTUAL_FOLLOW_FRIENDS')),
+            // Pour le bac à sable, seul SELF_ONLY est autorisé !
+            body: JSON.stringify(makePayload('SELF_ONLY')),
         });
 
         try {
