@@ -5,6 +5,8 @@ import type { CVData } from './CVTemplateProfessional';
 /* ═══════════════════════════════════════════════════════════
    CV Template React-PDF — "Prestige" Edition
    Optimized for both 1-page compact fit AND beautiful multi-page flow.
+   * FIX: Removed wrap={false} to prevent infinite loop / OOM crashes
+   * FIX: Added paddingBottom to prevent footer overlap
    ═══════════════════════════════════════════════════════════ */
 
 const C = {
@@ -39,7 +41,10 @@ const s = StyleSheet.create({
         flexDirection: 'column',
         backgroundColor: C.white,
         fontFamily: 'Inter',
-        padding: 0,
+        paddingTop: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        paddingBottom: 24, // Prevents content from overlapping the fixed footer
     },
     /* Fixed sidebar background that spans all pages beautifully */
     sidebarBg: {
@@ -367,7 +372,7 @@ const s = StyleSheet.create({
 });
 
 const Heading = ({ title }: { title: string }) => (
-    <View style={s.sectionHead} wrap={false}>
+    <View style={s.sectionHead}>
         <View style={s.sectionDot} />
         <Text style={s.sectionTitle}>{title}</Text>
         <View style={s.sectionLine} />
@@ -391,14 +396,14 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
     const hasCustom = customSections && customSections.length > 0;
 
     const contactItems: string[] = [];
-    if (personalInfo.email) contactItems.push(personalInfo.email);
-    if (personalInfo.phone) contactItems.push(personalInfo.phone);
-    if (personalInfo.location) contactItems.push(personalInfo.location);
-    if (personalInfo.linkedin) contactItems.push(personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', ''));
-    if (personalInfo.website) contactItems.push(personalInfo.website.replace('https://', ''));
-    if (personalInfo.dateOfBirth) contactItems.push(personalInfo.dateOfBirth);
-    if (personalInfo.nationality) contactItems.push(personalInfo.nationality);
-    if (personalInfo.drivingLicense) contactItems.push(`Permis ${personalInfo.drivingLicense}`);
+    if (personalInfo?.email) contactItems.push(personalInfo.email);
+    if (personalInfo?.phone) contactItems.push(personalInfo.phone);
+    if (personalInfo?.location) contactItems.push(personalInfo.location);
+    if (personalInfo?.linkedin) contactItems.push(personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', ''));
+    if (personalInfo?.website) contactItems.push(personalInfo.website.replace('https://', ''));
+    if (personalInfo?.dateOfBirth) contactItems.push(personalInfo.dateOfBirth);
+    if (personalInfo?.nationality) contactItems.push(personalInfo.nationality);
+    if (personalInfo?.drivingLicense) contactItems.push(`Permis ${personalInfo.drivingLicense}`);
 
     return (
         <Document>
@@ -420,8 +425,8 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                     )}
 
                     <View style={s.headerInfo}>
-                        <Text style={s.fullName}>{personalInfo.fullName || 'Votre Nom'}</Text>
-                        <Text style={s.jobTitle}>{personalInfo.jobTitle || 'Votre Poste'}</Text>
+                        <Text style={s.fullName}>{personalInfo?.fullName || 'Votre Nom'}</Text>
+                        <Text style={s.jobTitle}>{personalInfo?.jobTitle || 'Votre Poste'}</Text>
                         <View style={s.contactRow}>
                             {contactItems.map((item, idx) => (
                                 <View key={idx} style={s.contactPill}>
@@ -438,7 +443,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                     {/* ── SIDEBAR ── */}
                     <View style={s.sidebar}>
                         {hasSkills && (
-                            <View style={s.sideBlock} wrap={false}>
+                            <View style={s.sideBlock}>
                                 <Heading title="Compétences" />
                                 <View style={s.skillsWrap}>
                                     {skills.map((skill, idx) => (
@@ -449,7 +454,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                         )}
 
                         {hasLanguages && (
-                            <View style={s.sideBlock} wrap={false}>
+                            <View style={s.sideBlock}>
                                 <Heading title="Langues" />
                                 {languages!.map((lang, idx) => (
                                     <View key={idx} style={s.langRow}>
@@ -461,7 +466,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                         )}
 
                         {hasCertifications && (
-                            <View style={s.sideBlock} wrap={false}>
+                            <View style={s.sideBlock}>
                                 <Heading title="Certifications" />
                                 {certifications!.map((cert, idx) => (
                                     <View key={idx} style={{ marginBottom: 8 }}>
@@ -475,7 +480,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                         )}
 
                         {hasInterests && (
-                            <View style={s.sideBlock} wrap={false}>
+                            <View style={s.sideBlock}>
                                 <Heading title="Intérêts" />
                                 <View style={s.skillsWrap}>
                                     {interests!.map((item, idx) => (
@@ -486,7 +491,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                         )}
 
                         {hasReferences && (
-                            <View style={s.sideBlock} wrap={false}>
+                            <View style={s.sideBlock}>
                                 <Heading title="Références" />
                                 {references!.map((ref, idx) => (
                                     <View key={idx} style={{ marginBottom: 8 }}>
@@ -499,7 +504,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                         )}
 
                         {hasAwards && (
-                            <View style={s.sideBlock} wrap={false}>
+                            <View style={s.sideBlock}>
                                 <Heading title="Distinctions" />
                                 {awards!.map((aw, idx) => (
                                     <View key={idx} style={{ marginBottom: 8 }}>
@@ -516,7 +521,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                     {/* ── MAIN CONTENT ── */}
                     <View style={s.main}>
                         {summary && (
-                            <View style={s.mainBlock} wrap={false}>
+                            <View style={s.mainBlock}>
                                 <Heading title="Profil Professionnel" />
                                 <Text style={s.summaryText}>{summary}</Text>
                             </View>
@@ -526,7 +531,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.mainBlock}>
                                 <Heading title="Expériences" />
                                 {experience.map((exp, idx) => (
-                                    <View key={idx} style={s.expBlock} wrap={false}>
+                                    <View key={idx} style={s.expBlock}>
                                         <View style={s.expDot} />
                                         <Text style={s.expRole}>{exp.role}</Text>
                                         <Text style={s.expCompany}>
@@ -552,7 +557,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.mainBlock}>
                                 <Heading title="Formations" />
                                 {education.map((edu, idx) => (
-                                    <View key={idx} style={s.eduBlock} wrap={false}>
+                                    <View key={idx} style={s.eduBlock}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                             <Text style={s.eduDegree}>{edu.degree}</Text>
                                             <Text style={s.eduPeriod}>{edu.period}</Text>
@@ -568,7 +573,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.mainBlock}>
                                 <Heading title="Projets" />
                                 {projects!.map((proj, idx) => (
-                                    <View key={idx} style={s.eduBlock} wrap={false}>
+                                    <View key={idx} style={s.eduBlock}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                             <Text style={s.eduDegree}>{proj.name}</Text>
                                             {proj.url && <Text style={{ fontSize: 8.5, color: C.gold }}>{proj.url}</Text>}
@@ -584,7 +589,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.mainBlock}>
                                 <Heading title="Bénévolat" />
                                 {volunteer!.map((vol, idx) => (
-                                    <View key={idx} style={s.expBlock} wrap={false}>
+                                    <View key={idx} style={s.expBlock}>
                                         <View style={s.expDot} />
                                         <Text style={s.expRole}>{vol.role}</Text>
                                         <Text style={s.expCompany}>{vol.organization}</Text>
@@ -599,7 +604,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             sec.items.length > 0 && (
                                 <View key={sIdx} style={s.mainBlock}>
                                     <Heading title={sec.title} />
-                                    <View wrap={false}>
+                                    <View>
                                         {sec.items.map((item, i) => (
                                             <View key={i} style={s.achieveRow}>
                                                 <Text style={s.achieveBullet}>●</Text>
