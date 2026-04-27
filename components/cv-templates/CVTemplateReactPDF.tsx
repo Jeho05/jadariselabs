@@ -48,13 +48,13 @@ const s = StyleSheet.create({
         padding: 0,
     },
 
-    /* ── HEADER ── */
+    /* ── HEADER ── compact */
     header: {
         backgroundColor: C.navy,
-        padding: '28px 36px',
+        padding: '16px 28px',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 24,
+        gap: 16,
         position: 'relative',
     },
     headerDecoStripe: {
@@ -62,27 +62,27 @@ const s = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: 4,
+        height: 3,
         backgroundColor: C.gold,
     },
     headerDecoCorner: {
         position: 'absolute',
         top: 0,
         right: 0,
-        width: 80,
-        height: 80,
-        borderBottomLeftRadius: 80,
+        width: 60,
+        height: 60,
+        borderBottomLeftRadius: 60,
         backgroundColor: C.navyMid,
         opacity: 0.5,
     },
 
-    /* Photo — BIG and prominent */
+    /* Photo — compact */
     photoOuter: {
-        width: 110,
-        height: 110,
+        width: 72,
+        height: 72,
         borderRadius: 9999,
         backgroundColor: C.gold,
-        padding: 3,
+        padding: 2,
         flexShrink: 0,
     },
     photoInner: {
@@ -90,7 +90,7 @@ const s = StyleSheet.create({
         height: '100%',
         borderRadius: 9999,
         backgroundColor: C.white,
-        padding: 2,
+        padding: 1.5,
         overflow: 'hidden',
     },
     photo: {
@@ -107,37 +107,37 @@ const s = StyleSheet.create({
         justifyContent: 'center',
     },
     fullName: {
-        fontSize: 26,
+        fontSize: 20,
         fontWeight: 800,
         color: C.white,
         textTransform: 'uppercase',
-        letterSpacing: 2.5,
-        marginBottom: 4,
+        letterSpacing: 2,
+        marginBottom: 2,
     },
     jobTitle: {
-        fontSize: 13,
+        fontSize: 10,
         fontWeight: 600,
         color: C.gold,
-        letterSpacing: 1.5,
+        letterSpacing: 1.2,
         textTransform: 'uppercase',
-        marginBottom: 14,
+        marginBottom: 8,
     },
     contactRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 6,
+        gap: 4,
         alignItems: 'center',
     },
     contactPill: {
-        fontSize: 8.5,
+        fontSize: 7.5,
         color: '#D1D5DB',
         backgroundColor: 'rgba(255,255,255,0.07)',
-        padding: '3px 9px',
-        borderRadius: 4,
+        padding: '2px 7px',
+        borderRadius: 3,
     },
     contactSep: {
-        width: 3,
-        height: 3,
+        width: 2.5,
+        height: 2.5,
         borderRadius: 9999,
         backgroundColor: C.gold,
         opacity: 0.6,
@@ -151,153 +151,153 @@ const s = StyleSheet.create({
 
     /* Sidebar */
     sidebar: {
-        width: '34%',
+        width: '32%',
         backgroundColor: C.sidebar,
-        padding: '24px 20px',
+        padding: '14px 14px',
         borderRight: `1px solid ${C.border}`,
     },
     sideBlock: {
-        marginBottom: 22,
+        marginBottom: 12,
     },
 
     /* Main content */
     main: {
-        width: '66%',
-        padding: '24px 28px',
+        width: '68%',
+        padding: '14px 20px',
         backgroundColor: C.white,
     },
     mainBlock: {
-        marginBottom: 22,
+        marginBottom: 12,
     },
 
     /* ── SECTION HEADING ── */
     sectionHead: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
-        gap: 8,
+        marginBottom: 7,
+        gap: 5,
     },
     sectionDot: {
-        width: 8,
-        height: 8,
+        width: 6,
+        height: 6,
         borderRadius: 9999,
         backgroundColor: C.gold,
     },
     sectionTitle: {
-        fontSize: 11,
+        fontSize: 9,
         fontWeight: 700,
         textTransform: 'uppercase',
-        letterSpacing: 2,
+        letterSpacing: 1.6,
         color: C.navy,
     },
     sectionLine: {
         flex: 1,
         height: 1,
         backgroundColor: C.border,
-        marginLeft: 6,
+        marginLeft: 4,
     },
 
     /* ── EXPERIENCE ── */
     expBlock: {
-        marginBottom: 16,
-        paddingLeft: 12,
+        marginBottom: 9,
+        paddingLeft: 10,
         borderLeft: `2px solid ${C.borderLight}`,
     },
     expDot: {
         position: 'absolute',
-        left: -7,
-        top: 4,
-        width: 10,
-        height: 10,
+        left: -6,
+        top: 3,
+        width: 8,
+        height: 8,
         borderRadius: 9999,
         backgroundColor: C.gold,
-        borderWidth: 2,
+        borderWidth: 1.5,
         borderColor: C.white,
     },
     expRole: {
-        fontSize: 13,
+        fontSize: 10,
         fontWeight: 700,
         color: C.textDark,
-        marginBottom: 1,
+        marginBottom: 0,
     },
     expCompany: {
-        fontSize: 10.5,
+        fontSize: 8.5,
         fontWeight: 600,
         color: C.gold,
-        marginBottom: 1,
+        marginBottom: 0,
     },
     expPeriod: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.textMuted,
         fontWeight: 500,
-        marginBottom: 5,
+        marginBottom: 3,
     },
     achieveRow: {
         flexDirection: 'row',
-        marginBottom: 3,
+        marginBottom: 1.5,
         paddingLeft: 2,
     },
     achieveBullet: {
-        fontSize: 7,
+        fontSize: 5,
         color: C.gold,
-        marginRight: 6,
-        marginTop: 3,
+        marginRight: 4,
+        marginTop: 2.5,
     },
     achieveText: {
-        fontSize: 10,
+        fontSize: 8,
         color: C.textBody,
-        lineHeight: 1.45,
+        lineHeight: 1.4,
         flex: 1,
     },
 
     /* ── EDUCATION ── */
     eduBlock: {
-        marginBottom: 12,
+        marginBottom: 7,
     },
     eduDegree: {
-        fontSize: 12,
+        fontSize: 9.5,
         fontWeight: 700,
         color: C.textDark,
-        marginBottom: 1,
+        marginBottom: 0,
     },
     eduInstitution: {
-        fontSize: 10,
+        fontSize: 8,
         color: C.textBody,
         fontWeight: 500,
     },
     eduPeriod: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.gold,
         fontWeight: 600,
-        marginTop: 1,
+        marginTop: 0,
     },
     eduDetails: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.textMuted,
         fontStyle: 'italic',
-        marginTop: 1,
+        marginTop: 0,
     },
 
     /* ── SIDEBAR ITEMS ── */
     skillBadge: {
-        fontSize: 9,
+        fontSize: 7.5,
         fontWeight: 600,
         backgroundColor: C.badgeDark,
         color: C.white,
-        padding: '4px 9px',
-        borderRadius: 4,
-        marginBottom: 5,
-        marginRight: 5,
+        padding: '3px 6px',
+        borderRadius: 3,
+        marginBottom: 3,
+        marginRight: 3,
     },
     skillBadgeLight: {
-        fontSize: 9,
+        fontSize: 7.5,
         fontWeight: 500,
         backgroundColor: C.white,
         color: C.textBody,
-        padding: '4px 9px',
-        borderRadius: 4,
-        marginBottom: 5,
-        marginRight: 5,
+        padding: '3px 6px',
+        borderRadius: 3,
+        marginBottom: 3,
+        marginRight: 3,
         borderWidth: 1,
         borderColor: C.border,
     },
@@ -309,63 +309,63 @@ const s = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 6,
-        paddingBottom: 5,
+        marginBottom: 3,
+        paddingBottom: 3,
         borderBottom: `1px solid ${C.borderLight}`,
     },
     langName: {
-        fontSize: 10.5,
+        fontSize: 8.5,
         fontWeight: 600,
         color: C.textDark,
     },
     langLevel: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.textMuted,
         fontStyle: 'italic',
     },
     certName: {
-        fontSize: 10.5,
+        fontSize: 8.5,
         fontWeight: 600,
         color: C.textDark,
     },
     certMeta: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.textMuted,
-        marginTop: 1,
+        marginTop: 0,
     },
     interestBadge: {
-        fontSize: 9,
-        padding: '3px 8px',
-        borderRadius: 4,
+        fontSize: 7.5,
+        padding: '2px 6px',
+        borderRadius: 3,
         backgroundColor: C.white,
         borderWidth: 1,
         borderColor: C.border,
         color: C.textBody,
-        marginBottom: 5,
-        marginRight: 5,
+        marginBottom: 3,
+        marginRight: 3,
     },
     refName: {
-        fontSize: 10.5,
+        fontSize: 8.5,
         fontWeight: 600,
         color: C.textDark,
     },
     refRole: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.textBody,
-        marginTop: 1,
+        marginTop: 0,
     },
     refContact: {
-        fontSize: 9,
+        fontSize: 7.5,
         color: C.gold,
-        marginTop: 1,
+        marginTop: 0,
     },
 
     /* ── SUMMARY ── */
     summaryText: {
-        fontSize: 10.5,
-        lineHeight: 1.55,
+        fontSize: 8.5,
+        lineHeight: 1.45,
         color: C.textBody,
-        marginBottom: 4,
+        marginBottom: 2,
     },
 
     /* ── FOOTER ── */
@@ -374,7 +374,7 @@ const s = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: 3,
+        height: 2,
         backgroundColor: C.gold,
     },
 });
@@ -481,7 +481,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Certifications" />
                                 {certifications!.map((cert, idx) => (
-                                    <View key={idx} style={{ marginBottom: 8 }}>
+                                    <View key={idx} style={{ marginBottom: 5 }}>
                                         <Text style={s.certName}>{cert.name}</Text>
                                         <Text style={s.certMeta}>
                                             {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
@@ -506,7 +506,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Références" />
                                 {references!.map((ref, idx) => (
-                                    <View key={idx} style={{ marginBottom: 10 }}>
+                                    <View key={idx} style={{ marginBottom: 6 }}>
                                         <Text style={s.refName}>{ref.name}</Text>
                                         <Text style={s.refRole}>{ref.role}</Text>
                                         {ref.contact && <Text style={s.refContact}>{ref.contact}</Text>}
@@ -519,7 +519,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Distinctions" />
                                 {awards!.map((aw, idx) => (
-                                    <View key={idx} style={{ marginBottom: 8 }}>
+                                    <View key={idx} style={{ marginBottom: 5 }}>
                                         <Text style={s.certName}>{aw.name}</Text>
                                         <Text style={s.certMeta}>
                                             {[aw.issuer, aw.year].filter(Boolean).join(' — ')}

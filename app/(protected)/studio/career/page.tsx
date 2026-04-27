@@ -176,6 +176,12 @@ export default function CareerStudioPage() {
     const [errorModal, setErrorModal] = useState<{ error: string; details?: string; traceId?: string } | null>(null);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'cv' | 'letter'>('cv');
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+    // ── localStorage Persistence ──
+    const CV_STORAGE_KEY = 'jadarise_cv_draft';
+    const isInitialized = useRef(false);
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // ── Handlers for Dynamic Lists ──
     const genId = () => Math.random().toString(36).substr(2, 9);
@@ -367,7 +373,7 @@ export default function CareerStudioPage() {
         }
     };
 
-    // ── Fetch profile ──
+    // ── Fetch profile + Restore saved CV data ──
     useEffect(() => {
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -375,16 +381,107 @@ export default function CareerStudioPage() {
                 const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
                 if (data) {
                     setProfile(data);
-                    if (data.username) setName(data.username);
+                    // Only set name from profile if there's no saved draft
+                    const savedRaw = localStorage.getItem(CV_STORAGE_KEY);
+                    if (savedRaw) {
+                        try {
+                            const saved = JSON.parse(savedRaw);
+                            // Restore all fields from localStorage
+                            if (saved.name) setName(saved.name);
+                            else if (data.username) setName(data.username);
+                            if (saved.email) setEmail(saved.email);
+                            if (saved.phone) setPhone(saved.phone);
+                            if (saved.address) setAddress(saved.address);
+                            if (saved.linkedin) setLinkedin(saved.linkedin);
+                            if (saved.website) setWebsite(saved.website);
+                            if (saved.jobTitle) setJobTitle(saved.jobTitle);
+                            if (saved.sector) setSector(saved.sector);
+                            if (saved.experienceLevel) setExperienceLevel(saved.experienceLevel);
+                            if (saved.summary) setSummary(saved.summary);
+                            if (saved.skills) setSkills(saved.skills);
+                            if (saved.interests) setInterests(saved.interests);
+                            if (saved.dateOfBirth) setDateOfBirth(saved.dateOfBirth);
+                            if (saved.nationality) setNationality(saved.nationality);
+                            if (saved.drivingLicense) setDrivingLicense(saved.drivingLicense);
+                            if (saved.companyName) setCompanyName(saved.companyName);
+                            if (saved.companyAddress) setCompanyAddress(saved.companyAddress);
+                            if (saved.motivation) setMotivation(saved.motivation);
+                            if (saved.strengths) setStrengths(saved.strengths);
+                            if (saved.photoPreview) setPhotoPreview(saved.photoPreview);
+                            if (saved.photoPreviewPdf) setPhotoPreviewPdf(saved.photoPreviewPdf);
+
+                            // Restore dynamic lists (only if they have content)
+                            if (saved.experiences?.length) setExperiences(saved.experiences);
+                            if (saved.education?.length) setEducation(saved.education);
+                            if (saved.languages?.length) setLanguages(saved.languages);
+                            if (saved.certifications?.length) setCertifications(saved.certifications);
+                            if (saved.references?.length) setReferences(saved.references);
+                            if (saved.projects?.length) setProjects(saved.projects);
+                            if (saved.volunteer?.length) setVolunteer(saved.volunteer);
+                            if (saved.awards?.length) setAwards(saved.awards);
+                            if (saved.customSections?.length) setCustomSections(saved.customSections);
+                        } catch (e) {
+                            console.warn('Failed to restore CV draft:', e);
+                            if (data.username) setName(data.username);
+                        }
+                    } else {
+                        if (data.username) setName(data.username);
+                    }
                 }
             }
             setLoading(false);
+            // Mark as initialized after a short delay to let state settle
+            setTimeout(() => { isInitialized.current = true; }, 500);
         };
         fetchProfile();
     }, [supabase]);
 
+    // ── Auto-save to localStorage (debounced) ──
     useEffect(() => {
-        setSkills(SECTOR_CONFIG[sector].skills.join(', '));
+        if (!isInitialized.current) return;
+
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        setSaveStatus('saving');
+
+        saveTimerRef.current = setTimeout(() => {
+            try {
+                const draft = {
+                    name, email, phone, address, linkedin, website,
+                    jobTitle, sector, experienceLevel, summary,
+                    skills, interests,
+                    dateOfBirth, nationality, drivingLicense,
+                    companyName, companyAddress, motivation, strengths,
+                    experiences, education, languages, certifications,
+                    references, projects, volunteer, awards, customSections,
+                    photoPreview, photoPreviewPdf,
+                    _savedAt: new Date().toISOString(),
+                };
+                localStorage.setItem(CV_STORAGE_KEY, JSON.stringify(draft));
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 2000);
+            } catch (e) {
+                console.warn('Failed to save CV draft:', e);
+                setSaveStatus('idle');
+            }
+        }, 800);
+
+        return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+    }, [
+        name, email, phone, address, linkedin, website,
+        jobTitle, sector, experienceLevel, summary,
+        skills, interests,
+        dateOfBirth, nationality, drivingLicense,
+        companyName, companyAddress, motivation, strengths,
+        experiences, education, languages, certifications,
+        references, projects, volunteer, awards, customSections,
+        photoPreview, photoPreviewPdf,
+    ]);
+
+    useEffect(() => {
+        // Only set skills from sector config if user hasn't modified them yet
+        if (!isInitialized.current) {
+            setSkills(SECTOR_CONFIG[sector].skills.join(', '));
+        }
     }, [sector]);
 
     const calculateCredits = () => DOCUMENT_TYPES.find(t => t.id === documentType)?.credits || 0;
@@ -552,14 +649,36 @@ export default function CareerStudioPage() {
                             <p className="text-gray-500 font-medium mt-1 text-[15px]">Construisez un CV parfait. Vectoriel, gratuit et instantané.</p>
                         </div>
                     </div>
-                    {profile && (
-                        <div className="flex items-center gap-2.5 text-sm font-bold px-5 py-3 rounded-2xl bg-white/60 backdrop-blur-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100/50">
-                            <div className="p-1.5 bg-amber-100 rounded-lg text-amber-600">
-                                <IconZap size={18} />
+                    <div className="flex items-center gap-3">
+                        {/* Save Status Indicator */}
+                        {saveStatus !== 'idle' && (
+                            <div className={`flex items-center gap-2 text-[13px] font-semibold px-4 py-2.5 rounded-2xl backdrop-blur-xl border transition-all duration-500 ${
+                                saveStatus === 'saved' 
+                                    ? 'bg-emerald-50/80 border-emerald-200/50 text-emerald-700' 
+                                    : 'bg-amber-50/80 border-amber-200/50 text-amber-700'
+                            }`}>
+                                {saveStatus === 'saving' ? (
+                                    <>
+                                        <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                        Sauvegarde...
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                        Sauvegardé ✓
+                                    </>
+                                )}
                             </div>
-                            <span className="text-[#111827]">{profile.credits === -1 ? '∞' : profile.credits} crédits IA</span>
-                        </div>
-                    )}
+                        )}
+                        {profile && (
+                            <div className="flex items-center gap-2.5 text-sm font-bold px-5 py-3 rounded-2xl bg-white/60 backdrop-blur-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100/50">
+                                <div className="p-1.5 bg-amber-100 rounded-lg text-amber-600">
+                                    <IconZap size={18} />
+                                </div>
+                                <span className="text-[#111827]">{profile.credits === -1 ? '∞' : profile.credits} crédits IA</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* ── Type Selector ── */}
