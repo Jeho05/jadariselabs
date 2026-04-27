@@ -4,8 +4,7 @@ import type { CVData } from './CVTemplateProfessional';
 
 /* ═══════════════════════════════════════════════════════════
    CV Template React-PDF — "Prestige" Edition
-   Ultra-premium vector PDF with large photo, refined accents,
-   and subtle design details that make the difference.
+   Optimized for both 1-page compact fit AND beautiful multi-page flow.
    ═══════════════════════════════════════════════════════════ */
 
 const C = {
@@ -13,18 +12,13 @@ const C = {
     navy:       '#111827',
     navyMid:    '#1A2540',
     gold:       '#C9A84C',
-    goldMuted:  '#D4BE7A',
-    goldPale:   '#F5EFDB',
     white:      '#FFFFFF',
-    offWhite:   '#FAFBFC',
     sidebar:    '#F4F5F7',
     textDark:   '#111827',
     textBody:   '#374151',
-    textLight:  '#6B7280',
-    textMuted:  '#9CA3AF',
+    textMuted:  '#6B7280',
     border:     '#E5E7EB',
     borderLight:'#F3F4F6',
-    accent:     '#0B1120',
     badgeDark:  '#1F2937',
 };
 
@@ -47,14 +41,25 @@ const s = StyleSheet.create({
         fontFamily: 'Inter',
         padding: 0,
     },
+    /* Fixed sidebar background that spans all pages beautifully */
+    sidebarBg: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: '32%',
+        backgroundColor: C.sidebar,
+        zIndex: -1,
+        borderRight: `1px solid ${C.border}`,
+    },
 
-    /* ── HEADER ── compact */
+    /* ── HEADER ── */
     header: {
         backgroundColor: C.navy,
-        padding: '16px 28px',
+        padding: '24px 32px',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: 20,
         position: 'relative',
     },
     headerDecoStripe: {
@@ -76,10 +81,10 @@ const s = StyleSheet.create({
         opacity: 0.5,
     },
 
-    /* Photo — compact */
+    /* Photo */
     photoOuter: {
-        width: 72,
-        height: 72,
+        width: 80,
+        height: 80,
         borderRadius: 9999,
         backgroundColor: C.gold,
         padding: 2,
@@ -98,84 +103,70 @@ const s = StyleSheet.create({
         height: '100%',
         borderRadius: 9999,
         objectFit: 'cover',
-        objectPosition: 'center',
     },
 
-    /* Name area */
+    /* Name & Job */
     headerInfo: {
         flex: 1,
         justifyContent: 'center',
     },
     fullName: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: 800,
         color: C.white,
         textTransform: 'uppercase',
-        letterSpacing: 2,
-        marginBottom: 2,
+        letterSpacing: 1.5,
+        marginBottom: 4,
     },
     jobTitle: {
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 600,
         color: C.gold,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
-        marginBottom: 8,
+        marginBottom: 10,
     },
     contactRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 4,
+        gap: 6,
         alignItems: 'center',
     },
     contactPill: {
-        fontSize: 7.5,
-        color: '#D1D5DB',
-        backgroundColor: 'rgba(255,255,255,0.07)',
-        padding: '2px 7px',
-        borderRadius: 3,
-    },
-    contactSep: {
-        width: 2.5,
-        height: 2.5,
-        borderRadius: 9999,
-        backgroundColor: C.gold,
-        opacity: 0.6,
+        fontSize: 8.5,
+        color: '#E5E7EB',
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        padding: '3px 8px',
+        borderRadius: 4,
     },
 
-    /* ── BODY LAYOUT ── */
+    /* ── BODY ── */
     body: {
         flexDirection: 'row',
         flex: 1,
     },
-
-    /* Sidebar */
     sidebar: {
         width: '32%',
-        backgroundColor: C.sidebar,
-        padding: '14px 14px',
-        borderRight: `1px solid ${C.border}`,
+        padding: '20px 16px',
+        // backgroundColor is handled by sidebarBg
     },
-    sideBlock: {
-        marginBottom: 12,
-    },
-
-    /* Main content */
     main: {
         width: '68%',
-        padding: '14px 20px',
-        backgroundColor: C.white,
+        padding: '20px 24px',
+    },
+    sideBlock: {
+        marginBottom: 14,
     },
     mainBlock: {
-        marginBottom: 12,
+        marginBottom: 16,
     },
 
     /* ── SECTION HEADING ── */
     sectionHead: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 7,
-        gap: 5,
+        marginBottom: 8,
+        gap: 6,
     },
     sectionDot: {
         width: 6,
@@ -184,188 +175,184 @@ const s = StyleSheet.create({
         backgroundColor: C.gold,
     },
     sectionTitle: {
-        fontSize: 9,
+        fontSize: 10,
         fontWeight: 700,
         textTransform: 'uppercase',
-        letterSpacing: 1.6,
+        letterSpacing: 1.5,
         color: C.navy,
     },
     sectionLine: {
         flex: 1,
         height: 1,
         backgroundColor: C.border,
-        marginLeft: 4,
     },
 
-    /* ── EXPERIENCE ── */
+    /* ── EXPERIENCE TIMELINE ── */
     expBlock: {
-        marginBottom: 9,
-        paddingLeft: 10,
+        marginBottom: 12,
+        paddingLeft: 12,
         borderLeft: `2px solid ${C.borderLight}`,
+        position: 'relative',
     },
     expDot: {
         position: 'absolute',
-        left: -6,
+        left: -5.5,
         top: 3,
-        width: 8,
-        height: 8,
+        width: 9,
+        height: 9,
         borderRadius: 9999,
         backgroundColor: C.gold,
-        borderWidth: 1.5,
+        borderWidth: 2,
         borderColor: C.white,
     },
     expRole: {
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 700,
         color: C.textDark,
-        marginBottom: 0,
+        marginBottom: 1,
     },
     expCompany: {
-        fontSize: 8.5,
+        fontSize: 9.5,
         fontWeight: 600,
         color: C.gold,
-        marginBottom: 0,
+        marginBottom: 2,
     },
     expPeriod: {
-        fontSize: 7.5,
+        fontSize: 8.5,
         color: C.textMuted,
         fontWeight: 500,
-        marginBottom: 3,
+        marginBottom: 4,
     },
     achieveRow: {
         flexDirection: 'row',
-        marginBottom: 1.5,
-        paddingLeft: 2,
+        marginBottom: 3,
     },
     achieveBullet: {
-        fontSize: 5,
+        fontSize: 6,
         color: C.gold,
-        marginRight: 4,
+        marginRight: 6,
         marginTop: 2.5,
     },
     achieveText: {
-        fontSize: 8,
+        fontSize: 9.5,
         color: C.textBody,
-        lineHeight: 1.4,
+        lineHeight: 1.5,
         flex: 1,
     },
 
-    /* ── EDUCATION ── */
+    /* ── EDUCATION / PROJECTS ── */
     eduBlock: {
-        marginBottom: 7,
+        marginBottom: 10,
     },
     eduDegree: {
-        fontSize: 9.5,
+        fontSize: 10.5,
         fontWeight: 700,
         color: C.textDark,
-        marginBottom: 0,
+        marginBottom: 1,
     },
     eduInstitution: {
-        fontSize: 8,
+        fontSize: 9.5,
         color: C.textBody,
         fontWeight: 500,
+        marginBottom: 1,
     },
     eduPeriod: {
-        fontSize: 7.5,
+        fontSize: 8.5,
         color: C.gold,
         fontWeight: 600,
-        marginTop: 0,
+        marginBottom: 1,
     },
     eduDetails: {
-        fontSize: 7.5,
+        fontSize: 9,
         color: C.textMuted,
         fontStyle: 'italic',
-        marginTop: 0,
+        marginTop: 1,
     },
 
     /* ── SIDEBAR ITEMS ── */
-    skillBadge: {
-        fontSize: 7.5,
-        fontWeight: 600,
-        backgroundColor: C.badgeDark,
-        color: C.white,
-        padding: '3px 6px',
-        borderRadius: 3,
-        marginBottom: 3,
-        marginRight: 3,
-    },
-    skillBadgeLight: {
-        fontSize: 7.5,
-        fontWeight: 500,
-        backgroundColor: C.white,
-        color: C.textBody,
-        padding: '3px 6px',
-        borderRadius: 3,
-        marginBottom: 3,
-        marginRight: 3,
-        borderWidth: 1,
-        borderColor: C.border,
-    },
     skillsWrap: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        gap: 4,
+    },
+    skillBadge: {
+        fontSize: 8.5,
+        fontWeight: 600,
+        backgroundColor: C.badgeDark,
+        color: C.white,
+        padding: '4px 8px',
+        borderRadius: 4,
+    },
+    skillBadgeLight: {
+        fontSize: 8.5,
+        fontWeight: 500,
+        backgroundColor: C.white,
+        color: C.textBody,
+        padding: '3px 7px',
+        borderRadius: 4,
+        borderWidth: 1,
+        borderColor: C.border,
     },
     langRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 3,
-        paddingBottom: 3,
+        marginBottom: 4,
+        paddingBottom: 4,
         borderBottom: `1px solid ${C.borderLight}`,
     },
     langName: {
-        fontSize: 8.5,
+        fontSize: 9.5,
         fontWeight: 600,
         color: C.textDark,
     },
     langLevel: {
-        fontSize: 7.5,
+        fontSize: 8.5,
         color: C.textMuted,
         fontStyle: 'italic',
     },
     certName: {
-        fontSize: 8.5,
+        fontSize: 9.5,
         fontWeight: 600,
         color: C.textDark,
+        lineHeight: 1.3,
+        marginBottom: 2,
     },
     certMeta: {
-        fontSize: 7.5,
+        fontSize: 8.5,
         color: C.textMuted,
-        marginTop: 0,
     },
     interestBadge: {
-        fontSize: 7.5,
-        padding: '2px 6px',
-        borderRadius: 3,
+        fontSize: 8.5,
+        padding: '3px 8px',
+        borderRadius: 4,
         backgroundColor: C.white,
         borderWidth: 1,
         borderColor: C.border,
         color: C.textBody,
-        marginBottom: 3,
-        marginRight: 3,
     },
     refName: {
-        fontSize: 8.5,
+        fontSize: 9.5,
         fontWeight: 600,
         color: C.textDark,
+        marginBottom: 1,
     },
     refRole: {
-        fontSize: 7.5,
+        fontSize: 8.5,
         color: C.textBody,
-        marginTop: 0,
+        marginBottom: 1,
     },
     refContact: {
-        fontSize: 7.5,
+        fontSize: 8.5,
         color: C.gold,
-        marginTop: 0,
     },
 
     /* ── SUMMARY ── */
     summaryText: {
-        fontSize: 8.5,
-        lineHeight: 1.45,
+        fontSize: 9.5,
+        lineHeight: 1.6,
         color: C.textBody,
-        marginBottom: 2,
+        textAlign: 'justify',
     },
 
     /* ── FOOTER ── */
@@ -374,21 +361,19 @@ const s = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: 2,
+        height: 3,
         backgroundColor: C.gold,
     },
 });
 
-/* ── Section Heading Component ── */
 const Heading = ({ title }: { title: string }) => (
-    <View style={s.sectionHead}>
+    <View style={s.sectionHead} wrap={false}>
         <View style={s.sectionDot} />
         <Text style={s.sectionTitle}>{title}</Text>
         <View style={s.sectionLine} />
     </View>
 );
 
-/* ── Main Component ── */
 export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photoPreview?: string | null }) => {
     if (!data) return null;
     const { personalInfo, summary, experience, education, skills, languages, certifications, interests, references, projects, volunteer, awards, customSections } = data;
@@ -409,8 +394,8 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
     if (personalInfo.email) contactItems.push(personalInfo.email);
     if (personalInfo.phone) contactItems.push(personalInfo.phone);
     if (personalInfo.location) contactItems.push(personalInfo.location);
-    if (personalInfo.linkedin) contactItems.push(personalInfo.linkedin);
-    if (personalInfo.website) contactItems.push(personalInfo.website);
+    if (personalInfo.linkedin) contactItems.push(personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', ''));
+    if (personalInfo.website) contactItems.push(personalInfo.website.replace('https://', ''));
     if (personalInfo.dateOfBirth) contactItems.push(personalInfo.dateOfBirth);
     if (personalInfo.nationality) contactItems.push(personalInfo.nationality);
     if (personalInfo.drivingLicense) contactItems.push(`Permis ${personalInfo.drivingLicense}`);
@@ -418,12 +403,14 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
     return (
         <Document>
             <Page size="A4" style={s.page}>
-                {/* ═══ HEADER ═══ */}
+                {/* Global Backgrounds for Multi-Page Support */}
+                <View style={s.sidebarBg} fixed />
+                <View style={s.footer} fixed />
+
+                {/* ═══ HEADER (Only on first page) ═══ */}
                 <View style={s.header}>
-                    {/* Decorative corner accent */}
                     <View style={s.headerDecoCorner} />
 
-                    {/* Photo — Large and Prominent */}
                     {shouldRenderPhoto && (
                         <View style={s.photoOuter}>
                             <View style={s.photoInner}>
@@ -432,21 +419,17 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                         </View>
                     )}
 
-                    {/* Name & Contact */}
                     <View style={s.headerInfo}>
                         <Text style={s.fullName}>{personalInfo.fullName || 'Votre Nom'}</Text>
                         <Text style={s.jobTitle}>{personalInfo.jobTitle || 'Votre Poste'}</Text>
                         <View style={s.contactRow}>
                             {contactItems.map((item, idx) => (
-                                <React.Fragment key={idx}>
-                                    {idx > 0 && <View style={s.contactSep} />}
-                                    <Text style={s.contactPill}>{item}</Text>
-                                </React.Fragment>
+                                <View key={idx} style={s.contactPill}>
+                                    <Text>{item}</Text>
+                                </View>
                             ))}
                         </View>
                     </View>
-
-                    {/* Bottom gold stripe */}
                     <View style={s.headerDecoStripe} />
                 </View>
 
@@ -455,7 +438,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                     {/* ── SIDEBAR ── */}
                     <View style={s.sidebar}>
                         {hasSkills && (
-                            <View style={s.sideBlock}>
+                            <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Compétences" />
                                 <View style={s.skillsWrap}>
                                     {skills.map((skill, idx) => (
@@ -481,7 +464,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Certifications" />
                                 {certifications!.map((cert, idx) => (
-                                    <View key={idx} style={{ marginBottom: 5 }}>
+                                    <View key={idx} style={{ marginBottom: 8 }}>
                                         <Text style={s.certName}>{cert.name}</Text>
                                         <Text style={s.certMeta}>
                                             {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
@@ -506,7 +489,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Références" />
                                 {references!.map((ref, idx) => (
-                                    <View key={idx} style={{ marginBottom: 6 }}>
+                                    <View key={idx} style={{ marginBottom: 8 }}>
                                         <Text style={s.refName}>{ref.name}</Text>
                                         <Text style={s.refRole}>{ref.role}</Text>
                                         {ref.contact && <Text style={s.refContact}>{ref.contact}</Text>}
@@ -519,7 +502,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             <View style={s.sideBlock} wrap={false}>
                                 <Heading title="Distinctions" />
                                 {awards!.map((aw, idx) => (
-                                    <View key={idx} style={{ marginBottom: 5 }}>
+                                    <View key={idx} style={{ marginBottom: 8 }}>
                                         <Text style={s.certName}>{aw.name}</Text>
                                         <Text style={s.certMeta}>
                                             {[aw.issuer, aw.year].filter(Boolean).join(' — ')}
@@ -532,18 +515,16 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
 
                     {/* ── MAIN CONTENT ── */}
                     <View style={s.main}>
-                        {/* Summary */}
                         {summary && (
-                            <View style={s.mainBlock}>
-                                <Heading title="Profil" />
+                            <View style={s.mainBlock} wrap={false}>
+                                <Heading title="Profil Professionnel" />
                                 <Text style={s.summaryText}>{summary}</Text>
                             </View>
                         )}
 
-                        {/* Experience */}
                         {experience && experience.length > 0 && (
                             <View style={s.mainBlock}>
-                                <Heading title="Expérience" />
+                                <Heading title="Expériences" />
                                 {experience.map((exp, idx) => (
                                     <View key={idx} style={s.expBlock} wrap={false}>
                                         <View style={s.expDot} />
@@ -553,7 +534,7 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                                         </Text>
                                         <Text style={s.expPeriod}>{exp.period}</Text>
                                         {exp.achievements && exp.achievements.length > 0 && (
-                                            <View style={{ marginTop: 4 }}>
+                                            <View style={{ marginTop: 2 }}>
                                                 {exp.achievements.map((achiev, i) => (
                                                     <View key={i} style={s.achieveRow}>
                                                         <Text style={s.achieveBullet}>●</Text>
@@ -567,37 +548,38 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                             </View>
                         )}
 
-                        {/* Education */}
                         {education && education.length > 0 && (
                             <View style={s.mainBlock}>
-                                <Heading title="Formation" />
+                                <Heading title="Formations" />
                                 {education.map((edu, idx) => (
                                     <View key={idx} style={s.eduBlock} wrap={false}>
-                                        <Text style={s.eduDegree}>{edu.degree}</Text>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <Text style={s.eduDegree}>{edu.degree}</Text>
+                                            <Text style={s.eduPeriod}>{edu.period}</Text>
+                                        </View>
                                         <Text style={s.eduInstitution}>{edu.institution}</Text>
-                                        <Text style={s.eduPeriod}>{edu.period}</Text>
                                         {edu.details && <Text style={s.eduDetails}>{edu.details}</Text>}
                                     </View>
                                 ))}
                             </View>
                         )}
 
-                        {/* Projects */}
                         {hasProjects && (
                             <View style={s.mainBlock}>
                                 <Heading title="Projets" />
                                 {projects!.map((proj, idx) => (
                                     <View key={idx} style={s.eduBlock} wrap={false}>
-                                        <Text style={s.eduDegree}>{proj.name}</Text>
-                                        {proj.description && <Text style={s.achieveText}>{proj.description}</Text>}
-                                        {proj.technologies && <Text style={s.eduDetails}>{proj.technologies}</Text>}
-                                        {proj.url && <Text style={{ fontSize: 9, color: C.gold, marginTop: 1 }}>{proj.url}</Text>}
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <Text style={s.eduDegree}>{proj.name}</Text>
+                                            {proj.url && <Text style={{ fontSize: 8.5, color: C.gold }}>{proj.url}</Text>}
+                                        </View>
+                                        {proj.description && <Text style={[s.achieveText, { marginTop: 2 }]}>{proj.description}</Text>}
+                                        {proj.technologies && <Text style={[s.eduDetails, { marginTop: 2 }]}>{proj.technologies}</Text>}
                                     </View>
                                 ))}
                             </View>
                         )}
 
-                        {/* Volunteer */}
                         {hasVolunteer && (
                             <View style={s.mainBlock}>
                                 <Heading title="Bénévolat" />
@@ -607,31 +589,29 @@ export const CVTemplateReactPDF = ({ data, photoPreview }: { data: CVData; photo
                                         <Text style={s.expRole}>{vol.role}</Text>
                                         <Text style={s.expCompany}>{vol.organization}</Text>
                                         {vol.period && <Text style={s.expPeriod}>{vol.period}</Text>}
-                                        {vol.description && <Text style={s.achieveText}>{vol.description}</Text>}
+                                        {vol.description && <Text style={[s.achieveText, { marginTop: 2 }]}>{vol.description}</Text>}
                                     </View>
                                 ))}
                             </View>
                         )}
 
-                        {/* Custom Sections */}
                         {hasCustom && customSections!.map((sec, sIdx) => (
                             sec.items.length > 0 && (
                                 <View key={sIdx} style={s.mainBlock}>
                                     <Heading title={sec.title} />
-                                    {sec.items.map((item, i) => (
-                                        <View key={i} style={s.achieveRow}>
-                                            <Text style={s.achieveBullet}>●</Text>
-                                            <Text style={s.achieveText}>{item}</Text>
-                                        </View>
-                                    ))}
+                                    <View wrap={false}>
+                                        {sec.items.map((item, i) => (
+                                            <View key={i} style={s.achieveRow}>
+                                                <Text style={s.achieveBullet}>●</Text>
+                                                <Text style={s.achieveText}>{item}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
                                 </View>
                             )
                         ))}
                     </View>
                 </View>
-
-                {/* Footer gold stripe */}
-                <View style={s.footer} fixed />
             </Page>
         </Document>
     );

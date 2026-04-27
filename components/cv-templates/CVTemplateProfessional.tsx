@@ -99,22 +99,21 @@ function SectionHeading({ title }: { title: string }) {
         <div style={{
             display: 'flex',
             alignItems: 'center',
-            marginBottom: '7px',
+            marginBottom: '8px',
             gap: '8px',
         }}>
             {/* Gold dot */}
             <div style={{
-                width: '6px',
-                height: '6px',
+                width: '9px', height: '9px',
                 borderRadius: '50%',
                 backgroundColor: C.gold,
                 flexShrink: 0,
             }} />
             <span style={{
-                fontSize: '9px',
+                fontSize: '10px',
                 fontWeight: 700,
                 textTransform: 'uppercase' as const,
-                letterSpacing: '1.6px',
+                letterSpacing: '1.5px',
                 color: C.navy,
                 whiteSpace: 'nowrap' as const,
                 fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
@@ -216,10 +215,10 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                     {/* ═══ HEADER ═══ */}
                     <div style={{
                         backgroundColor: C.navy,
-                        padding: '16px 28px',
+                        padding: '24px 32px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '16px',
+                        gap: '20px',
                         flexShrink: 0,
                         position: 'relative',
                         overflow: 'hidden',
@@ -239,8 +238,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         {/* Photo — BIG and prominent */}
                         {photoSrc && (
                             <div style={{
-                                width: '72px',
-                                height: '72px',
+                                width: '80px', height: '80px',
                                 borderRadius: '50%',
                                 background: C.gold,
                                 padding: '1.5px',
@@ -273,29 +271,29 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         {/* Name & Contact */}
                         <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
                             <div style={{
-                                fontSize: '20px',
+                                fontSize: '22px',
                                 fontWeight: 800,
                                 color: C.white,
                                 textTransform: 'uppercase' as const,
-                                letterSpacing: '1.6px',
+                                letterSpacing: '1.5px',
                                 lineHeight: '1.2',
-                                marginBottom: '2px',
+                                marginBottom: '4px',
                             }}>
                                 {personalInfo?.fullName || 'Prénom Nom'}
                             </div>
                             <div style={{
-                                fontSize: '7.5px',
+                                fontSize: '9.5px',
                                 fontWeight: 600,
                                 color: C.gold,
                                 letterSpacing: '1.2px',
                                 textTransform: 'uppercase' as const,
-                                marginBottom: '8px',
+                                marginBottom: '10px',
                             }}>
                                 {personalInfo?.jobTitle || 'Votre Poste'}
                             </div>
 
                             {/* Contact pills with gold dot separators */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', alignItems: 'center' }}>
                                 {contactItems.map((item, idx) => (
                                     <React.Fragment key={idx}>
                                         {idx > 0 && (
@@ -308,10 +306,10 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                             }} />
                                         )}
                                         <span style={{
-                                            fontSize: '7.5px',
+                                            fontSize: '9.5px',
                                             color: '#D1D5DB',
                                             backgroundColor: 'rgba(255,255,255,0.07)',
-                                            padding: '2px 7px',
+                                            padding: '3px 8px',
                                             borderRadius: '4px',
                                             display: 'inline-flex',
                                             alignItems: 'center',
@@ -345,7 +343,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                             <div style={{
                                 width: '32%',
                                 flexShrink: 0,
-                                padding: '14px 14px',
+                                padding: '20px 16px',
                                 backgroundColor: C.sidebar,
                                 borderRight: `1px solid ${C.border}`,
                                 display: 'flex',
@@ -359,7 +357,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '3px' }}>
                                             {skills.map((skill, idx) => (
                                                 <span key={idx} style={{
-                                                    fontSize: '7.5px',
+                                                    fontSize: '9.5px',
                                                     fontWeight: 600,
                                                     padding: '3px 6px',
                                                     borderRadius: '4px',
@@ -388,8 +386,8 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                                     padding: '3px 0',
                                                     borderBottom: `1px solid ${C.borderLight}`,
                                                 }}>
-                                                    <span style={{ fontSize: '9px', fontWeight: 600, color: C.textDark }}>{lang.name}</span>
-                                                    <span style={{ fontSize: '7.5px', color: C.textMuted, fontStyle: 'italic' }}>{lang.level}</span>
+                                                    <span style={{ fontSize: '10px', fontWeight: 600, color: C.textDark }}>{lang.name}</span>
+                                                    <span style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic' }}>{lang.level}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -403,8 +401,8 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                             {certifications!.map((cert, idx) => (
                                                 <div key={idx}>
-                                                    <div style={{ fontSize: '9px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{cert.name}</div>
-                                                    <div style={{ fontSize: '7.5px', color: C.textMuted, marginTop: '2px' }}>
+                                                    <div style={{ fontSize: '10px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{cert.name}</div>
+                                                    <div style={{ fontSize: '9.5px', color: C.textMuted, marginTop: '2px' }}>
                                                         {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
                                                     </div>
                                                 </div>
@@ -420,7 +418,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '3px' }}>
                                             {interests!.map((item, idx) => (
                                                 <span key={idx} style={{
-                                                    fontSize: '7.5px',
+                                                    fontSize: '9.5px',
                                                     padding: '2px 6px',
                                                     borderRadius: '4px',
                                                     backgroundColor: C.white,
@@ -442,9 +440,9 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                             {references!.map((ref, idx) => (
                                                 <div key={idx}>
-                                                    <div style={{ fontSize: '9px', fontWeight: 600, color: C.textDark }}>{ref.name}</div>
-                                                    <div style={{ fontSize: '7.5px', color: C.textBody, marginTop: '1px' }}>{ref.role}</div>
-                                                    {ref.contact && <div style={{ fontSize: '7.5px', color: C.gold, marginTop: '2px' }}>{ref.contact}</div>}
+                                                    <div style={{ fontSize: '10px', fontWeight: 600, color: C.textDark }}>{ref.name}</div>
+                                                    <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '1px' }}>{ref.role}</div>
+                                                    {ref.contact && <div style={{ fontSize: '9.5px', color: C.gold, marginTop: '2px' }}>{ref.contact}</div>}
                                                 </div>
                                             ))}
                                         </div>
@@ -458,8 +456,8 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                             {awards!.map((aw, idx) => (
                                                 <div key={idx}>
-                                                    <div style={{ fontSize: '9px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{aw.name}</div>
-                                                    <div style={{ fontSize: '7.5px', color: C.textMuted, marginTop: '2px' }}>
+                                                    <div style={{ fontSize: '10px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{aw.name}</div>
+                                                    <div style={{ fontSize: '9.5px', color: C.textMuted, marginTop: '2px' }}>
                                                         {[aw.issuer, aw.year].filter(Boolean).join(' — ')}
                                                     </div>
                                                 </div>
@@ -473,7 +471,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         {/* ── Main Column ── */}
                         <div style={{
                             flex: 1,
-                            padding: '14px 20px',
+                            padding: '20px 24px',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '7px',
@@ -484,8 +482,8 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                     <SectionHeading title="Profil Professionnel" />
                                     <p style={{
                                         color: C.textBody,
-                                        fontSize: '9px',
-                                        lineHeight: '1.65',
+                                        fontSize: '10px',
+                                        lineHeight: '1.6',
                                         margin: 0,
                                         textAlign: 'justify' as const,
                                     }}>
@@ -501,7 +499,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                                         {experience.map((exp, idx) => (
                                             <div key={idx} className="avoid-break" style={{
-                                                paddingLeft: '10px',
+                                                paddingLeft: '12px',
                                                 borderLeft: `2px solid ${C.borderLight}`,
                                                 marginBottom: '16px',
                                                 position: 'relative',
@@ -509,23 +507,22 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                                 {/* Timeline dot */}
                                                 <div style={{
                                                     position: 'absolute',
-                                                    left: '-4px',
+                                                    left: '-5.5px',
                                                     top: '4px',
-                                                    width: '6px',
-                                                    height: '6px',
+                                                    width: '9px', height: '9px',
                                                     borderRadius: '50%',
                                                     backgroundColor: C.gold,
                                                     border: `2px solid ${C.white}`,
                                                     boxShadow: `0 0 0 1px ${C.border}`,
                                                 }} />
-                                                <div style={{ fontSize: '7.5px', fontWeight: 700, color: C.navy }}>
+                                                <div style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>
                                                     {exp.role}
                                                 </div>
-                                                <div style={{ fontSize: '9px', fontWeight: 600, color: C.gold, marginTop: '2px' }}>
+                                                <div style={{ fontSize: '10px', fontWeight: 600, color: C.gold, marginTop: '2px' }}>
                                                     {exp.company}{exp.location ? ` • ${exp.location}` : ''}
                                                 </div>
                                                 <div style={{
-                                                    fontSize: '7.5px',
+                                                    fontSize: '9.5px',
                                                     color: C.textMuted,
                                                     fontWeight: 500,
                                                     marginTop: '2px',
@@ -537,11 +534,11 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                                     <div style={{ marginTop: '4px' }}>
                                                         {exp.achievements.map((ach, i) => (
                                                             <div key={i} style={{
-                                                                fontSize: '8px',
+                                                                fontSize: '9.5px',
                                                                 color: C.textBody,
                                                                 paddingLeft: '12px',
-                                                                marginBottom: '2px',
-                                                                lineHeight: '1.5',
+                                                                marginBottom: '4px',
+                                                                lineHeight: '1.6',
                                                                 position: 'relative' as const,
                                                             }}>
                                                                 <span style={{
@@ -574,10 +571,10 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                             <div key={idx} className="avoid-break">
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                                                     <span style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>{edu.degree}</span>
-                                                    <span style={{ fontSize: '7.5px', color: C.gold, fontWeight: 600 }}>{edu.period}</span>
+                                                    <span style={{ fontSize: '9.5px', color: C.gold, fontWeight: 600 }}>{edu.period}</span>
                                                 </div>
-                                                <div style={{ fontSize: '8px', color: C.textBody, marginTop: '2px', fontWeight: 500 }}>{edu.institution}</div>
-                                                {edu.details && <div style={{ fontSize: '8px', color: C.textMuted, fontStyle: 'italic', marginTop: '2px' }}>{edu.details}</div>}
+                                                <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '2px', fontWeight: 500 }}>{edu.institution}</div>
+                                                {edu.details && <div style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic', marginTop: '2px' }}>{edu.details}</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -593,10 +590,10 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                             <div key={idx} className="avoid-break">
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                                                     <span style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>{proj.name}</span>
-                                                    {proj.url && <span style={{ fontSize: '7.5px', color: C.gold, fontWeight: 500 }}>{proj.url}</span>}
+                                                    {proj.url && <span style={{ fontSize: '9.5px', color: C.gold, fontWeight: 500 }}>{proj.url}</span>}
                                                 </div>
-                                                {proj.description && <div style={{ fontSize: '8px', color: C.textBody, marginTop: '2px', lineHeight: '1.5' }}>{proj.description}</div>}
-                                                {proj.technologies && <div style={{ fontSize: '8px', color: C.textMuted, fontStyle: 'italic', marginTop: '3px' }}>{proj.technologies}</div>}
+                                                {proj.description && <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '2px', lineHeight: '1.5' }}>{proj.description}</div>}
+                                                {proj.technologies && <div style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic', marginTop: '3px' }}>{proj.technologies}</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -611,9 +608,9 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         {volunteer!.map((vol, idx) => (
                                             <div key={idx} className="avoid-break">
                                                 <div style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>{vol.role}</div>
-                                                <div style={{ fontSize: '9px', fontWeight: 600, color: C.gold, marginTop: '1px' }}>{vol.organization}</div>
-                                                {vol.period && <div style={{ fontSize: '7.5px', color: C.textMuted, fontWeight: 500, marginTop: '2px' }}>{vol.period}</div>}
-                                                {vol.description && <div style={{ fontSize: '8px', color: C.textBody, marginTop: '3px', lineHeight: '1.5' }}>{vol.description}</div>}
+                                                <div style={{ fontSize: '10px', fontWeight: 600, color: C.gold, marginTop: '1px' }}>{vol.organization}</div>
+                                                {vol.period && <div style={{ fontSize: '9.5px', color: C.textMuted, fontWeight: 500, marginTop: '2px' }}>{vol.period}</div>}
+                                                {vol.description && <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '3px', lineHeight: '1.5' }}>{vol.description}</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -628,10 +625,10 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             {sec.items.map((item, i) => (
                                                 <div key={i} style={{
-                                                    fontSize: '8px',
+                                                    fontSize: '9.5px',
                                                     color: C.textBody,
                                                     paddingLeft: '12px',
-                                                    lineHeight: '1.5',
+                                                    lineHeight: '1.6',
                                                     position: 'relative' as const,
                                                 }}>
                                                     <span style={{
