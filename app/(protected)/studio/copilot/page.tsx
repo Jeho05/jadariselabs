@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
 import {
@@ -57,7 +57,7 @@ export default function CopilotStudioPage() {
     const [usedAction, setUsedAction] = useState<CopilotAction | null>(null);
 
     // Load profile
-    useState(() => {
+    useEffect(() => {
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
@@ -67,7 +67,7 @@ export default function CopilotStudioPage() {
             setLoading(false);
         };
         fetchProfile();
-    });
+    }, [supabase]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (!isSupportedDocument(file)) {
