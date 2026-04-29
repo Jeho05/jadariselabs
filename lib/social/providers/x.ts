@@ -107,6 +107,56 @@ export async function fetchXProfile(accessToken: string): Promise<{ id: string; 
     };
 }
 
+export async function refreshXToken({
+    refreshToken,
+    clientId,
+    clientSecret,
+    redirectUri,
+}: {
+    refreshToken: string;
+    clientId: string;
+    clientSecret?: string;
+    redirectUri: string;
+}): Promise<{ accessToken: string; refreshToken?: string; expiresIn?: number; scope?: string; tokenType?: string }> {
+    const body = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: clientId,
+        redirect_uri: redirectUri,
+    });
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    if (clientSecret) {
+        const encodedId = encodeURIComponent(clientId);
+        const encodedSecret = encodeURIComponent(clientSecret);
+        const auth = Buffer.from(`${encodedId}:${encodedSecret}`).toString('base64');
+        headers.Authorization = `Basic ${auth}`;
+    }
+
+    const res = await fetch(X_TOKEN_URL, {
+        method: 'POST',
+        headers,
+        body,
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`X token refresh failed: ${text}`);
+    }
+
+    const data = await res.json();
+    return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        expiresIn: data.expires_in,
+        scope: data.scope,
+        tokenType: data.token_type,
+    };
+}
+
 export async function publishXPost({
     accessToken,
     text,

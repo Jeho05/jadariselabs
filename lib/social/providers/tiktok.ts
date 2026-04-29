@@ -74,6 +74,49 @@ export async function exchangeTikTokCode({
     };
 }
 
+export async function refreshTikTokToken({
+    refreshToken,
+    clientKey,
+    clientSecret,
+}: {
+    refreshToken: string;
+    clientKey: string;
+    clientSecret: string;
+}): Promise<{ accessToken: string; refreshToken?: string; expiresIn?: number; refreshExpiresIn?: number; scope?: string; openId?: string }> {
+    const body = new URLSearchParams({
+        client_key: clientKey,
+        client_secret: clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+    });
+
+    const res = await fetch(TIKTOK_TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`TikTok token refresh failed: ${text}`);
+    }
+
+    const data = await res.json();
+
+    if (data.error) {
+        throw new Error(`TikTok token refresh error: ${data.error_description || data.error}`);
+    }
+
+    return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        expiresIn: data.expires_in,
+        refreshExpiresIn: data.refresh_expires_in,
+        scope: data.scope,
+        openId: data.open_id,
+    };
+}
+
 export async function revokeTikTokToken({
     clientKey,
     clientSecret,

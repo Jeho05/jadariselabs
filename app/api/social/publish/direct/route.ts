@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getSocialAccountByPlatform, type SocialPlatform } from '@/lib/social/accounts';
+import { ensureFreshToken, type SocialPlatform } from '@/lib/social/accounts';
 import { publishLinkedInPost } from '@/lib/social/providers/linkedin';
 import { publishXPost } from '@/lib/social/providers/x';
 import { fetchTikTokCreatorInfo, publishTikTokPhoto } from '@/lib/social/providers/tiktok';
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Plateforme non supportée' }, { status: 400 });
     }
 
-    const account = await getSocialAccountByPlatform(user.id, platform as SocialPlatform);
+    const account = await ensureFreshToken(user.id, platform as SocialPlatform);
     if (!account) {
         return NextResponse.json({ error: `Aucun compte ${platform} connecté. Connectez votre compte d'abord.` }, { status: 400 });
     }

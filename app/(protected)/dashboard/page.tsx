@@ -142,6 +142,15 @@ export default function DashboardPage() {
 
     const modules = [
         {
+            icon: IconSparkle,
+            title: 'Copilote Admin',
+            description: 'Upload → Résumé → Actions → Email → Facture',
+            href: '/studio/copilot',
+            color: 'gold',
+            tag: '🥇 #1',
+            gradient: 'from-[var(--color-gold)] to-[var(--color-earth)]',
+        },
+        {
             icon: IconImage,
             title: 'Génération d\'images',
             description: 'Créez des images époustouflantes avec FLUX, SDXL & SD 3.5',
@@ -504,6 +513,7 @@ export default function DashboardPage() {
                                     const percentage = Math.round((stat.count / totalGenerations) * 100);
                                     const getModuleColor = (type: string) => {
                                         switch (type) {
+                                            case 'copilot': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-earth)]' };
                                             case 'image': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'chat': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'video': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
@@ -521,6 +531,7 @@ export default function DashboardPage() {
                                     };
                                     const getModuleLabel = (type: string) => {
                                         switch (type) {
+                                            case 'copilot': return 'Copilote Admin';
                                             case 'image': return 'Génération d\'images';
                                             case 'chat': return 'Chat IA';
                                             case 'video': return 'Génération vidéo';
@@ -580,6 +591,7 @@ export default function DashboardPage() {
                             {recentGenerations.map((gen, index) => {
                                 const getTypeStyle = (type: string) => {
                                     switch (type) {
+                                        case 'copilot': return { icon: IconSparkle, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-earth)]' };
                                         case 'image': return { icon: IconImage, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'chat': return { icon: IconChat, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'video': return { icon: IconVideo, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };

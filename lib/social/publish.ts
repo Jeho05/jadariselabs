@@ -1,5 +1,5 @@
 ﻿import { createAdminClient } from '@/lib/supabase/admin';
-import { getSocialAccountByPlatform, type SocialPlatform } from '@/lib/social/accounts';
+import { ensureFreshToken, type SocialPlatform } from '@/lib/social/accounts';
 import { publishLinkedInPost } from '@/lib/social/providers/linkedin';
 import { publishXPost } from '@/lib/social/providers/x';
 import { fetchTikTokCreatorInfo, publishTikTokPhoto } from '@/lib/social/providers/tiktok';
@@ -31,7 +31,7 @@ export async function publishDraftById(draftId: string): Promise<PublishResult> 
     }
 
     const platform = draft.platform as SocialPlatform;
-    const account = await getSocialAccountByPlatform(draft.user_id, platform);
+    const account = await ensureFreshToken(draft.user_id, platform);
 
     if (!account) {
         await supabase

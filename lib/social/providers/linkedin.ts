@@ -68,6 +68,46 @@ export async function exchangeLinkedInCode({
     };
 }
 
+export async function refreshLinkedInToken({
+    refreshToken,
+    clientId,
+    clientSecret,
+    redirectUri,
+}: {
+    refreshToken: string;
+    clientId: string;
+    clientSecret: string;
+    redirectUri: string;
+}): Promise<{ accessToken: string; refreshToken?: string; expiresIn?: number; scope?: string }> {
+    const body = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+    });
+
+    const res = await fetch(LINKEDIN_TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`LinkedIn token refresh failed: ${text}`);
+    }
+
+    const data = await res.json();
+
+    return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        expiresIn: data.expires_in,
+        scope: data.scope,
+    };
+}
+
 export async function fetchLinkedInProfile(accessToken: string): Promise<{ id: string; name: string; urn: string }>{
     const res = await fetch(LINKEDIN_ME_URL, {
         headers: {
