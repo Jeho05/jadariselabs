@@ -180,6 +180,15 @@ export default function DashboardPage() {
             gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]',
         },
         {
+            icon: IconBriefcase,
+            title: 'Assistant Commerce',
+            description: 'Générez des messages clients, devis et factures',
+            href: '/studio/commerce',
+            color: 'blue',
+            tag: '🛒 #5',
+            gradient: 'from-blue-600 to-indigo-700',
+        },
+        {
             icon: IconImage,
             title: 'Génération d\'images',
             description: 'Créez des images époustouflantes avec FLUX, SDXL & SD 3.5',
@@ -546,6 +555,7 @@ export default function DashboardPage() {
                                             case 'voice': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'radar': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-dark)]' };
                                             case 'translate': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
+                                            case 'commerce': return { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-600 to-indigo-700' };
                                             case 'image': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'chat': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'video': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
@@ -567,6 +577,7 @@ export default function DashboardPage() {
                                             case 'voice': return 'Assistant Vocal';
                                             case 'radar': return 'Radar d\'Opportunités';
                                             case 'translate': return 'Traducteur Local';
+                                            case 'commerce': return 'Assistant Commerce';
                                             case 'image': return 'Génération d\'images';
                                             case 'chat': return 'Chat IA';
                                             case 'video': return 'Génération vidéo';
@@ -630,6 +641,7 @@ export default function DashboardPage() {
                                         case 'voice': return { icon: IconMic, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'radar': return { icon: IconGlobe, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-dark)]' };
                                         case 'translate': return { icon: IconLanguages, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
+                                        case 'commerce': return { icon: IconBriefcase, color: 'blue', gradient: 'from-blue-600 to-indigo-700' };
                                         case 'image': return { icon: IconImage, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'chat': return { icon: IconChat, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'video': return { icon: IconVideo, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
