@@ -27,12 +27,12 @@ import {
     IconSearch,
     IconMic,
     IconGlobe,
+    IconLanguages,
     // Phase 1 new modules
     IconText,
     IconFileText,
     IconMegaphone,
     IconBriefcase,
-    IconLanguages,
 } from '@/components/icons';
 
 /**
@@ -169,6 +169,15 @@ export default function DashboardPage() {
             color: 'earth',
             tag: '🥉 #3',
             gradient: 'from-[var(--color-earth)] to-[var(--color-earth-dark)]',
+        },
+        {
+            icon: IconLanguages,
+            title: 'Traducteur Local',
+            description: 'Traduisez entre Français, Anglais, Fon, et Yoruba',
+            href: '/studio/translate',
+            color: 'terracotta',
+            tag: '🏅 #4',
+            gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]',
         },
         {
             icon: IconImage,
@@ -536,6 +545,7 @@ export default function DashboardPage() {
                                             case 'copilot': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-earth)]' };
                                             case 'voice': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'radar': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-dark)]' };
+                                            case 'translate': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'image': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'chat': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'video': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
@@ -556,6 +566,7 @@ export default function DashboardPage() {
                                             case 'copilot': return 'Copilote Admin';
                                             case 'voice': return 'Assistant Vocal';
                                             case 'radar': return 'Radar d\'Opportunités';
+                                            case 'translate': return 'Traducteur Local';
                                             case 'image': return 'Génération d\'images';
                                             case 'chat': return 'Chat IA';
                                             case 'video': return 'Génération vidéo';
@@ -618,6 +629,7 @@ export default function DashboardPage() {
                                         case 'copilot': return { icon: IconSparkle, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-earth)]' };
                                         case 'voice': return { icon: IconMic, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'radar': return { icon: IconGlobe, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-dark)]' };
+                                        case 'translate': return { icon: IconLanguages, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'image': return { icon: IconImage, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'chat': return { icon: IconChat, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'video': return { icon: IconVideo, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
