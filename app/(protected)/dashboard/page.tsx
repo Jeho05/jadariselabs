@@ -32,6 +32,9 @@ import {
     IconLeaf,
     IconWand2,
     IconDocument,
+    IconMessageCircle,
+    IconSettings2,
+    IconGraduationCap,
     // Phase 1 new modules
     IconText,
     IconFileText,
@@ -219,6 +222,33 @@ export default function DashboardPage() {
             gradient: 'from-teal-500 to-cyan-700',
         },
         {
+            icon: IconMessageCircle,
+            title: 'Copilote Communication',
+            description: 'Rédigez et reformulez vos emails et messages pros',
+            href: '/studio/comms',
+            color: 'pink',
+            tag: '💬 #9',
+            gradient: 'from-pink-500 to-rose-600',
+        },
+        {
+            icon: IconSettings2,
+            title: 'Hub Micro-Outils',
+            description: 'Calculatrice, reformulation, résumé et idéation rapides',
+            href: '/studio/tools',
+            color: 'orange',
+            tag: '🧰 #10',
+            gradient: 'from-orange-500 to-yellow-600',
+        },
+        {
+            icon: IconGraduationCap,
+            title: 'Coach Scolaire',
+            description: 'PDF → Quiz + Fiches de révision + Corrections',
+            href: '/studio/coach',
+            color: 'indigo',
+            tag: '🎓 #5bis',
+            gradient: 'from-indigo-500 to-violet-600',
+        },
+        {
             icon: IconImage,
             title: 'Génération d\'images',
             description: 'Créez des images époustouflantes avec FLUX, SDXL & SD 3.5',
@@ -326,15 +356,6 @@ export default function DashboardPage() {
             color: 'gold',
             tag: 'NOUVEAU',
             gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]',
-        },
-        {
-            icon: IconLanguages,
-            title: 'Traduction locale',
-            description: 'Français ↔ Fon ↔ Yoruba — Unique en Afrique',
-            href: '/studio/translate',
-            color: 'savanna',
-            tag: 'UNIQUE',
-            gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]',
         },
     ];
 
@@ -589,6 +610,9 @@ export default function DashboardPage() {
                                             case 'agri': return { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-500 to-emerald-700' };
                                             case 'workflow': return { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-500 to-fuchsia-600' };
                                             case 'contracts': return { bg: 'bg-teal-100', text: 'text-teal-600', gradient: 'from-teal-500 to-cyan-700' };
+                                            case 'comms': return { bg: 'bg-pink-100', text: 'text-pink-600', gradient: 'from-pink-500 to-rose-600' };
+                                            case 'tools': return { bg: 'bg-orange-100', text: 'text-orange-600', gradient: 'from-orange-500 to-yellow-600' };
+                                            case 'coach': return { bg: 'bg-indigo-100', text: 'text-indigo-600', gradient: 'from-indigo-500 to-violet-600' };
                                             case 'image': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'chat': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'video': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
@@ -600,7 +624,6 @@ export default function DashboardPage() {
                                             case 'document': return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                             case 'social': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'career': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
-                                            case 'translate': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             default: return { bg: 'bg-[var(--color-earth)]', text: 'text-[var(--color-earth)]', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                         }
                                     };
@@ -614,6 +637,9 @@ export default function DashboardPage() {
                                             case 'agri': return 'Assistant Agriculture';
                                             case 'workflow': return 'Mini-Workflows';
                                             case 'contracts': return 'Lecteur de Contrats';
+                                            case 'comms': return 'Copilote Communication';
+                                            case 'tools': return 'Hub Micro-Outils';
+                                            case 'coach': return 'Coach Scolaire';
                                             case 'image': return 'Génération d\'images';
                                             case 'chat': return 'Chat IA';
                                             case 'video': return 'Génération vidéo';
@@ -625,7 +651,6 @@ export default function DashboardPage() {
                                             case 'document': return 'Documents IA';
                                             case 'social': return 'Social Media';
                                             case 'career': return 'Carrière';
-                                            case 'translate': return 'Traduction locale';
                                             default: return type;
                                         }
                                     };
@@ -681,6 +706,9 @@ export default function DashboardPage() {
                                         case 'agri': return { icon: IconLeaf, color: 'green', gradient: 'from-green-500 to-emerald-700' };
                                         case 'workflow': return { icon: IconWand2, color: 'purple', gradient: 'from-purple-500 to-fuchsia-600' };
                                         case 'contracts': return { icon: IconDocument, color: 'teal', gradient: 'from-teal-500 to-cyan-700' };
+                                        case 'comms': return { icon: IconMessageCircle, color: 'pink', gradient: 'from-pink-500 to-rose-600' };
+                                        case 'tools': return { icon: IconSettings2, color: 'orange', gradient: 'from-orange-500 to-yellow-600' };
+                                        case 'coach': return { icon: IconGraduationCap, color: 'indigo', gradient: 'from-indigo-500 to-violet-600' };
                                         case 'image': return { icon: IconImage, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'chat': return { icon: IconChat, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'video': return { icon: IconVideo, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
@@ -692,7 +720,6 @@ export default function DashboardPage() {
                                         case 'document': return { icon: IconFileText, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                         case 'social': return { icon: IconMegaphone, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'career': return { icon: IconBriefcase, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
-                                        case 'translate': return { icon: IconLanguages, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         default: return { icon: IconPalette, color: 'earth', gradient: 'from-[var(--color-earth)] to-[var(--color-earth-light)]' };
                                     }
                                 };
