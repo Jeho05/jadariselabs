@@ -30,6 +30,8 @@ import {
     IconLanguages,
     IconBriefcase,
     IconLeaf,
+    IconWand2,
+    IconDocument,
     // Phase 1 new modules
     IconText,
     IconFileText,
@@ -197,6 +199,24 @@ export default function DashboardPage() {
             color: 'green',
             tag: '🌱 #6',
             gradient: 'from-green-500 to-emerald-700',
+        },
+        {
+            icon: IconWand2,
+            title: 'Mini-Workflows',
+            description: 'Automatisez des séquences d\'actions (Si X alors Y)',
+            href: '/studio/workflow',
+            color: 'purple',
+            tag: '⚡ #7',
+            gradient: 'from-purple-500 to-fuchsia-600',
+        },
+        {
+            icon: IconDocument,
+            title: 'Lecteur de Contrats',
+            description: 'Identifiez les risques et obligations en un clin d\'oeil',
+            href: '/studio/contracts',
+            color: 'teal',
+            tag: '📄 #8',
+            gradient: 'from-teal-500 to-cyan-700',
         },
         {
             icon: IconImage,
@@ -567,6 +587,8 @@ export default function DashboardPage() {
                                             case 'translate': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'commerce': return { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-600 to-indigo-700' };
                                             case 'agri': return { bg: 'bg-green-100', text: 'text-green-600', gradient: 'from-green-500 to-emerald-700' };
+                                            case 'workflow': return { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-500 to-fuchsia-600' };
+                                            case 'contracts': return { bg: 'bg-teal-100', text: 'text-teal-600', gradient: 'from-teal-500 to-cyan-700' };
                                             case 'image': return { bg: 'bg-[var(--color-terracotta)]', text: 'text-[var(--color-terracotta)]', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                             case 'chat': return { bg: 'bg-[var(--color-savanna)]', text: 'text-[var(--color-savanna)]', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                             case 'video': return { bg: 'bg-[var(--color-gold)]', text: 'text-[var(--color-gold)]', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
@@ -590,6 +612,8 @@ export default function DashboardPage() {
                                             case 'translate': return 'Traducteur Local';
                                             case 'commerce': return 'Assistant Commerce';
                                             case 'agri': return 'Assistant Agriculture';
+                                            case 'workflow': return 'Mini-Workflows';
+                                            case 'contracts': return 'Lecteur de Contrats';
                                             case 'image': return 'Génération d\'images';
                                             case 'chat': return 'Chat IA';
                                             case 'video': return 'Génération vidéo';
@@ -655,6 +679,8 @@ export default function DashboardPage() {
                                         case 'translate': return { icon: IconLanguages, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'commerce': return { icon: IconBriefcase, color: 'blue', gradient: 'from-blue-600 to-indigo-700' };
                                         case 'agri': return { icon: IconLeaf, color: 'green', gradient: 'from-green-500 to-emerald-700' };
+                                        case 'workflow': return { icon: IconWand2, color: 'purple', gradient: 'from-purple-500 to-fuchsia-600' };
+                                        case 'contracts': return { icon: IconDocument, color: 'teal', gradient: 'from-teal-500 to-cyan-700' };
                                         case 'image': return { icon: IconImage, color: 'terracotta', gradient: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-light)]' };
                                         case 'chat': return { icon: IconChat, color: 'savanna', gradient: 'from-[var(--color-savanna)] to-[var(--color-savanna-light)]' };
                                         case 'video': return { icon: IconVideo, color: 'gold', gradient: 'from-[var(--color-gold)] to-[var(--color-gold-light)]' };
