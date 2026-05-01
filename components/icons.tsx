@@ -1328,3 +1328,18 @@ export const IconLeaf = ({ size = 24, className = "" }: IconProps) => (
         <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
     </svg>
 );
+
+// ============================================
+// COACH SCOLAIRE MODULE ICONS
+// ============================================
+
+// HelpCircle (Question Mark)
+export function IconHelpCircle({ className = '', size = 24 }: IconProps) {
+    return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <circle cx="12" cy="17" r="0.5" fill="currentColor" />
+        </svg>
+    );
+}

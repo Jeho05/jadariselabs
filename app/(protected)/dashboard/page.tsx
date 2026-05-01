@@ -12,7 +12,6 @@ import {
     IconChat,
     IconVideo,
     IconRocket,
-    IconWave,
     IconInfinity,
     IconCrown,
     IconArrowRight,

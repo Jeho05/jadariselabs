@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { runProviderChain, ProviderError } from '@/lib/provider-router';
 import type { ProviderTask } from '@/lib/provider-router';
-import { DocumentProcessor } from '@/lib/document-processor';
 
 /**
  * POST /api/coach — Coach Scolaire
  * Analyse de documents (PDF, images, texte) pour générer des quiz, fiches de révision ou corrections.
+ * Uses the internal OCR API for file extraction (same pattern as copilot).
  */
 
 const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
@@ -82,15 +82,61 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Crédits insuffisants', details: `Requis: ${creditsRequired}` }, { status: 402 });
         }
 
-        let content = textInput || '';
-        if (file) {
-            const processor = new DocumentProcessor();
-            const buffer = Buffer.from(await file.arrayBuffer());
-            content = await processor.extractText(buffer, file.type);
+        // --- Extract text content (same pattern as copilot) ---
+        let content = '';
+
+        if (textInput) {
+            content = textInput;
+        } else if (file) {
+            const supportedTypes = [
+                'application/pdf', 'image/png', 'image/jpeg',
+                'image/jpg', 'image/webp', 'text/plain',
+            ];
+            if (!supportedTypes.includes(file.type)) {
+                return NextResponse.json({
+                    error: 'Type de fichier non supporté',
+                    details: 'Formats acceptés: PDF, PNG, JPG, WEBP, TXT',
+                    trace_id: traceId,
+                }, { status: 400 });
+            }
+
+            if (file.type === 'text/plain') {
+                content = await file.text();
+            } else {
+                // Use the internal OCR API for PDF/images
+                const ocrFormData = new FormData();
+                ocrFormData.append('file', file);
+
+                const ocrResponse = await fetch(`${request.nextUrl.origin}/api/generate/ocr`, {
+                    method: 'POST',
+                    body: ocrFormData,
+                    headers: { 'Cookie': request.headers.get('cookie') || '' },
+                });
+
+                if (!ocrResponse.ok) {
+                    const errorData = await ocrResponse.json().catch(() => ({}));
+                    return NextResponse.json({
+                        error: 'Erreur d\'extraction',
+                        details: errorData.error || 'Impossible d\'extraire le texte du document',
+                        trace_id: traceId,
+                    }, { status: 500 });
+                }
+
+                const ocrData = await ocrResponse.json();
+                content = ocrData.text || ocrData.markdown || '';
+            }
+        }
+
+        if (!content || content.length < 10) {
+            return NextResponse.json({
+                error: 'Contenu insuffisant',
+                details: 'Le texte extrait est trop court pour être analysé',
+                trace_id: traceId,
+            }, { status: 400 });
         }
 
         const systemPrompt = getSystemPrompt(action);
-        const userPrompt = `${subject ? `Matière : ${subject}\n\n` : ''}Contenu de l'étudiant/cours :\n${content}`;
+        const userPrompt = `${subject ? `Matière : ${subject}\n\n` : ''}Contenu de l'étudiant/cours :\n${content.substring(0, 15000)}`;
 
         const messages = [
             { role: 'system', content: systemPrompt },
@@ -188,7 +234,13 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        return new Response(stream, { headers: { 'Content-Type': 'text/event-stream' } });
+        return new Response(stream, {
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+            },
+        });
     } catch (error) {
         console.error('Coach Error:', error);
         return NextResponse.json({ error: 'Erreur Serveur' }, { status: 500 });
