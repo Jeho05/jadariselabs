@@ -71,27 +71,21 @@ export interface CVData {
 }
 
 /* ══════════════════════════════════════════════════════
-   CV Template — "Prestige" Edition (HTML Preview)
-   Matches the React-PDF version pixel-perfectly
+   CV Template — "Éditorial d'or" Edition (HTML Preview)
+   Warm ink & cream editorial layout with gold accents.
+   Matches the React-PDF version.
    ══════════════════════════════════════════════════════ */
 
 const C = {
-    navyDark:   '#0B1120',
-    navy:       '#111827',
-    navyMid:    '#1A2540',
-    gold:       '#C9A84C',
-    goldMuted:  '#D4BE7A',
-    goldPale:   '#F5EFDB',
-    white:      '#FFFFFF',
-    offWhite:   '#FAFBFC',
-    sidebar:    '#F4F5F7',
-    textDark:   '#111827',
-    textBody:   '#374151',
-    textLight:  '#6B7280',
-    textMuted:  '#9CA3AF',
-    border:     '#E5E7EB',
-    borderLight:'#F3F4F6',
-    badgeDark:  '#1F2937',
+    ink:       '#2A2622',
+    body:      '#4B4640',
+    muted:     '#8A837A',
+    gold:      '#B8912F',
+    earth:     '#7B4F2E',
+    cream:     '#F7F3EB',
+    line:      '#E4DCCB',
+    lineSoft:  '#F0EADD',
+    white:     '#FFFFFF',
 };
 
 function SectionHeading({ title }: { title: string }) {
@@ -100,32 +94,59 @@ function SectionHeading({ title }: { title: string }) {
             display: 'flex',
             alignItems: 'center',
             marginBottom: '8px',
-            gap: '8px',
+            gap: '7px',
         }}>
-            {/* Gold dot */}
+            {/* Gold square */}
             <div style={{
-                width: '9px', height: '9px',
-                borderRadius: '50%',
+                width: '6px', height: '6px',
+                borderRadius: '1px',
                 backgroundColor: C.gold,
                 flexShrink: 0,
             }} />
             <span style={{
-                fontSize: '10px',
+                fontSize: '8.5px',
                 fontWeight: 700,
                 textTransform: 'uppercase' as const,
-                letterSpacing: '1.5px',
-                color: C.navy,
+                letterSpacing: '2px',
+                color: C.ink,
                 whiteSpace: 'nowrap' as const,
-                fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                fontFamily: "'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif",
             }}>
                 {title}
             </span>
-            {/* Extending line */}
+            {/* Hairline */}
             <div style={{
                 flex: 1,
                 height: '1px',
-                backgroundColor: C.border,
+                backgroundColor: C.line,
             }} />
+        </div>
+    );
+}
+
+const bulletStyle: React.CSSProperties = {
+    fontSize: '9.5px',
+    color: C.body,
+    paddingLeft: '12px',
+    marginBottom: '3px',
+    lineHeight: 1.5,
+    position: 'relative',
+};
+
+const bulletDashStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: '0',
+    top: '0',
+    color: C.gold,
+    fontWeight: 700,
+    display: 'inline-block',
+};
+
+function BulletItem({ text }: { text: string }) {
+    return (
+        <div style={bulletStyle}>
+            <span style={bulletDashStyle}>–</span>
+            {text}
         </div>
     );
 }
@@ -146,15 +167,15 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
     const hasCustom = customSections && customSections.length > 0;
     const hasSidebar = hasSkills || hasLanguages || hasCertifications || hasInterests || hasReferences || hasAwards;
 
-    const contactItems: Array<{ icon: string; text: string }> = [];
-    if (personalInfo?.email) contactItems.push({ icon: '✉', text: personalInfo.email });
-    if (personalInfo?.phone) contactItems.push({ icon: '☎', text: personalInfo.phone });
-    if (personalInfo?.location) contactItems.push({ icon: '📍', text: personalInfo.location });
-    if (personalInfo?.linkedin) contactItems.push({ icon: 'in', text: personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', '') });
-    if (personalInfo?.website) contactItems.push({ icon: '🌐', text: personalInfo.website.replace('https://', '') });
-    if (personalInfo?.dateOfBirth) contactItems.push({ icon: '🎂', text: personalInfo.dateOfBirth });
-    if (personalInfo?.nationality) contactItems.push({ icon: '🏳', text: personalInfo.nationality });
-    if (personalInfo?.drivingLicense) contactItems.push({ icon: '🚗', text: `Permis ${personalInfo.drivingLicense}` });
+    const contactItems: string[] = [];
+    if (personalInfo?.email) contactItems.push(personalInfo.email);
+    if (personalInfo?.phone) contactItems.push(personalInfo.phone);
+    if (personalInfo?.location) contactItems.push(personalInfo.location);
+    if (personalInfo?.linkedin) contactItems.push(personalInfo.linkedin.replace('https://', '').replace('www.linkedin.com/in/', ''));
+    if (personalInfo?.website) contactItems.push(personalInfo.website.replace('https://', ''));
+    if (personalInfo?.dateOfBirth) contactItems.push(personalInfo.dateOfBirth);
+    if (personalInfo?.nationality) contactItems.push(personalInfo.nationality);
+    if (personalInfo?.drivingLicense) contactItems.push(`Permis ${personalInfo.drivingLicense}`);
 
     return (
         <>
@@ -195,7 +216,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                     }
                 }
             `}</style>
-            
+
             <div className="cv-print-container" style={{ display: 'flex', justifyContent: 'center' }}>
                 <div
                     id="cv-export-wrapper"
@@ -204,9 +225,8 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         minHeight: '297mm',
                         backgroundColor: C.white,
                         fontFamily: "'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif",
-                        color: C.textDark,
+                        color: C.ink,
                         boxSizing: 'border-box',
-                        overflow: 'hidden',
                         display: 'flex',
                         flexDirection: 'column',
                         position: 'relative',
@@ -214,156 +234,132 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                 >
                     {/* ═══ HEADER ═══ */}
                     <div style={{
-                        backgroundColor: C.navy,
-                        padding: '24px 32px',
+                        backgroundColor: C.cream,
+                        padding: '20px 30px 18px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '20px',
+                        gap: '24px',
                         flexShrink: 0,
-                        position: 'relative',
-                        overflow: 'hidden',
+                        borderBottom: `2px solid ${C.gold}`,
                     }}>
-                        {/* Decorative corner accent */}
-                        <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            right: 0,
-                            width: '60px',
-                            height: '60px',
-                            borderBottomLeftRadius: '60px',
-                            backgroundColor: C.navyMid,
-                            opacity: 0.5,
-                        }} />
+                        {/* Name & Contact */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                                fontSize: '24px',
+                                fontWeight: 800,
+                                color: C.ink,
+                                letterSpacing: '-0.4px',
+                                lineHeight: 1.15,
+                            }}>
+                                {personalInfo?.fullName || 'Prénom Nom'}
+                            </div>
+                            <div style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                color: C.gold,
+                                letterSpacing: '2.5px',
+                                textTransform: 'uppercase' as const,
+                                marginTop: '6px',
+                            }}>
+                                {personalInfo?.jobTitle || 'Votre Poste'}
+                            </div>
 
-                        {/* Photo — BIG and prominent */}
+                            {/* Contact line with gold dot separators */}
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap' as const,
+                                columnGap: '4px',
+                                rowGap: '3px',
+                                marginTop: '10px',
+                                alignItems: 'center',
+                            }}>
+                                {contactItems.map((item, idx) => (
+                                    <span key={idx} style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        fontSize: '8.5px',
+                                        color: C.muted,
+                                    }}>
+                                        {idx > 0 && (
+                                            <span style={{
+                                                width: '3px', height: '3px',
+                                                borderRadius: '50%',
+                                                backgroundColor: C.gold,
+                                                marginRight: '9px',
+                                                marginLeft: '5px',
+                                                flexShrink: 0,
+                                            }} />
+                                        )}
+                                        {item}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Photo — subtle gold ring */}
                         {photoSrc && (
                             <div style={{
-                                width: '80px', height: '80px',
+                                width: '88px', height: '88px',
                                 borderRadius: '50%',
-                                background: C.gold,
-                                padding: '1.5px',
+                                border: `2px solid ${C.gold}`,
+                                padding: '2.5px',
+                                backgroundColor: C.white,
+                                boxSizing: 'border-box',
                                 flexShrink: 0,
                             }}>
                                 <div style={{
                                     width: '100%',
                                     height: '100%',
                                     borderRadius: '50%',
-                                    backgroundColor: C.white,
-                                    padding: '1.5px',
                                     overflow: 'hidden',
                                 }}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={photoSrc}
-                                        alt="Photo"
+                                        alt="Photo de profil"
                                         style={{
                                             width: '100%',
                                             height: '100%',
                                             objectFit: 'cover' as const,
                                             display: 'block',
-                                            borderRadius: '50%',
                                         }}
                                     />
                                 </div>
                             </div>
                         )}
-
-                        {/* Name & Contact */}
-                        <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
-                            <div style={{
-                                fontSize: '22px',
-                                fontWeight: 800,
-                                color: C.white,
-                                textTransform: 'uppercase' as const,
-                                letterSpacing: '1.5px',
-                                lineHeight: '1.2',
-                                marginBottom: '4px',
-                            }}>
-                                {personalInfo?.fullName || 'Prénom Nom'}
-                            </div>
-                            <div style={{
-                                fontSize: '9.5px',
-                                fontWeight: 600,
-                                color: C.gold,
-                                letterSpacing: '1.2px',
-                                textTransform: 'uppercase' as const,
-                                marginBottom: '10px',
-                            }}>
-                                {personalInfo?.jobTitle || 'Votre Poste'}
-                            </div>
-
-                            {/* Contact pills with gold dot separators */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', alignItems: 'center' }}>
-                                {contactItems.map((item, idx) => (
-                                    <React.Fragment key={idx}>
-                                        {idx > 0 && (
-                                            <div style={{
-                                                width: '2.5px',
-                                                height: '2.5px',
-                                                borderRadius: '50%',
-                                                backgroundColor: C.gold,
-                                                opacity: 0.6,
-                                            }} />
-                                        )}
-                                        <span style={{
-                                            fontSize: '9.5px',
-                                            color: '#D1D5DB',
-                                            backgroundColor: 'rgba(255,255,255,0.07)',
-                                            padding: '3px 8px',
-                                            borderRadius: '4px',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '3px',
-                                        }}>
-                                            <span style={{ fontSize: '7.5px' }}>{item.icon}</span> {item.text}
-                                        </span>
-                                    </React.Fragment>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Bottom gold stripe */}
-                        <div style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: '3px',
-                            backgroundColor: C.gold,
-                        }} />
                     </div>
 
                     {/* ═══ BODY ═══ */}
                     <div style={{
                         display: 'flex',
                         flex: 1,
+                        alignItems: 'stretch',
                     }}>
                         {/* ── Sidebar ── */}
                         {hasSidebar && (
                             <div style={{
-                                width: '32%',
+                                width: '30%',
                                 flexShrink: 0,
-                                padding: '20px 16px',
-                                backgroundColor: C.sidebar,
-                                borderRight: `1px solid ${C.border}`,
+                                padding: '18px 16px 20px',
+                                backgroundColor: C.cream,
+                                borderRight: `1px solid ${C.line}`,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: '7px',
                             }}>
                                 {/* Skills */}
                                 {hasSkills && (
-                                    <div className="avoid-break">
+                                    <div className="avoid-break" style={{ marginBottom: '16px' }}>
                                         <SectionHeading title="Compétences" />
-                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '3px' }}>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '5px' }}>
                                             {skills.map((skill, idx) => (
                                                 <span key={idx} style={{
-                                                    fontSize: '9.5px',
-                                                    fontWeight: 600,
-                                                    padding: '3px 6px',
-                                                    borderRadius: '4px',
-                                                    backgroundColor: idx < 5 ? C.badgeDark : C.white,
-                                                    color: idx < 5 ? C.white : C.textBody,
-                                                    border: idx >= 5 ? `1px solid ${C.border}` : 'none',
+                                                    fontSize: '8.5px',
+                                                    fontWeight: 500,
+                                                    padding: '3px 9px',
+                                                    borderRadius: '999px',
+                                                    border: `1px solid ${C.line}`,
+                                                    backgroundColor: C.white,
+                                                    color: C.body,
                                                     display: 'inline-block',
                                                 }}>
                                                     {skill}
@@ -375,19 +371,19 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                                 {/* Languages */}
                                 {hasLanguages && (
-                                    <div className="avoid-break">
+                                    <div className="avoid-break" style={{ marginBottom: '16px' }}>
                                         <SectionHeading title="Langues" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                        <div>
                                             {languages!.map((lang, idx) => (
                                                 <div key={idx} style={{
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
-                                                    padding: '3px 0',
-                                                    borderBottom: `1px solid ${C.borderLight}`,
+                                                    padding: '4px 0',
+                                                    borderBottom: `1px solid ${C.lineSoft}`,
                                                 }}>
-                                                    <span style={{ fontSize: '10px', fontWeight: 600, color: C.textDark }}>{lang.name}</span>
-                                                    <span style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic' }}>{lang.level}</span>
+                                                    <span style={{ fontSize: '9.5px', fontWeight: 600, color: C.ink }}>{lang.name}</span>
+                                                    <span style={{ fontSize: '8.5px', color: C.muted, fontStyle: 'italic' }}>{lang.level}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -396,14 +392,29 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                                 {/* Certifications */}
                                 {hasCertifications && (
-                                    <div className="avoid-break">
+                                    <div className="avoid-break" style={{ marginBottom: '16px' }}>
                                         <SectionHeading title="Certifications" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <div>
                                             {certifications!.map((cert, idx) => (
-                                                <div key={idx}>
-                                                    <div style={{ fontSize: '10px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{cert.name}</div>
-                                                    <div style={{ fontSize: '9.5px', color: C.textMuted, marginTop: '2px' }}>
-                                                        {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
+                                                <div key={idx} style={{
+                                                    display: 'flex',
+                                                    gap: '7px',
+                                                    marginBottom: '9px',
+                                                }}>
+                                                    <div style={{
+                                                        width: '5px', height: '5px',
+                                                        borderRadius: '1px',
+                                                        backgroundColor: C.gold,
+                                                        flexShrink: 0,
+                                                        marginTop: '3.5px',
+                                                    }} />
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{ fontSize: '9.5px', fontWeight: 600, color: C.ink, lineHeight: 1.3 }}>{cert.name}</div>
+                                                        {[cert.issuer, cert.year].filter(Boolean).length > 0 && (
+                                                            <div style={{ fontSize: '8.5px', color: C.muted, marginTop: '1px' }}>
+                                                                {[cert.issuer, cert.year].filter(Boolean).join(' — ')}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -413,17 +424,18 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                                 {/* Interests */}
                                 {hasInterests && (
-                                    <div className="avoid-break">
+                                    <div className="avoid-break" style={{ marginBottom: '16px' }}>
                                         <SectionHeading title="Intérêts" />
-                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '3px' }}>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '5px' }}>
                                             {interests!.map((item, idx) => (
                                                 <span key={idx} style={{
-                                                    fontSize: '9.5px',
-                                                    padding: '2px 6px',
-                                                    borderRadius: '4px',
+                                                    fontSize: '8.5px',
+                                                    fontWeight: 500,
+                                                    padding: '3px 9px',
+                                                    borderRadius: '999px',
+                                                    border: `1px solid ${C.line}`,
                                                     backgroundColor: C.white,
-                                                    border: `1px solid ${C.border}`,
-                                                    color: C.textLight,
+                                                    color: C.body,
                                                     display: 'inline-block',
                                                 }}>
                                                     {item}
@@ -435,14 +447,14 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                                 {/* References */}
                                 {hasReferences && (
-                                    <div className="avoid-break">
+                                    <div className="avoid-break" style={{ marginBottom: '16px' }}>
                                         <SectionHeading title="Références" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <div>
                                             {references!.map((ref, idx) => (
-                                                <div key={idx}>
-                                                    <div style={{ fontSize: '10px', fontWeight: 600, color: C.textDark }}>{ref.name}</div>
-                                                    <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '1px' }}>{ref.role}</div>
-                                                    {ref.contact && <div style={{ fontSize: '9.5px', color: C.gold, marginTop: '2px' }}>{ref.contact}</div>}
+                                                <div key={idx} style={{ marginBottom: '9px' }}>
+                                                    <div style={{ fontSize: '9.5px', fontWeight: 600, color: C.ink }}>{ref.name}</div>
+                                                    <div style={{ fontSize: '8.5px', color: C.body, marginTop: '1px' }}>{ref.role}</div>
+                                                    {ref.contact && <div style={{ fontSize: '8.5px', color: C.gold, marginTop: '1px' }}>{ref.contact}</div>}
                                                 </div>
                                             ))}
                                         </div>
@@ -451,14 +463,29 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                                 {/* Awards */}
                                 {hasAwards && (
-                                    <div className="avoid-break">
+                                    <div className="avoid-break" style={{ marginBottom: '16px' }}>
                                         <SectionHeading title="Distinctions" />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <div>
                                             {awards!.map((aw, idx) => (
-                                                <div key={idx}>
-                                                    <div style={{ fontSize: '10px', fontWeight: 600, color: C.textDark, lineHeight: '1.3' }}>{aw.name}</div>
-                                                    <div style={{ fontSize: '9.5px', color: C.textMuted, marginTop: '2px' }}>
-                                                        {[aw.issuer, aw.year].filter(Boolean).join(' — ')}
+                                                <div key={idx} style={{
+                                                    display: 'flex',
+                                                    gap: '7px',
+                                                    marginBottom: '9px',
+                                                }}>
+                                                    <div style={{
+                                                        width: '5px', height: '5px',
+                                                        borderRadius: '1px',
+                                                        backgroundColor: C.gold,
+                                                        flexShrink: 0,
+                                                        marginTop: '3.5px',
+                                                    }} />
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{ fontSize: '9.5px', fontWeight: 600, color: C.ink, lineHeight: 1.3 }}>{aw.name}</div>
+                                                        {[aw.issuer, aw.year].filter(Boolean).length > 0 && (
+                                                            <div style={{ fontSize: '8.5px', color: C.muted, marginTop: '1px' }}>
+                                                                {[aw.issuer, aw.year].filter(Boolean).join(' — ')}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -471,19 +498,18 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                         {/* ── Main Column ── */}
                         <div style={{
                             flex: 1,
-                            padding: '20px 24px',
+                            padding: '18px 24px 20px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '7px',
                         }}>
                             {/* Summary */}
                             {summary && (
-                                <div className="avoid-break">
+                                <div className="avoid-break" style={{ marginBottom: '14px' }}>
                                     <SectionHeading title="Profil Professionnel" />
                                     <p style={{
-                                        color: C.textBody,
-                                        fontSize: '10px',
-                                        lineHeight: '1.6',
+                                        color: C.body,
+                                        fontSize: '9.5px',
+                                        lineHeight: 1.55,
                                         margin: 0,
                                         textAlign: 'justify' as const,
                                     }}>
@@ -492,67 +518,40 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                                 </div>
                             )}
 
-                            {/* Experience — left border timeline */}
+                            {/* Experience — refined timeline */}
                             {experience && experience.length > 0 && (
-                                <div>
+                                <div style={{ marginBottom: '14px' }}>
                                     <SectionHeading title="Expériences" />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                    <div>
                                         {experience.map((exp, idx) => (
                                             <div key={idx} className="avoid-break" style={{
-                                                paddingLeft: '12px',
-                                                borderLeft: `2px solid ${C.borderLight}`,
-                                                marginBottom: '16px',
+                                                paddingLeft: '14px',
+                                                borderLeft: `1.5px solid ${C.line}`,
+                                                marginBottom: '12px',
                                                 position: 'relative',
                                             }}>
                                                 {/* Timeline dot */}
                                                 <div style={{
                                                     position: 'absolute',
-                                                    left: '-5.5px',
-                                                    top: '4px',
-                                                    width: '9px', height: '9px',
+                                                    left: '-5px',
+                                                    top: '3.5px',
+                                                    width: '8px', height: '8px',
                                                     borderRadius: '50%',
                                                     backgroundColor: C.gold,
                                                     border: `2px solid ${C.white}`,
-                                                    boxShadow: `0 0 0 1px ${C.border}`,
+                                                    boxShadow: `0 0 0 1px ${C.gold}`,
                                                 }} />
-                                                <div style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>
-                                                    {exp.role}
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                                                    <span style={{ fontSize: '10.5px', fontWeight: 700, color: C.ink }}>{exp.role}</span>
+                                                    {exp.period && <span style={{ fontSize: '8.5px', color: C.muted, whiteSpace: 'nowrap' as const }}>{exp.period}</span>}
                                                 </div>
-                                                <div style={{ fontSize: '10px', fontWeight: 600, color: C.gold, marginTop: '2px' }}>
-                                                    {exp.company}{exp.location ? ` • ${exp.location}` : ''}
-                                                </div>
-                                                <div style={{
-                                                    fontSize: '9.5px',
-                                                    color: C.textMuted,
-                                                    fontWeight: 500,
-                                                    marginTop: '2px',
-                                                    marginBottom: '6px',
-                                                }}>
-                                                    {exp.period}
+                                                <div style={{ fontSize: '9px', fontWeight: 600, color: C.earth, marginTop: '1px' }}>
+                                                    {[exp.company, exp.location].filter(Boolean).join(' · ')}
                                                 </div>
                                                 {exp.achievements && exp.achievements.length > 0 && (
-                                                    <div style={{ marginTop: '4px' }}>
+                                                    <div style={{ marginTop: '5px' }}>
                                                         {exp.achievements.map((ach, i) => (
-                                                            <div key={i} style={{
-                                                                fontSize: '9.5px',
-                                                                color: C.textBody,
-                                                                paddingLeft: '12px',
-                                                                marginBottom: '4px',
-                                                                lineHeight: '1.6',
-                                                                position: 'relative' as const,
-                                                            }}>
-                                                                <span style={{
-                                                                    position: 'absolute' as const,
-                                                                    left: '0',
-                                                                    top: '4px',
-                                                                    width: '4px',
-                                                                    height: '3px',
-                                                                    borderRadius: '50%',
-                                                                    backgroundColor: C.gold,
-                                                                    display: 'inline-block',
-                                                                }} />
-                                                                {ach}
-                                                            </div>
+                                                            <BulletItem key={i} text={ach} />
                                                         ))}
                                                     </div>
                                                 )}
@@ -564,17 +563,17 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                             {/* Education */}
                             {education && education.length > 0 && (
-                                <div>
+                                <div style={{ marginBottom: '14px' }}>
                                     <SectionHeading title="Formations" />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                                    <div>
                                         {education.map((edu, idx) => (
-                                            <div key={idx} className="avoid-break">
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                                    <span style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>{edu.degree}</span>
-                                                    <span style={{ fontSize: '9.5px', color: C.gold, fontWeight: 600 }}>{edu.period}</span>
+                                            <div key={idx} className="avoid-break" style={{ marginBottom: '10px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                                                    <span style={{ fontSize: '10.5px', fontWeight: 700, color: C.ink }}>{edu.degree}</span>
+                                                    {edu.period && <span style={{ fontSize: '8.5px', color: C.gold, fontWeight: 600, whiteSpace: 'nowrap' as const }}>{edu.period}</span>}
                                                 </div>
-                                                <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '2px', fontWeight: 500 }}>{edu.institution}</div>
-                                                {edu.details && <div style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic', marginTop: '2px' }}>{edu.details}</div>}
+                                                <div style={{ fontSize: '9.5px', color: C.body, fontWeight: 500, marginTop: '1px' }}>{edu.institution}</div>
+                                                {edu.details && <div style={{ fontSize: '9px', color: C.muted, fontStyle: 'italic', marginTop: '1px' }}>{edu.details}</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -583,17 +582,17 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                             {/* Projects */}
                             {hasProjects && (
-                                <div>
+                                <div style={{ marginBottom: '14px' }}>
                                     <SectionHeading title="Projets" />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                                    <div>
                                         {projects!.map((proj, idx) => (
-                                            <div key={idx} className="avoid-break">
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                                    <span style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>{proj.name}</span>
-                                                    {proj.url && <span style={{ fontSize: '9.5px', color: C.gold, fontWeight: 500 }}>{proj.url}</span>}
+                                            <div key={idx} className="avoid-break" style={{ marginBottom: '10px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                                                    <span style={{ fontSize: '10.5px', fontWeight: 700, color: C.ink }}>{proj.name}</span>
+                                                    {proj.url && <span style={{ fontSize: '8.5px', color: C.gold, fontWeight: 500 }}>{proj.url}</span>}
                                                 </div>
-                                                {proj.description && <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '2px', lineHeight: '1.5' }}>{proj.description}</div>}
-                                                {proj.technologies && <div style={{ fontSize: '9.5px', color: C.textMuted, fontStyle: 'italic', marginTop: '3px' }}>{proj.technologies}</div>}
+                                                {proj.description && <div style={{ fontSize: '9.5px', color: C.body, marginTop: '2px', lineHeight: 1.5 }}>{proj.description}</div>}
+                                                {proj.technologies && <div style={{ fontSize: '9px', color: C.muted, fontStyle: 'italic', marginTop: '2px' }}>{proj.technologies}</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -602,15 +601,32 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                             {/* Volunteer */}
                             {hasVolunteer && (
-                                <div>
+                                <div style={{ marginBottom: '14px' }}>
                                     <SectionHeading title="Bénévolat" />
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                                    <div>
                                         {volunteer!.map((vol, idx) => (
-                                            <div key={idx} className="avoid-break">
-                                                <div style={{ fontSize: '9.5px', fontWeight: 700, color: C.navy }}>{vol.role}</div>
-                                                <div style={{ fontSize: '10px', fontWeight: 600, color: C.gold, marginTop: '1px' }}>{vol.organization}</div>
-                                                {vol.period && <div style={{ fontSize: '9.5px', color: C.textMuted, fontWeight: 500, marginTop: '2px' }}>{vol.period}</div>}
-                                                {vol.description && <div style={{ fontSize: '9.5px', color: C.textBody, marginTop: '3px', lineHeight: '1.5' }}>{vol.description}</div>}
+                                            <div key={idx} className="avoid-break" style={{
+                                                paddingLeft: '14px',
+                                                borderLeft: `1.5px solid ${C.line}`,
+                                                marginBottom: '12px',
+                                                position: 'relative',
+                                            }}>
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    left: '-5px',
+                                                    top: '3.5px',
+                                                    width: '8px', height: '8px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: C.gold,
+                                                    border: `2px solid ${C.white}`,
+                                                    boxShadow: `0 0 0 1px ${C.gold}`,
+                                                }} />
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                                                    <span style={{ fontSize: '10.5px', fontWeight: 700, color: C.ink }}>{vol.role}</span>
+                                                    {vol.period && <span style={{ fontSize: '8.5px', color: C.muted, whiteSpace: 'nowrap' as const }}>{vol.period}</span>}
+                                                </div>
+                                                <div style={{ fontSize: '9px', fontWeight: 600, color: C.earth, marginTop: '1px' }}>{vol.organization}</div>
+                                                {vol.description && <div style={{ fontSize: '9.5px', color: C.body, marginTop: '5px', lineHeight: 1.5 }}>{vol.description}</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -620,29 +636,11 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
                             {/* Custom Sections */}
                             {hasCustom && customSections!.map((sec, sIdx) => (
                                 sec.items.length > 0 && (
-                                    <div key={sIdx}>
+                                    <div key={sIdx} style={{ marginBottom: '14px' }}>
                                         <SectionHeading title={sec.title} />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <div>
                                             {sec.items.map((item, i) => (
-                                                <div key={i} style={{
-                                                    fontSize: '9.5px',
-                                                    color: C.textBody,
-                                                    paddingLeft: '12px',
-                                                    lineHeight: '1.6',
-                                                    position: 'relative' as const,
-                                                }}>
-                                                    <span style={{
-                                                        position: 'absolute' as const,
-                                                        left: '0',
-                                                        top: '4px',
-                                                        width: '4px',
-                                                        height: '3px',
-                                                        borderRadius: '50%',
-                                                        backgroundColor: C.gold,
-                                                        display: 'inline-block',
-                                                    }} />
-                                                    {item}
-                                                </div>
+                                                <BulletItem key={i} text={item} />
                                             ))}
                                         </div>
                                     </div>
@@ -653,7 +651,7 @@ export function CVTemplateProfessional({ data, photoPreview }: { data: CVData; p
 
                     {/* ── Bottom gold stripe ── */}
                     <div style={{
-                        height: '3px',
+                        height: '2px',
                         backgroundColor: C.gold,
                         flexShrink: 0,
                     }} />

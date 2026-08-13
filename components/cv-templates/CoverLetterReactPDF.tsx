@@ -20,17 +20,16 @@ import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/rendere
    ═══════════════════════════════════════════════════════════ */
 
 const C = {
-    navy:      '#111827',
-    navyLight: '#1F2937',
-    gold:      '#C9A84C',
-    goldPale:  '#F5EFDB',
-    textDark:  '#111827',
-    textBody:  '#1F2937',
-    textLight: '#4B5563',
-    textMuted: '#9CA3AF',
-    border:    '#E5E7EB',
-    white:     '#FFFFFF',
-    bg:        '#FAFBFC',
+    ink:      '#2A2622',
+    navy:     '#2A2622',
+    gold:     '#B8912F',
+    textDark: '#2A2622',
+    textBody: '#4B4640',
+    textLight:'#5C5650',
+    textMuted:'#8A837A',
+    border:   '#E4DCCB',
+    white:    '#FFFFFF',
+    bg:       '#F7F3EB',
 };
 
 Font.register({
