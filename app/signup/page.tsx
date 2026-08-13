@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, FormEvent, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
@@ -16,11 +16,23 @@ import {
     usePasswordStrength,
 } from '@/components/auth-form';
 import type { SupportedLang } from '@/lib/types';
-import { IconFlask, IconSparkle, IconRocket, IconGlobe, IconCheck, IconArrowRight, IconUser, IconMail, IconLock, IconShield } from '@/components/icons';
+import { IconSparkle, IconRocket, IconGlobe, IconCheck, IconArrowRight, IconUser, IconLock, IconShield, IconUsers } from '@/components/icons';
 
-export default function SignupPage() {
+const CONFIRMATION_ERRORS: Record<string, string> = {
+    'invalid-link': 'Ce lien de confirmation est invalide.',
+    'user-not-found': 'Aucun compte trouvé pour cet email.',
+    'invalid-token': 'Ce lien de confirmation est invalide.',
+    'token-expired': 'Ce lien de confirmation a expiré. Créez un nouveau compte.',
+    'confirmation-failed': 'La confirmation a échoué. Réessayez.',
+    'unexpected-error': 'Une erreur inattendue est survenue. Réessayez.',
+};
+
+function SignupForm() {
     const router = useRouter();
     const supabase = createClient();
+    const searchParams = useSearchParams();
+    const confirmError = searchParams.get('error');
+    const selectedPlan = searchParams.get('plan');
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -48,12 +60,12 @@ export default function SignupPage() {
 
     // Progress steps
     const steps = [
-        { id: 'account', label: 'Compte', icon: IconUser, completed: usernameValid && email.length > 0 },
+        { id: 'account', label: 'Compte', icon: IconUser, completed: usernameValid && emailValid },
         { id: 'security', label: 'Sécurité', icon: IconLock, completed: passwordIsStrong && passwordsMatch },
         { id: 'confirm', label: 'Confirmation', icon: IconShield, completed: acceptTerms },
     ];
 
-    const currentStep = !usernameValid || !email ? 0 : !passwordIsStrong || !passwordsMatch ? 1 : 2;
+    const currentStep = !usernameValid || !emailValid ? 0 : !passwordIsStrong || !passwordsMatch ? 1 : 2;
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -266,6 +278,19 @@ export default function SignupPage() {
                         ))}
                     </div>
 
+                    {/* Selected plan banner */}
+                    {selectedPlan && (selectedPlan === 'starter' || selectedPlan === 'pro') && (
+                        <div className="bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/30 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+                            <IconRocket size={18} className="text-[var(--color-gold)] flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-[var(--color-text-primary)]">
+                                <span className="font-semibold">Plan {selectedPlan === 'pro' ? 'Pro' : 'Starter'} sélectionné</span>
+                                {' — '}inscrivez-vous gratuitement, puis payez{' '}
+                                <span className="font-semibold">{selectedPlan === 'pro' ? '1 500' : '500'} F CFA/mois</span>{' '}
+                                depuis votre tableau de bord.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Title */}
                     <div className="text-center mb-6">
                         <div className="inline-flex items-center gap-2 bg-[var(--color-terracotta)]/10 border border-[var(--color-terracotta)]/20 rounded-full px-4 py-2 mb-4">
@@ -285,8 +310,13 @@ export default function SignupPage() {
                     {/* Card */}
                     <div className="glass-card-premium rounded-2xl p-6 lg:p-8">
                         {/* Error messages */}
-                        <AuthError message={error} />
-                        {error && <div className="h-4" />}
+                        <AuthError
+                            message={
+                                error ||
+                                (confirmError ? CONFIRMATION_ERRORS[confirmError] || getAuthErrorMessage(confirmError) : null)
+                            }
+                        />
+                        {error || confirmError ? <div className="h-4" /> : null}
                         {/* Google OAuth */}
                         <OAuthButtons loading={loading} />
 
@@ -435,7 +465,7 @@ export default function SignupPage() {
                                                 : 'border-[var(--color-border)] hover:border-[var(--color-earth)]/50 text-[var(--color-text-secondary)]'
                                         }`}
                                     >
-                                        <span>🇬🇧</span>
+                                        <span>🇺🇸</span>
                                         <span className="font-medium">English</span>
                                     </button>
                                 </div>
@@ -503,6 +533,14 @@ export default function SignupPage() {
                                 <IconSparkle size={14} className="text-[var(--color-gold)]" />
                                 <span>50 crédits offerts • Aucune carte bancaire requise</span>
                             </div>
+                            <div className="flex items-center justify-center gap-2 text-sm text-[var(--color-text-muted)]">
+                                <IconUsers size={14} className="text-[var(--color-savanna)]" />
+                                <span>2 500+ créateurs africains nous font déjà confiance</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2 text-sm text-[var(--color-text-muted)]">
+                                <IconRocket size={14} className="text-[var(--color-terracotta)]" />
+                                <span>Plans dès 500 F CFA/mois — annulables à tout moment</span>
+                            </div>
                         </form>
                     </div>
 
@@ -518,5 +556,28 @@ export default function SignupPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+                    <div className="split-screen-visual" />
+                    <div className="flex-1 flex items-center justify-center p-6">
+                        <div className="glass-card-premium rounded-2xl p-8 w-full max-w-md">
+                            <div className="animate-pulse space-y-4">
+                                <div className="h-8 bg-[var(--color-cream-dark)] rounded-lg w-3/4 mx-auto" />
+                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
+                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        >
+            <SignupForm />
+        </Suspense>
     );
 }

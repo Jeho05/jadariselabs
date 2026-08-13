@@ -1,6 +1,6 @@
 import { IconFile } from '@/components/icons';
-import Image from 'next/image';
-import Link from 'next/link';
+import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
 
 export const metadata = {
     title: 'Conditions Générales d\'Utilisation — JadaRiseLabs',
@@ -8,32 +8,13 @@ export const metadata = {
 
 export default function TermsPage() {
     return (
-        <div className="min-h-screen bg-[var(--color-cream)] relative overflow-hidden">
-            {/* Background Pattern */}
-            <div 
-                className="fixed inset-0 pointer-events-none opacity-20"
-                style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
-            />
-            
-            {/* Decorative Elements */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-gold)]/5 rounded-full blur-3xl" />
-                <div className="absolute top-1/3 -left-20 w-60 h-60 bg-[var(--color-savanna)]/5 rounded-full blur-3xl" />
-            </div>
+        <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+            <SiteHeader />
 
-            <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
-                {/* Header */}
-                <div className="flex items-center mb-12">
-                    <Link href="/" className="inline-flex items-center group">
-                        <div className="relative transition-transform group-hover:scale-[1.02]">
-                            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-12 w-auto" />
-                        </div>
-                    </Link>
-                </div>
-
+            <main className="relative z-10 flex-1 max-w-4xl mx-auto px-6 pt-28 md:pt-32 pb-16 w-full">
                 {/* Main Card */}
                 <div className="module-card-premium flex-col p-8">
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-3 mb-4">
                         <div className="module-icon-premium savanna">
                             <IconFile size={24} />
                         </div>
@@ -42,15 +23,29 @@ export default function TermsPage() {
                         </h1>
                     </div>
 
-                    <div className="prose prose-sm max-w-none text-[var(--color-text-secondary)] space-y-4">
-                        <p className="text-sm text-[var(--color-text-muted)] mb-6">
-                            Dernière mise à jour : Janvier 2024
-                        </p>
+                    <p className="text-sm text-[var(--color-text-muted)] mb-6">
+                        Dernière mise à jour : 13 août 2026
+                    </p>
 
+                    {/* Plain-language summary */}
+                    <div className="bg-[var(--color-cream)] rounded-2xl border border-[var(--color-border)] p-6 mb-8">
+                        <h2 className="text-base font-bold text-[var(--color-text-primary)] mb-3">
+                            En résumé
+                        </h2>
+                        <ul className="space-y-2 text-sm text-[var(--color-text-secondary)]">
+                            <li>• Les créations que vous générez vous appartiennent.</li>
+                            <li>• Utilisation interdite pour du contenu illégal, trompeur ou portant atteinte aux droits d&apos;autrui.</li>
+                            <li>• Paiements via CinetPay, crédits sans expiration tant que le compte est actif.</li>
+                            <li>• Remboursement sous 14 jours si le service ne convient pas.</li>
+                            <li>• Service fourni « tel quel », sans garantie de résultat spécifique.</li>
+                        </ul>
+                    </div>
+
+                    <div className="prose prose-sm max-w-none text-[var(--color-text-secondary)] space-y-4">
                         <section>
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">1. Acceptation des conditions</h2>
                             <p>
-                                En utilisant JadaRiseLabs, vous acceptez ces conditions d&apos;utilisation. 
+                                En utilisant JadaRiseLabs, vous acceptez ces conditions d&apos;utilisation.
                                 Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser nos services.
                             </p>
                         </section>
@@ -59,7 +54,8 @@ export default function TermsPage() {
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">2. Description du service</h2>
                             <p>
                                 JadaRiseLabs est une plateforme IA permettant la génération d&apos;images, de vidéos,
-                                de conversations et de contenu audio. Les services sont fournis via des crédits.
+                                de conversations, de code, d&apos;analyse documentaire et de contenu audio.
+                                Les services sont fournis via un système de crédits mensuels selon le plan souscrit.
                             </p>
                         </section>
 
@@ -67,7 +63,9 @@ export default function TermsPage() {
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">3. Compte utilisateur</h2>
                             <p>
                                 Vous êtes responsable de la sécurité de votre compte. Ne partagez pas vos identifiants.
-                                Nous nous réservons le droit de suspendre les comptes en cas de violation.
+                                Nous nous réservons le droit de suspendre les comptes en cas de violation
+                                de ces conditions. Les crédits n&apos;ont pas de date d&apos;expiration
+                                tant que votre compte est actif.
                             </p>
                         </section>
 
@@ -75,44 +73,72 @@ export default function TermsPage() {
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">4. Utilisation acceptable</h2>
                             <p>
                                 Il est interdit d&apos;utiliser nos services pour créer du contenu illégal, offensant,
-                                ou portant atteinte aux droits d&apos;autrui. Le contenu généré doit respecter les lois en vigueur.
+                                trompeur, ou portant atteinte aux droits d&apos;autrui (droit à l&apos;image,
+                                droit d&apos;auteur, données personnelles). Le contenu généré doit respecter
+                                les lois en vigueur dans votre pays.
                             </p>
                         </section>
 
                         <section>
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">5. Propriété intellectuelle</h2>
                             <p>
-                                Le contenu généré vous appartient. Cependant, vous accordez à JadaRiseLabs 
-                                une licence limitée pour améliorer nos services. Les modèles IA restent notre propriété.
+                                Le contenu généré via nos services vous appartient. Vous accordez à JadaRiseLabs
+                                une licence limitée pour améliorer nos services. Les modèles IA, l&apos;interface
+                                et les marques restent notre propriété exclusive.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">6. Limitation de responsabilité</h2>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">6. Paiements et remboursements</h2>
+                            <p>
+                                Les paiements sont traités de manière sécurisée par notre prestataire CinetPay
+                                (Mobile Money, Visa, Mastercard). Vous pouvez demander un remboursement intégral
+                                sous 14 jours suivant votre premier paiement si le service ne vous convient pas,
+                                en écrivant à contact@jadariselabs.com. L&apos;annulation de l&apos;abonnement
+                                met fin aux débits futurs sans remboursement des crédits déjà consommés.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">7. Limitation de responsabilité</h2>
                             <p>
                                 JadaRiseLabs n&apos;est pas responsable des dommages indirects liés à l&apos;utilisation
-                                du service. Nos services sont fournis &quot;tel quel&quot; sans garantie explicite.
+                                du service. Nos services sont fournis &quot;tel quel&quot; sans garantie explicite
+                                de résultat spécifique. Les contenus générés par IA doivent être vérifiés
+                                avant toute utilisation professionnelle.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">7. Modifications</h2>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">8. Modifications</h2>
                             <p>
                                 Nous pouvons modifier ces conditions à tout moment. Les utilisateurs seront notifiés
-                                des changements importants par email ou via la plateforme.
+                                des changements importants par email ou via la plateforme. La date de
+                                dernière mise à jour est toujours indiquée en haut de cette page.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">8. Contact</h2>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">9. Contact</h2>
                             <p>
-                                Pour toute question : 
+                                Pour toute question relative à ces conditions ou à un litige :
                                 <span className="text-[var(--color-earth)] font-medium"> contact@jadariselabs.com</span>
                             </p>
                         </section>
+
+                        {/* Version history */}
+                        <section>
+                            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">10. Historique des versions</h2>
+                            <ul className="list-disc pl-6 text-sm">
+                                <li><strong>13 août 2026</strong> — Ajout du résumé, des sections paiement/remboursement et de l&apos;historique des versions.</li>
+                                <li><strong>Janvier 2024</strong> — Version initiale.</li>
+                            </ul>
+                        </section>
                     </div>
                 </div>
-            </div>
+            </main>
+
+            <SiteFooter />
         </div>
     );
 }

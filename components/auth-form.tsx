@@ -144,7 +144,7 @@ export function PasswordInput({
             <button
                 type="button"
                 onClick={() => setVisible(!visible)}
-                tabIndex={-1}
+                tabIndex={0}
                 className="password-toggle"
                 aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
             >
@@ -329,8 +329,8 @@ export function getAuthErrorMessage(error: string): string {
         'duplicate key value violates unique constraint "profiles_username_key"':
             'Ce pseudo est déjà utilisé. Veuillez en choisir un autre.',
         'duplicate key value': 'Cette valeur est déjà utilisée.',
-        'Password should be at least 6 characters':
-            'Le mot de passe doit contenir au moins 6 caractères.',
+        'Password should be at least 8 characters':
+            'Le mot de passe doit contenir au moins 8 caractères.',
         'Signup requires a valid password': 'Veuillez entrer un mot de passe valide.',
         'Email rate limit exceeded':
             'Trop de tentatives. Veuillez réessayer dans quelques minutes.',

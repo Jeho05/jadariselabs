@@ -2,22 +2,55 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useState, FormEvent } from 'react';
 import Image from 'next/image';
-import { IconSparkle, IconClock } from '@/components/icons';
+import { IconSparkle, IconClock, IconRefresh, IconCheck, IconMail } from '@/components/icons';
+import { Spinner } from '@/components/auth-form';
 
 function VerifyContent() {
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
 
+    const [resending, setResending] = useState(false);
+    const [resent, setResent] = useState(false);
+    const [resendError, setResendError] = useState<string | null>(null);
+
+    const handleResend = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+        setResending(true);
+        setResendError(null);
+
+        try {
+            const res = await fetch('/api/auth/resend-confirmation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setResendError(data.error || 'Une erreur est survenue. Réessayez.');
+                setResending(false);
+                return;
+            }
+
+            setResent(true);
+            setResending(false);
+        } catch {
+            setResendError('Une erreur réseau est survenue. Vérifiez votre connexion.');
+            setResending(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background Pattern */}
-            <div 
+            <div
                 className="fixed inset-0 pointer-events-none opacity-20"
                 style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundRepeat: 'repeat' }}
             />
-            
+
             {/* Decorative Elements */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-gold)]/5 rounded-full blur-3xl" />
@@ -36,25 +69,55 @@ function VerifyContent() {
 
                     {/* Email Icon */}
                     <div className="module-icon-premium gold mb-6 animate-float">
-                        <IconSparkle size={32} />
+                        <IconMail size={32} />
                     </div>
 
-                    <h1 
+                    <h1
                         className="text-xl font-bold mb-2"
                         style={{ fontFamily: 'var(--font-heading)' }}
                     >
-                        Vérifiez votre email
+                        {resent ? 'Email renvoyé !' : 'Vérifiez votre email'}
                     </h1>
 
                     <p className="text-[var(--color-text-secondary)] mb-2">
-                        Un email de confirmation a été envoyé à
+                        {resent
+                            ? 'Un nouveau lien de confirmation a été envoyé à'
+                            : 'Un email de confirmation a été envoyé à'}
                     </p>
 
                     {email && (
                         <p className="font-semibold text-[var(--color-earth)] mb-6 break-all bg-[var(--color-cream)] px-4 py-2 rounded-lg">
                             {email}
                         </p>
-                    )} {/* Info Cards */}
+                    )}
+
+                    {/* Success message */}
+                    {resent && (
+                        <div
+                            role="status"
+                            className="w-full mb-6 flex items-center gap-3 p-3 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-lg"
+                            style={{ animation: 'fadeInDown 0.3s ease-out' }}
+                        >
+                            <IconCheck size={20} className="text-[var(--color-savanna)] flex-shrink-0" />
+                            <p className="text-sm text-[var(--color-savanna-dark)] font-medium text-left">
+                                Si le compte existe, vous recevrez le lien dans quelques minutes.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Error message */}
+                    {resendError && (
+                        <div
+                            role="alert"
+                            className="w-full mb-6 flex items-center gap-3 p-3 bg-[var(--color-terracotta)]/10 border border-[var(--color-terracotta)]/25 rounded-lg"
+                        >
+                            <p className="text-sm text-[var(--color-terracotta-dark)] font-medium text-left">
+                                {resendError}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Info Cards */}
                     <div className="w-full space-y-3 mb-6">
                         <div className="flex items-start gap-3 p-3 bg-[var(--color-savanna)]/5 rounded-lg">
                             <IconSparkle size={20} className="text-[var(--color-gold)] flex-shrink-0 mt-0.5" />
@@ -72,9 +135,30 @@ function VerifyContent() {
                         </div>
                     </div>
 
+                    {/* Resend button */}
+                    {email && (
+                        <button
+                            onClick={handleResend}
+                            disabled={resending}
+                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-[var(--color-earth)]/20 text-[var(--color-earth)] font-semibold text-sm hover:bg-[var(--color-earth)]/5 hover:border-[var(--color-earth)]/40 transition-all disabled:opacity-50"
+                        >
+                            {resending ? (
+                                <>
+                                    <Spinner size={16} />
+                                    <span>Envoi en cours...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <IconRefresh size={16} />
+                                    <span>Renvoyer l&apos;email</span>
+                                </>
+                            )}
+                        </button>
+                    )}
+
                     {/* Back Link */}
-                    <Link 
-                        href="/login" 
+                    <Link
+                        href="/login"
                         className="text-sm text-[var(--color-earth)] hover:text-[var(--color-earth-light)] transition-colors font-medium"
                     >
                         ← Retour à la connexion

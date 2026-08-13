@@ -317,6 +317,14 @@ export default function Header() {
                                                         <IconUser size={16} />
                                                         {t('nav.profile')}
                                                     </Link>
+                                                    <Link
+                                                        href="/billing"
+                                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream)]/80 transition-all"
+                                                        onClick={() => setProfileDropdownOpen(false)}
+                                                    >
+                                                        <IconZap size={16} />
+                                                        {t('nav.billing')}
+                                                    </Link>
                                                 </div>
 
                                                 {/* Logout */}
@@ -428,6 +436,20 @@ export default function Header() {
                                     <IconUser size={20} />
                                     {t('nav.profile')}
                                     {isActive('/dashboard/profile') && (
+                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--color-earth)]" />
+                                    )}
+                                </Link>
+                                <Link
+                                    href="/billing"
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                                        isActive('/billing')
+                                            ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/[0.06]'
+                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream)]/60'
+                                    }`}
+                                >
+                                    <IconZap size={20} />
+                                    {t('nav.billing')}
+                                    {isActive('/billing') && (
                                         <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--color-earth)]" />
                                     )}
                                 </Link>

@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
 import {
   IconPalette,
   IconChat,
@@ -10,15 +12,13 @@ import {
   IconSparkle,
   IconStar,
   IconCheck,
-  IconFlask,
   IconZap,
   IconCrown,
   IconUsers,
-  IconImage,
-  IconMessage,
   IconArrowRight,
   IconPlay,
-  IconHeart,
+  IconMail,
+  IconHelpCircle,
 } from '@/components/icons';
 
 // Animated Counter Component
@@ -32,6 +32,13 @@ function AnimatedCounter({ value, suffix = '' }: { value: string; suffix?: strin
 }
 
 export default function Home() {
+  const moduleColorStyles: Record<string, string> = {
+    savanna: 'from-[var(--color-savanna)] to-[var(--color-savanna-dark)]',
+    terracotta: 'from-[var(--color-terracotta)] to-[var(--color-terracotta-dark)]',
+    gold: 'from-[var(--color-gold)] to-[var(--color-gold-dark)]',
+    earth: 'from-[var(--color-earth)] to-[var(--color-earth-dark)]',
+  };
+
   const modules = [
     {
       icon: IconChat,
@@ -172,22 +179,28 @@ export default function Home() {
 
   const testimonials = [
     {
-      name: 'Amadou D.',
+      name: 'Amadou Diallo',
       role: 'Designer freelance',
-      content: 'JadaRiseLabs a transformé ma façon de travailler. Je crée des visuels pour mes clients en quelques minutes au lieu de plusieurs heures.',
+      company: 'Dakar, Sénégal',
+      content: 'JadaRiseLabs a transformé ma façon de travailler. Je crée des visuels pour mes clients en quelques minutes au lieu de plusieurs heures. Un gain de temps énorme.',
       avatar: 'A',
+      rating: 5,
     },
     {
-      name: 'Fatou M.',
+      name: 'Fatou Mbaye',
       role: 'Entrepreneuse',
-      content: 'Le chat IA m\'aide à rédiger mes propositions commerciales et mes posts LinkedIn. Un gain de temps considérable !',
+      company: 'Abidjan, Côte d\'Ivoire',
+      content: 'Le chat IA m\'aide à rédiger mes propositions commerciales et mes posts LinkedIn. J\'ai triplé ma production de contenu sans embaucher personne.',
       avatar: 'F',
+      rating: 5,
     },
     {
-      name: 'Ibrahim K.',
+      name: 'Ibrahim Koné',
       role: 'Développeur',
-      content: 'L\'assistant code est incroyable. Il m\'aide à déboguer et optimiser mon code plus rapidement.',
+      company: 'Ouagadougou, Burkina Faso',
+      content: 'L\'assistant code est incroyable. Il m\'aide à déboguer et optimiser mon code plus rapidement. Le rapport qualité-prix est imbattable en Afrique.',
       avatar: 'I',
+      rating: 4,
     },
   ];
 
@@ -201,35 +214,7 @@ export default function Home() {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-4 md:px-12 lg:px-16">
-        <a href="/" className="flex items-center group">
-          <div className="relative transition-all duration-300 group-hover:scale-[1.02]">
-            <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-12 sm:h-16 w-auto" priority />
-          </div>
-        </a>
-        <nav className="hidden md:flex items-center gap-8">
-          <a href="#modules" className="nav-link">
-            Modules IA
-          </a>
-          <a href="#pricing" className="nav-link">
-            Tarifs
-          </a>
-          <a href="#faq" className="nav-link">
-            FAQ
-          </a>
-          <a href="/legal/privacy" className="nav-link">
-            Confidentialité
-          </a>
-        </nav>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <a href="/login" className="btn-secondary text-sm py-2 px-4 sm:py-2.5 sm:px-5 hover-lift">
-            Connexion
-          </a>
-          <a href="/signup" className="btn-primary text-sm py-2 px-4 sm:py-2.5 sm:px-5 btn-ripple hover-lift animate-pulse-glow">
-            Commencer gratuitement
-          </a>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Hero Section - Clean & Modern */}
       <section className="relative z-10 px-6 py-12 md:px-12 lg:px-16 pt-24 lg:pt-32 pb-16 lg:pb-24">
@@ -430,27 +415,37 @@ export default function Home() {
                 className="gradient-border-card group hover-lift"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="bg-white rounded-[calc(1.25rem-2px)] p-6 h-full">
-                  {/* No Image - Using abstract pattern instead */}
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm bg-${module.color}-50 text-white font-bold text-lg bg-gradient-to-br from-[var(--color-${module.color})] text-white shadow-md mb-6`}>
-                     <module.icon size={28} className="text-white drop-shadow-sm" />
+                <div className="bg-white rounded-[calc(1.25rem-2px)] p-6 h-full flex flex-col">
+                  {/* Feature visual */}
+                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-6">
+                    {module.image ? (
+                      <Image
+                        src={module.image}
+                        alt={module.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className={`absolute inset-0 bg-gradient-to-br ${moduleColorStyles[module.color]} opacity-15`} />
+                    )}
+                    <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${moduleColorStyles[module.color]} ${module.image ? 'bg-opacity-20' : 'opacity-100'}`}>
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-sm ${module.image ? 'bg-white/90' : 'bg-white/20'}`}>
+                        <module.icon size={28} className={module.image ? 'text-[var(--color-earth)]' : 'text-white drop-shadow-sm'} />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className={`module-icon-premium ${module.color} group-hover:scale-110 transition-transform`}>
-                      <module.icon size={28} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors mb-2">
-                        {module.title}
-                      </h3>
-                      <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed mb-4">
-                        {module.description}
-                      </p>
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full tag-${module.color}`}>
-                        {module.tag}
-                      </span>
-                    </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-earth)] transition-colors mb-2">
+                      {module.title}
+                    </h3>
+                    <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed mb-4">
+                      {module.description}
+                    </p>
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full tag-${module.color}`}>
+                      {module.tag}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -478,7 +473,17 @@ export default function Home() {
                 className="bg-white rounded-2xl p-8 shadow-sm border border-[var(--color-border)] hover:shadow-md transition-shadow relative"
               >
                 <div className="absolute top-6 left-6 text-[var(--color-gold)] opacity-20 font-serif text-6xl leading-none">&quot;</div>
-                <p className="text-[var(--color-text-secondary)] leading-relaxed mb-6 pt-6 relative z-10 font-medium">
+                {/* Rating stars */}
+                <div className="flex items-center gap-1 mb-4" aria-label={`Note : ${testimonial.rating} sur 5`}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <IconStar
+                      key={star}
+                      size={16}
+                      className={star <= testimonial.rating ? 'text-[var(--color-gold)] fill-current' : 'text-[var(--color-border)] fill-current'}
+                    />
+                  ))}
+                </div>
+                <p className="text-[var(--color-text-secondary)] leading-relaxed mb-6 pt-2 relative z-10 font-medium">
                   {testimonial.content}
                 </p>
                 <div className="flex items-center gap-4 mt-auto pt-4 border-t border-[var(--color-border)]/50">
@@ -487,7 +492,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="font-bold text-[var(--color-text-primary)]">{testimonial.name}</p>
-                    <p className="text-sm font-medium text-[var(--color-text-muted)]">{testimonial.role}</p>
+                    <p className="text-sm font-medium text-[var(--color-text-muted)]">{testimonial.role} — {testimonial.company}</p>
                   </div>
                 </div>
               </div>
@@ -565,7 +570,7 @@ export default function Home() {
                 </ul>
 
                 <a
-                  href="/signup"
+                  href={`/signup?plan=${plan.name.toLowerCase()}`}
                   className={`w-full py-3.5 rounded-xl font-semibold text-center flex items-center justify-center gap-2 transition-all ${
                     plan.popular 
                       ? 'bg-[var(--color-earth)] text-white hover:bg-[var(--color-earth-dark)] shadow-md hover:shadow-lg' 
@@ -597,7 +602,7 @@ export default function Home() {
           <div className="space-y-4">
             {faqs.map((item, i) => (
               <details key={i} className="group bg-white rounded-2xl border border-[var(--color-border)] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
-                <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)] flex items-center justify-between p-6 hover:bg-[var(--color-cream)]/50 transition-colors">
+                <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)] flex items-center justify-between p-6 hover:bg-[var(--color-cream)]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]">
                   <span className="pr-4">{item.q}</span>
                   <div className="w-8 h-8 rounded-full bg-[var(--color-cream-dark)] flex items-center justify-center group-open:rotate-180 transition-transform duration-300 flex-shrink-0">
                     <span className="text-[var(--color-earth-dark)] text-sm">▾</span>
@@ -610,6 +615,29 @@ export default function Home() {
                 </div>
               </details>
             ))}
+          </div>
+
+          {/* Contact options */}
+          <div className="mt-10 text-center">
+            <p className="text-[var(--color-text-secondary)] mb-4">
+              Vous ne trouvez pas votre réponse ?
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href="/contact"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-[var(--color-earth)] text-white hover:bg-[var(--color-earth-dark)] transition-all"
+              >
+                <IconHelpCircle size={16} />
+                Nous contacter
+              </a>
+              <a
+                href="mailto:contact@jadariselabs.com"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm border-2 border-[var(--color-earth)] text-[var(--color-earth)] hover:bg-[var(--color-earth)] hover:text-white transition-all"
+              >
+                <IconMail size={16} />
+                Écrire au support
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -639,49 +667,7 @@ export default function Home() {
       </section>
 
       {/* Footer - Cleaner */}
-      <footer className="relative z-10 border-t border-[var(--color-border)] bg-white pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="md:col-span-2">
-              <div className="flex items-center mb-6">
-                <div className="relative">
-                  <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-12 w-auto grayscale mix-blend-multiply opacity-80" />
-                </div>
-              </div>
-              <p className="text-[var(--color-text-secondary)] max-w-sm mb-6 leading-relaxed">
-                Le premier laboratoire d&apos;intelligence artificielle complet pensé pour les créateurs et développeurs en Afrique de l&apos;Ouest.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-[var(--color-text-primary)] mb-6 uppercase tracking-wider text-sm">Produit</h4>
-              <ul className="space-y-4">
-                <li><a href="#modules" className="text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] transition-colors">Modules IA</a></li>
-                <li><a href="#pricing" className="text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] transition-colors">Tarifs</a></li>
-                <li><a href="/login" className="text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] transition-colors">Connexion</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-[var(--color-text-primary)] mb-6 uppercase tracking-wider text-sm">Légal</h4>
-              <ul className="space-y-4">
-                <li><a href="/legal/terms" className="text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] transition-colors">CGU</a></li>
-                <li><a href="/legal/privacy" className="text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] transition-colors">Confidentialité</a></li>
-                <li><a href="mailto:contact@jadarise.labs" className="text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] transition-colors">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="pt-8 border-t border-[var(--color-border)] flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[var(--color-text-muted)] text-sm">
-              © {new Date().getFullYear()} JadaRiseLabs. Tous droits réservés.
-            </p>
-            <div className="flex items-center gap-2 text-[var(--color-text-muted)] text-sm">
-              Fait avec <IconHeart size={14} className="text-red-500 fill-current" /> en Afrique
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

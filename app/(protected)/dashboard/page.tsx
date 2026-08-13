@@ -38,6 +38,7 @@ import {
     IconText,
     IconFileText,
     IconMegaphone,
+    IconCheck,
 } from '@/components/icons';
 
 /**
@@ -50,6 +51,19 @@ export default function DashboardPage() {
     const [totalGenerations, setTotalGenerations] = useState<number>(0);
     const [moduleStats, setModuleStats] = useState<{ type: string; count: number }[]>([]);
     const [loading, setLoading] = useState(true);
+    const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('payment') === 'success') {
+            const plan = params.get('plan');
+            setPaymentNotice(
+                `Paiement réussi ! Votre plan ${plan ? (plan === 'starter' ? 'Starter' : 'Pro') : ''} est maintenant actif. Bienvenue !`
+            );
+            // Clean URL without full page reload
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -380,6 +394,31 @@ export default function DashboardPage() {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-12">
                 {/* Welcome Section */}
                 <div className="mb-8 lg:mb-10 animate-fade-in-up">
+                    {/* Payment success notice */}
+                    {paymentNotice && (
+                        <div
+                            role="status"
+                            className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-[var(--color-savanna)]/10 to-transparent border-l-4 border-[var(--color-savanna)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                            style={{ animation: 'fadeInDown 0.3s ease-out' }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--color-savanna)]/15 flex items-center justify-center text-[var(--color-savanna)] shadow-sm flex-shrink-0">
+                                    <IconCheck size={18} />
+                                </div>
+                                <div>
+                                    <h3 className="text-[var(--color-savanna-dark)] font-bold text-sm sm:text-base">Plan activé</h3>
+                                    <p className="text-xs sm:text-sm text-[var(--color-savanna-dark)]/80">{paymentNotice}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setPaymentNotice(null)}
+                                className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-[var(--color-savanna)]/20 text-[var(--color-savanna-dark)] hover:bg-[var(--color-savanna)]/10 transition shrink-0"
+                            >
+                                OK, merci !
+                            </button>
+                        </div>
+                    )}
+
                     {/* Low credits warning */} {profile && profile.plan !== 'pro' && profile.credits !== -1 && profile.credits < 5 && (
                         <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-red-500 animate-pulse flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
@@ -393,7 +432,7 @@ export default function DashboardPage() {
                                     </p>
                                 </div>
                             </div>
-                            <Link href="/pricing" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm whitespace-nowrap">
+                            <Link href="/billing" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm whitespace-nowrap">
                                 Gérer mon plan
                             </Link>
                         </div>
@@ -519,7 +558,7 @@ export default function DashboardPage() {
                             </div>
                             {profile?.plan !== 'pro' && (
                                 <Link
-                                    href="/pricing"
+                                    href="/billing"
                                     className="text-xs font-semibold text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors flex items-center gap-1"
                                 >
                                     Upgrade <IconArrowRight size={14} />

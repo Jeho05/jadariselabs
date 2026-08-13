@@ -16,7 +16,6 @@ import {
     IconAlertCircle,
     IconArrowRight,
 } from '@/components/icons';
-import Image from 'next/image';
 
 const PLAN_FEATURES: Record<PlanType, { label: string; description: string; features: string[]; color: string; gradient: string }> = {
     free: {
@@ -124,9 +123,6 @@ export default function PricingPage() {
         <div className="min-h-screen pb-20">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
                 <div className="text-center mb-12 flex flex-col items-center">
-                    <div className="mb-8 drop-shadow-lg">
-                        <Image src="/logo-lion.png" alt="JadaRiseLabs" width={240} height={160} className="object-contain h-16 w-auto" />
-                    </div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
                         Choisissez votre plan
                     </h1>

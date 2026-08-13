@@ -13,7 +13,7 @@ import {
     Spinner,
     getAuthErrorMessage,
 } from '@/components/auth-form';
-import { IconFlask, IconPalette, IconChat, IconVideo, IconSparkle, IconArrowRight, IconCheck } from '@/components/icons';
+import { IconPalette, IconChat, IconVideo, IconSparkle, IconArrowRight, IconCheck } from '@/components/icons';
 
 function LoginForm() {
     const router = useRouter();
@@ -25,8 +25,14 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Check for callback errors
+    // Check for callback errors / messages
     const callbackError = searchParams.get('error');
+    const callbackMessage = searchParams.get('message');
+
+    const successMessages: Record<string, string> = {
+        'email-confirmed': 'Votre email est confirmé. Connectez-vous pour commencer !',
+        'password-reset': 'Mot de passe réinitialisé avec succès. Connectez-vous !',
+    };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -134,12 +140,38 @@ function LoginForm() {
                         ))}
                     </div>
 
-                    {/* Trust Badge */}
-                    <div className="mt-12 pt-8 border-t border-white/10 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                        <div className="flex items-center gap-3 text-white/60 text-sm">
-                            <IconCheck size={16} className="text-[var(--color-savanna)]" />
-                            <span>50 crédits gratuits à l&apos;inscription</span>
+                    {/* Social Proof */}
+                    <div className="mt-12 pt-8 border-t border-white/10 space-y-5 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                        {/* New feature */}
+                        <div className="flex items-center gap-3 text-white/70 text-sm">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--color-gold)]/20 text-[var(--color-gold)] text-xs font-bold">
+                                <IconSparkle size={11} />
+                                Nouveau
+                            </span>
+                            <span>Clonage vocal en 17+ langues africaines</span>
                         </div>
+
+                        {/* Testimonial */}
+                        <div className="glass-card-premium !rounded-xl !p-4 !bg-white/5">
+                            <p className="text-white/80 text-sm italic mb-2">
+                                &ldquo;Je crée les visuels de mes clients en quelques minutes. Un vrai game changer pour mon activité.&rdquo;
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-[var(--color-earth-dark)] flex items-center justify-center text-white text-xs font-bold">
+                                    A
+                                </div>
+                                <div>
+                                    <p className="text-white text-sm font-medium">Amadou D.</p>
+                                    <p className="text-white/60 text-xs">Designer freelance · Dakar</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Blog link */}
+                        <a href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-gold)] hover:text-white transition-colors">
+                            Lire notre guide « L&apos;IA pour les créateurs africains »
+                            <IconArrowRight size={14} />
+                        </a>
                     </div>
                 </div>
             </div>
@@ -181,6 +213,20 @@ function LoginForm() {
 
                     {/* Card */}
                     <div className="glass-card-premium rounded-2xl p-6 lg:p-8">
+                        {/* Success notice */}
+                        {callbackMessage && successMessages[callbackMessage] && (
+                            <div
+                                role="status"
+                                className="flex items-center gap-3 rounded-xl border border-[var(--color-savanna)]/25 bg-[var(--color-savanna)]/10 px-4 py-3 mb-4"
+                                style={{ animation: 'slideDown 0.3s ease-out' }}
+                            >
+                                <IconCheck size={18} className="text-[var(--color-savanna)] flex-shrink-0" />
+                                <p className="text-sm text-[var(--color-savanna-dark)] font-medium">
+                                    {successMessages[callbackMessage]}
+                                </p>
+                            </div>
+                        )}
+
                         {/* Error messages */}
                         <AuthError
                             message={
@@ -235,10 +281,7 @@ function LoginForm() {
                                     <button
                                         type="button"
                                         className="text-xs text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors font-medium"
-                                        onClick={() => {
-                                            // TODO: Password reset functionality
-                                            alert('Fonctionnalité à venir');
-                                        }}
+                                        onClick={() => router.push('/auth/forgot-password')}
                                     >
                                         Mot de passe oublié ?
                                     </button>

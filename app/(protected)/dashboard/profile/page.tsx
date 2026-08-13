@@ -900,7 +900,7 @@ export default function ProfilePage() {
 
                                     >
 
-                                        🇬🇧 {t('profile.language.english')}
+                                        🇺🇸 {t('profile.language.english')}
 
                                     </button>
 

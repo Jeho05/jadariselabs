@@ -287,7 +287,7 @@ export default function ImageStudioPage() {
                                 {isHD && profile?.plan === 'free' && (
                                     <p className="text-[12px] text-[var(--color-terracotta)] mt-2">
                                         ⚠️ La taille HD nécessite un plan Starter ou Pro.{' '}
-                                        <Link href="/pricing" className="underline font-medium">Mettre à niveau →</Link>
+                                        <Link href="/billing" className="underline font-medium">Mettre à niveau →</Link>
                                     </p>
                                 )}
                             </div>
