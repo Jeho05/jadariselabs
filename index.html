@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumora — Independent Design & Engineering Studio</title>
+<meta name="description" content="Lumora is an independent studio crafting brands, products, and the systems that connect them — bold ideas, shipped with quiet precision." />
+<meta name="theme-color" content="#0a0a0a" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{ box-sizing:border-box; margin:0; padding:0 }
+html{ font-size:16px; -webkit-font-smoothing:antialiased }
+body{ background:#ffffff; color:#111111; font-family:'Onest',sans-serif; overflow-x:hidden }
+a{ color:inherit; text-decoration:none }
+button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer }
+ul{ list-style:none }
+img{ display:block }
+svg{ display:block; width:1em; height:1em }
+.sr-only{ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0 }
+:focus-visible{ outline:2px solid #b15f2c; outline-offset:2px }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important } }
+
+@media (max-width:1920px){ html{ font-size:0.833333vw } }
+@media (max-width:1440px){ html{ font-size:1.111111vw } }
+@media (max-width:1024px){ html{ font-size:1.5625vw } }
+@media (max-width:640px){  html{ font-size:4.444444vw } }
+
+.shell{ max-width:88rem; margin-inline:auto }
+
+.skip-link{ position:fixed; left:1rem; top:1rem; z-index:60; transform:translateY(-300%); border-radius:.875rem; background:#0a0a0a; padding:.5rem 1rem; font-size:.875rem; color:#fff; transition:transform .2s }
+.skip-link:focus-visible{ transform:none }
+
+.loader{ position:fixed; inset:0; z-index:120; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2rem; background:#0a0a0a; color:#fff; border-radius:0 0 2rem 2rem }
+.loader-center{ display:flex; flex-direction:column; align-items:center; gap:1.25rem; text-align:center }
+.loader-brand{ display:inline-flex; align-items:center; gap:.5rem; font-weight:600; font-size:1.5rem }
+.loader-brand svg{ font-size:1.875rem; color:#cf8047 }
+@media (min-width:640px){ .loader-brand{ font-size:1.875rem } }
+.loader-center p{ max-width:24ch; font-size:.875rem; color:rgba(255,255,255,.55) }
+.loader-progress{ width:min(22rem,72vw); display:flex; flex-direction:column; gap:.75rem }
+.loader-track{ height:1px; background:rgba(255,255,255,.15) }
+.loader-fill{ height:100%; background:#cf8047; width:0%; transition:width .1s ease-out }
+.loader-meta{ display:flex; justify-content:space-between; font-size:.75rem; font-weight:500; text-transform:uppercase; letter-spacing:.05em; color:rgba(255,255,255,.45) }
+.loader-count{ color:rgba(255,255,255,.8); font-variant-numeric:tabular-nums }
+
+.header{ position:absolute; inset-inline:0; top:0; z-index:50 }
+.header .shell{ display:flex; align-items:center; justify-content:space-between; gap:1.5rem; padding:1.25rem }
+@media (min-width:640px){ .header .shell{ padding:1.5rem 2rem } }
+.header-right{ display:flex; align-items:center; gap:.75rem }
+.brand{ display:flex; align-items:center }
+.brand-spring{ display:inline-flex; align-items:center; gap:.5rem; font-size:1.125rem; font-weight:600; letter-spacing:-.01em; transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.brand:hover .brand-spring{ transform:scale(1.04) }
+.brand-spring svg{ font-size:1.25rem; color:#b15f2c }
+.primary-nav{ display:none }
+@media (min-width:1024px){ .primary-nav{ display:flex } }
+.primary-nav ul{ display:flex; gap:2rem; font-size:.875rem; font-weight:500 }
+.nav-link{ display:flex; align-items:center; gap:.25rem; padding:.25rem 0 }
+.nav-label{ display:inline-block; opacity:.8; transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s }
+.nav-link:hover .nav-label{ transform:translateY(-2px); opacity:1 }
+.nav-caret{ font-size:.75rem; opacity:.6 }
+.clock{ display:none; align-items:center; gap:.75rem; border:1px solid rgba(230,229,226,.8); background:rgba(255,255,255,.4); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); border-radius:.875rem; padding:.5rem .75rem; font-size:.75rem; color:rgba(17,17,17,.7) }
+@media (min-width:768px){ .clock{ display:flex } }
+.clock-label{ color:rgba(17,17,17,.45) }
+.clock-time{ min-width:3.5rem; font-variant-numeric:tabular-nums; font-weight:500; color:#111 }
+.clock-sep{ color:rgba(17,17,17,.3) }
+.clock-date{ font-weight:500 }
+.menu-btn{ border:1px solid rgba(230,229,226,.8); background:rgba(255,255,255,.4); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); border-radius:.875rem; transition:background .3s }
+.menu-btn:hover{ background:rgba(255,255,255,.7) }
+.menu-btn-spring{ display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; font-size:.75rem; font-weight:500; text-transform:uppercase; letter-spacing:.05em; transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.menu-btn:hover .menu-btn-spring{ transform:scale(1.05) }
+.menu-btn-spring svg{ font-size:.875rem }
+@media (max-width:639px){ .menu-word{ display:none } }
+
+.hero{ position:relative; isolation:isolate; overflow:hidden; border-radius:0 0 2rem 2rem; background:#c9c9c9 }
+.liquid{ position:absolute; inset:0; z-index:0 }
+.liquid img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover }
+.liquid canvas{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none }
+.hero-vignette{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(to bottom, rgba(255,255,255,.35), transparent, rgba(255,255,255,.35)) }
+.hero-watermark{ pointer-events:none; position:absolute; inset-inline:0; bottom:7rem; z-index:1; text-align:center; user-select:none; font-weight:700; line-height:1; font-size:13rem; color:rgba(255,255,255,.4) }
+.hero-content{ position:relative; z-index:20; display:flex; flex-direction:column; gap:2rem; padding:7rem 1.25rem 5rem }
+@media (min-width:640px){ .hero-content{ padding-inline:2rem } }
+@media (min-width:1024px){ .hero-content{ display:grid; min-height:100lvh; grid-template-columns:repeat(12,1fr); gap:2.5rem; padding:9rem 2rem 7rem } }
+.hero-left{ grid-column:span 7; display:flex; flex-direction:column; gap:1.75rem }
+.hero-right{ grid-column:span 5; display:flex; flex-direction:column; align-items:flex-start; gap:2rem }
+@media (min-width:1024px){ .hero-right{ align-items:flex-end } }
+.eyebrow{ display:inline-flex; align-items:center; gap:.5rem; font-size:.875rem; font-weight:500 }
+.eyebrow .dot{ width:.375rem; height:.375rem; border-radius:9999px; background:rgba(17,17,17,.5) }
+.eyebrow.dark{ color:rgba(17,17,17,.7) }
+.eyebrow.light{ color:rgba(255,255,255,.7) }
+.eyebrow.light .dot{ background:rgba(255,255,255,.6) }
+.hero-h1{ max-width:18ch; font-size:2.25rem; font-weight:600; line-height:.98; letter-spacing:-.02em }
+@media (min-width:640px){ .hero-h1{ font-size:3rem } }
+@media (min-width:768px){ .hero-h1{ font-size:3.75rem } }
+.hero-rating{ display:flex; align-items:center; gap:.75rem }
+.stars{ display:inline-flex; gap:.125rem; color:#b15f2c; font-size:1rem }
+.hero-rating-text{ font-size:.875rem; font-weight:500; color:rgba(17,17,17,.7) }
+.hero-ctas{ display:flex; flex-wrap:wrap; gap:.75rem }
+.pill{ display:inline-block }
+.pill-spring{ display:inline-flex; align-items:center; gap:.75rem; border-radius:9999px; font-size:.875rem; font-weight:500; transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.pill:hover .pill-spring{ transform:scale(1.04) }
+.pill.dark .pill-spring{ background:#0a0a0a; color:#fff }
+.pill.light .pill-spring{ background:#f1f0ee; color:#111 }
+.pill.outline .pill-spring{ border:1px solid #e6e5e2; background:transparent; color:#111 }
+.pill-label{ display:block; padding:.875rem 1.75rem }
+.pill.with-arrow .pill-spring{ padding:.375rem .375rem .375rem 1.5rem }
+.pill.with-arrow .pill-label{ padding:.375rem 0 }
+.pill-badge{ display:grid; place-items:center; width:2.25rem; height:2.25rem; border-radius:9999px; font-size:1rem }
+.pill.dark .pill-badge{ background:#fff; color:#0a0a0a }
+.pill.light .pill-badge, .pill.outline .pill-badge{ background:#0a0a0a; color:#fff }
+.pill-badge svg{ transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.pill:hover .pill-badge svg{ transform:translate(3px,0) }
+.pill.arrow-up:hover .pill-badge svg{ transform:translate(2px,-2px) }
+.hero-card{ width:100%; max-width:24rem; border-radius:1.25rem; background:rgba(255,255,255,.7); padding:.5rem; box-shadow:0 0 0 1px rgba(230,229,226,.7), 0 1px 2px 0 rgba(0,0,0,.05); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px) }
+@media (min-width:1024px){ .hero-card{ width:19rem } }
+.hc-row{ display:flex; gap:.5rem; cursor:pointer; border-radius:.875rem; text-align:left; width:100% }
+.hc-tile{ width:6rem; aspect-ratio:1; display:grid; place-items:center; border-radius:.875rem; background:#0a0a0a; color:#fff; flex-shrink:0 }
+.hc-tile svg{ font-size:1.875rem; color:#cf8047 }
+.hc-panel{ flex:1; min-width:0; border-radius:.875rem; background:rgba(241,240,238,.7); padding:.75rem; display:flex; flex-direction:column; justify-content:space-between }
+.hc-slot{ position:relative; min-height:3.25rem }
+.hc-item{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; gap:.25rem }
+.hc-caption{ font-size:.65rem; font-weight:500; text-transform:uppercase; letter-spacing:.05em; color:rgba(17,17,17,.45) }
+.hc-title{ max-width:8rem; font-size:.875rem; font-weight:500; line-height:1.35; color:#111 }
+.hc-controls{ display:flex; align-items:flex-end; justify-content:space-between; margin-top:.5rem }
+.hc-dots{ display:flex; align-items:center; gap:.25rem }
+.hc-dot{ height:.25rem; border-radius:9999px; background:rgba(17,17,17,.2); width:.375rem; transition:all .3s }
+.hc-dot.active{ width:1rem; background:rgba(17,17,17,.7) }
+.hc-btns{ display:flex; gap:.375rem }
+.hc-btn{ width:1.75rem; height:1.75rem; display:grid; place-items:center; border-radius:9999px; background:#fff; color:rgba(17,17,17,.7); box-shadow:0 0 0 1px #e6e5e2; font-size:.75rem; transition:color .3s }
+.hc-btn:hover{ color:#111 }
+.hc-btn.prev svg{ transform:rotate(180deg) }
+.hero-partners{ width:100%; max-width:24rem }
+@media (min-width:1024px){ .hero-partners{ width:19rem } }
+.partners-label{ margin-bottom:.75rem; font-size:.75rem; font-weight:500; color:rgba(17,17,17,.45); text-align:left }
+@media (min-width:1024px){ .partners-label{ text-align:right } }
+.partners-list{ display:grid; grid-template-columns:repeat(4,1fr); column-gap:1rem; row-gap:.75rem }
+.partner-inner{ display:inline-flex; align-items:center; gap:.375rem; font-size:.75rem; color:rgba(17,17,17,.7); opacity:.7; transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s }
+.partner-inner svg{ font-size:.875rem; color:rgba(17,17,17,.4) }
+.partners-list li:hover .partner-inner{ transform:translateY(-2px); opacity:1 }
+.hero-status{ display:flex; align-items:center; justify-content:space-between; gap:.75rem; border-top:1px solid rgba(17,17,17,.1); padding:1.25rem; font-size:.75rem; font-weight:500; text-transform:uppercase; letter-spacing:.025em; color:rgba(17,17,17,.6) }
+@media (min-width:640px){ .hero-status{ padding-inline:2rem } }
+.hero-status-mid{ display:none }
+@media (min-width:640px){ .hero-status-mid{ display:inline } }
+.hero-status-right{ display:inline-flex; align-items:center; gap:.5rem }
+
+.about{ background:#fff }
+.about-grid{ display:grid; grid-template-columns:1fr; align-items:center; gap:3rem; padding:5rem 1.25rem }
+@media (min-width:640px){ .about-grid{ padding-inline:2rem } }
+@media (min-width:1024px){ .about-grid{ grid-template-columns:1fr 1fr; padding-block:7rem } }
+.about-globe{ position:relative; min-height:14rem; display:flex; flex-direction:column; justify-content:space-between; gap:1rem }
+@media (min-width:640px){ .about-globe{ min-height:16rem } }
+@media (min-width:1024px){ .about-globe{ min-height:20rem } }
+.globe-big{ position:absolute; left:-1rem; top:50%; transform:translateY(-50%); font-size:12rem; color:rgba(17,17,17,.1); pointer-events:none }
+@media (min-width:640px){ .globe-big{ font-size:16rem } }
+@media (min-width:1024px){ .globe-big{ left:-1.5rem; font-size:20rem } }
+.about-globe .eyebrow{ position:relative }
+.about-globe-note{ position:relative; display:flex; align-items:center; gap:.75rem; font-size:.875rem; color:rgba(17,17,17,.7) }
+.about-globe-note svg{ font-size:1.5rem; color:#111; flex-shrink:0 }
+.about-globe-note span{ max-width:14rem }
+.about-statement{ display:flex; flex-direction:column; gap:2.5rem }
+.about-h2{ font-size:1.5rem; font-weight:500; line-height:1.35; letter-spacing:-.01em }
+@media (min-width:640px){ .about-h2{ font-size:1.875rem } }
+.about-h2 .muted{ color:#8d8d8d }
+.about-footer{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:1.5rem; border-top:1px solid #e6e5e2; padding-top:1.5rem }
+.about-socials-label{ font-size:.875rem; color:rgba(17,17,17,.45); margin-bottom:.75rem }
+.about-socials-row{ display:flex; gap:.5rem }
+.social-chip{ display:grid; place-items:center; width:2.25rem; height:2.25rem; border-radius:9999px; font-size:.875rem }
+.social-chip.x{ background:#b15f2c; color:#fff }
+.social-chip.ghost{ background:#f1f0ee; color:rgba(17,17,17,.7) }
+.social-spring{ display:grid; place-items:center; transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.social-chip:hover .social-spring{ transform:scale(1.18) }
+
+.cb-list{ display:flex; flex-direction:column; gap:.75rem; padding:2.5rem 1.25rem }
+@media (min-width:640px){ .cb-list{ flex-direction:row; gap:1rem; padding-inline:2rem } }
+.cb-li{ flex:1 }
+.cb-tile{ display:grid; place-items:center; height:6rem; border-radius:9999px; font-size:1.875rem; font-weight:500; transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.cb-li:hover .cb-tile{ transform:scale(1.03) }
+@media (min-width:640px){ .cb-tile{ height:10rem; font-size:2.25rem } }
+.cb-tile.light{ background:#f1f0ee; color:#111 }
+.cb-tile.accent{ background:linear-gradient(to bottom right,#cf8047,#97501f); color:#fff }
+.cb-tile.dark{ background:#0a0a0a; color:#fff }
+.cb-tile.ghost{ background:rgba(241,240,238,.6); color:rgba(17,17,17,.35) }
+.cb-arrow{ font-size:2.25rem }
+@media (min-width:640px){ .cb-arrow{ font-size:3rem } }
+
+.works .shell{ padding:2.5rem 1.25rem 5rem }
+@media (min-width:640px){ .works .shell{ padding-inline:2rem } }
+@media (min-width:1024px){ .works .shell{ padding-bottom:7rem } }
+.works-eyebrow-wrap{ text-align:center }
+.works-eyebrow{ border:1px solid #e6e5e2; border-radius:9999px; padding:.375rem 1rem }
+.works-h2{ margin:1.25rem auto 3rem; width:fit-content; font-size:2.25rem; font-weight:600; letter-spacing:-.02em }
+@media (min-width:640px){ .works-h2{ font-size:3rem } }
+.works-grid{ display:grid; grid-template-columns:1fr; gap:1.5rem }
+@media (min-width:768px){ .works-grid{ grid-template-columns:1fr 1fr } }
+.works-card a{ display:block }
+.wc-article{ position:relative; min-height:22rem; overflow:hidden; border-radius:2rem; background:#0a0a0a; padding:1.5rem; color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.05); transition:transform .6s cubic-bezier(.16,1,.3,1) }
+.works-card:hover .wc-article{ transform:translateY(-8px) scale(1.012) }
+@media (min-width:640px){ .wc-article{ min-height:26rem; padding:2rem } }
+.wc-meta{ display:flex; align-items:flex-start; justify-content:space-between; font-size:.75rem; text-transform:uppercase; letter-spacing:.025em; color:rgba(255,255,255,.45) }
+.wc-badge{ display:grid; place-items:center; width:2.75rem; height:2.75rem; border-radius:9999px; background:rgba(255,255,255,.1); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15); transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+.works-card:hover .wc-badge{ transform:rotate(45deg) scale(1.08) }
+.wc-wm{ position:absolute; inset:0; display:grid; place-items:center; gap:.25rem; pointer-events:none }
+.wc-wm svg{ font-size:4.5rem; color:rgba(255,255,255,.9) }
+.wc-reg{ font-size:.75rem; color:rgba(255,255,255,.6) }
+.wc-bottom{ position:absolute; inset-inline:1.5rem; bottom:1.5rem }
+@media (min-width:640px){ .wc-bottom{ inset-inline:2rem; bottom:2rem } }
+.wc-bottom h3{ font-size:1.5rem; font-weight:500; letter-spacing:-.01em }
+@media (min-width:640px){ .wc-bottom h3{ font-size:1.875rem } }
+.wc-bottom p{ margin-top:.5rem; max-width:28rem; font-size:.875rem; color:rgba(255,255,255,.55) }
+.wc-tags{ margin-top:1.25rem; display:flex; flex-wrap:wrap; gap:.5rem }
+.wc-tag{ display:inline-flex; border:1px solid rgba(255,255,255,.25); color:#fff; border-radius:9999px; padding:.5rem 1rem; font-size:.875rem }
+
+.services .shell{ padding:5rem 1.25rem }
+@media (min-width:640px){ .services .shell{ padding-inline:2rem } }
+@media (min-width:1024px){ .services .shell{ padding-block:7rem } }
+.services-h2{ margin:1.25rem 0 3rem; max-width:16ch; font-size:2.25rem; font-weight:600; letter-spacing:-.02em }
+@media (min-width:640px){ .services-h2{ margin-bottom:3.5rem; font-size:3rem } }
+.service-li{ border-top:1px solid #e6e5e2 }
+.service-li:first-child{ border-top:none }
+.service-row{ display:flex; align-items:center; gap:1rem; border-radius:1.25rem; padding:1.5rem; background:rgba(241,240,238,0); transition:background .6s cubic-bezier(.16,1,.3,1),padding .6s cubic-bezier(.16,1,.3,1) }
+.service-li:hover .service-row{ background:rgba(241,240,238,1); padding-left:2rem; padding-right:1.25rem }
+@media (min-width:640px){ .service-row{ gap:1.5rem; padding-block:2rem } }
+.service-index{ width:1.75rem; font-size:.875rem; font-weight:500; color:rgba(17,17,17,.4); flex-shrink:0 }
+@media (min-width:640px){ .service-index{ width:2.5rem } }
+.service-row h3{ flex:1; font-size:1.5rem; font-weight:500; letter-spacing:-.01em }
+@media (min-width:640px){ .service-row h3{ font-size:1.875rem } }
+@media (min-width:768px){ .service-row h3{ font-size:2.25rem } }
+.service-desc{ display:none; max-width:20rem; font-size:.875rem; color:rgba(17,17,17,.55) }
+@media (min-width:1024px){ .service-desc{ display:block } }
+.service-badge{ display:grid; place-items:center; width:2.5rem; height:2.5rem; border-radius:9999px; background:#0a0a0a; color:#fff; transition:transform .35s cubic-bezier(.2,.8,.2,1) }
+@media (min-width:640px){ .service-badge{ width:3rem; height:3rem } }
+.service-li:hover .service-badge{ transform:translateX(5px) }
+
+.stats .shell{ padding:0 1.25rem 5rem }
+@media (min-width:640px){ .stats .shell{ padding-inline:2rem } }
+@media (min-width:1024px){ .stats .shell{ padding-bottom:7rem } }
+.stats-panel{ border-radius:2rem; background:#0a0a0a; padding:3rem 1.5rem; color:#fff }
+@media (min-width:640px){ .stats-panel{ padding:4rem 2rem } }
+@media (min-width:768px){ .stats-panel{ padding-inline:4rem } }
+.stats-h2{ margin-top:1rem; max-width:20ch; font-size:1.875rem; font-weight:500; letter-spacing:-.01em }
+@media (min-width:768px){ .stats-h2{ font-size:2.25rem } }
+.stats-grid{ margin-top:3.5rem; display:grid; grid-template-columns:repeat(2,1fr); column-gap:2rem; row-gap:3rem }
+@media (min-width:1024px){ .stats-grid{ grid-template-columns:repeat(4,1fr) } }
+.stat-num{ font-size:3rem; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums }
+@media (min-width:640px){ .stat-num{ font-size:3.75rem } }
+@media (min-width:768px){ .stat-num{ font-size:4.5rem } }
+.stat-label{ display:block; margin-top:.75rem; font-size:.875rem; color:rgba(255,255,255,.55) }
+
+.footer{ position:relative; overflow:hidden; border-radius:2rem 2rem 0 0; background:#0a0a0a; color:#fff }
+.footer .shell{ position:relative; z-index:10; padding:5rem 1.25rem 2.5rem }
+@media (min-width:640px){ .footer .shell{ padding-inline:2rem } }
+@media (min-width:1024px){ .footer .shell{ padding-top:6rem } }
+.footer-cta{ display:flex; flex-direction:column; gap:2rem; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:4rem }
+@media (min-width:1024px){ .footer-cta{ flex-direction:row; align-items:flex-end; justify-content:space-between } }
+.footer-h2{ max-width:16ch; font-size:2.25rem; font-weight:600; letter-spacing:-.02em }
+@media (min-width:640px){ .footer-h2{ font-size:3rem } }
+@media (min-width:768px){ .footer-h2{ font-size:3.75rem } }
+.footer-cols{ display:grid; grid-template-columns:1fr; gap:3rem; padding-block:4rem }
+@media (min-width:768px){ .footer-cols{ grid-template-columns:1fr 1fr } }
+@media (min-width:1024px){ .footer-cols{ grid-template-columns:repeat(4,1fr) } }
+.fcol-brand{ display:flex; align-items:center; gap:.5rem; font-size:1.125rem; font-weight:600 }
+.fcol-brand svg{ font-size:1.25rem; color:#cf8047 }
+.fcol p{ margin-top:.75rem; max-width:20rem; font-size:.875rem; color:rgba(255,255,255,.55) }
+.fcol h4{ font-size:.75rem; text-transform:uppercase; letter-spacing:.025em; color:rgba(255,255,255,.4) }
+.fcol ul{ margin-top:1.25rem; display:flex; flex-direction:column; gap:.75rem }
+.alink span{ display:inline-block; opacity:.65; transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s }
+.alink:hover span{ transform:translateX(4px); opacity:1 }
+.alink.legal span{ opacity:.7 }
+.alink.legal:hover span{ transform:translateX(3px); opacity:1 }
+.footer-legal{ display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; border-top:1px solid rgba(255,255,255,.1); padding-top:2rem; font-size:.75rem; color:rgba(255,255,255,.45) }
+@media (min-width:640px){ .footer-legal{ flex-direction:row } }
+.legal-links{ display:flex; gap:1.5rem }
+.footer-wm{ position:absolute; inset-inline:0; bottom:-1.5rem; z-index:0; text-align:center; pointer-events:none; user-select:none; font-weight:700; line-height:1; font-size:13rem; color:rgba(255,255,255,.05) }
+
+.nav-menu{ position:fixed; inset:0; z-index:115; display:flex; flex-direction:column; background:#0a0a0a; color:#fff; opacity:0; visibility:hidden; transition:opacity .5s cubic-bezier(.16,1,.3,1),visibility .5s }
+.nav-menu.open{ opacity:1; visibility:visible }
+.nm-top{ display:flex; align-items:center; justify-content:space-between; padding:1.25rem }
+@media (min-width:640px){ .nm-top{ padding:1.5rem 2rem } }
+.nm-brand{ display:flex; align-items:center; gap:.5rem; font-size:1.125rem; font-weight:600 }
+.nm-brand svg{ font-size:1.25rem; color:#cf8047 }
+.nm-close{ display:inline-flex; align-items:center; gap:.5rem; border:1px solid rgba(255,255,255,.15); border-radius:.875rem; padding:.5rem 1rem; font-size:.75rem; font-weight:500; text-transform:uppercase; letter-spacing:.05em; color:rgba(255,255,255,.7); transition:border-color .3s,color .3s }
+.nm-close svg{ font-size:.875rem }
+.nm-close:hover{ border-color:rgba(255,255,255,.4); color:#fff }
+.nm-nav{ flex:1; display:flex; flex-direction:column; justify-content:center }
+.nm-nav ul{ display:flex; flex-direction:column; gap:.25rem }
+.nm-item{ display:flex; gap:1rem; padding-block:.5rem; text-align:left; font-size:2.25rem; font-weight:600; letter-spacing:-.02em; opacity:0; transform:translateY(1rem); transition:all .5s ease-out }
+.nm-item.entered{ opacity:1; transform:none }
+@media (min-width:640px){ .nm-item{ font-size:3.75rem } }
+.nm-index{ font-size:1rem; font-weight:400; color:rgba(255,255,255,.3); transition:color .3s }
+.nm-label{ color:rgba(255,255,255,.7); transition:color .3s }
+.nm-item:hover .nm-index{ color:#cf8047 }
+.nm-item:hover .nm-label{ color:#fff }
+.nm-bottom{ display:flex; flex-direction:column; gap:.75rem; border-top:1px solid rgba(255,255,255,.1); padding:1.5rem 1.25rem; font-size:.75rem; text-transform:uppercase; letter-spacing:.025em; color:rgba(255,255,255,.45) }
+@media (min-width:640px){ .nm-bottom{ flex-direction:row; align-items:center; justify-content:space-between; padding:1.5rem 2rem } }
+.nm-cta{ color:rgba(255,255,255,.7); text-align:left }
+.nm-cta:hover{ color:#fff; text-decoration:underline }
+
+.modal-backdrop{ position:fixed; inset:0; z-index:110; display:flex; align-items:flex-end; justify-content:center; padding:1rem; background:rgba(17,17,17,.3); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); opacity:0; visibility:hidden; transition:opacity .5s cubic-bezier(.16,1,.3,1),visibility .5s }
+@media (min-width:640px){ .modal-backdrop{ align-items:center } }
+.modal-backdrop.open{ opacity:1; visibility:visible }
+.modal-panel{ position:relative; width:100%; max-width:32rem; overflow:hidden; border-radius:2rem; background:#fff; padding:1.5rem; box-shadow:0 0 0 1px #e6e5e2, 0 25px 50px -12px rgba(0,0,0,.25); transform:translateY(28px); transition:transform .5s cubic-bezier(.16,1,.3,1) }
+@media (min-width:640px){ .modal-panel{ padding:2rem } }
+.modal-backdrop.open .modal-panel{ transform:translateY(0) }
+.modal-backdrop.closing .modal-panel{ transform:translateY(18px) }
+.modal-close{ position:absolute; right:1rem; top:1rem; width:2.25rem; height:2.25rem; display:grid; place-items:center; border-radius:9999px; background:#f1f0ee; color:rgba(17,17,17,.6); font-size:.875rem; transition:background .3s,color .3s }
+.modal-close:hover{ background:#e3e2df; color:#111 }
+.modal-head{ margin-bottom:1.5rem }
+.modal-kicker{ display:inline-flex; align-items:center; gap:.5rem; font-size:.875rem; font-weight:500; color:rgba(17,17,17,.6) }
+.modal-kicker .dot{ width:.375rem; height:.375rem; border-radius:9999px; background:#b15f2c }
+.modal-head h2{ margin-top:.375rem; font-size:1.5rem; font-weight:600; letter-spacing:-.01em }
+@media (min-width:640px){ .modal-head h2{ font-size:1.875rem } }
+.modal-form form{ display:flex; flex-direction:column; gap:1rem }
+.field{ display:block }
+.field-caption{ display:block; margin-bottom:.375rem; font-size:.75rem; font-weight:500; text-transform:uppercase; letter-spacing:.025em; color:rgba(17,17,17,.5) }
+.field input, .field textarea{ width:100%; border:1px solid #e6e5e2; background:rgba(241,240,238,.5); border-radius:.875rem; padding:.75rem 1rem; font:inherit; font-size:.875rem; color:#111; outline:none; transition:border-color .3s,background .3s }
+.field input:focus, .field textarea:focus{ border-color:rgba(17,17,17,.3); background:#fff }
+.field textarea{ resize:none }
+.modal-actions{ margin-top:.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem }
+.modal-note{ font-size:.75rem; color:rgba(17,17,17,.45) }
+.modal-success{ display:flex; flex-direction:column; align-items:center; text-align:center; padding-block:2rem; gap:1rem }
+.ms-badge{ width:3.5rem; height:3.5rem; display:grid; place-items:center; border-radius:9999px; background:#0a0a0a; color:#cf8047; font-size:1.5rem }
+.modal-success h2{ font-size:1.5rem; font-weight:600 }
+.modal-success p{ max-width:32ch; font-size:.875rem; color:rgba(17,17,17,.6) }
+
+[data-reveal]:not([data-reveal="lines"]):not([data-reveal="words"]){ opacity:0; transform:translateY(28px); transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .8s cubic-bezier(.16,1,.3,1); transition-delay:var(--rd,0ms) }
+[data-reveal]:not([data-reveal="lines"]):not([data-reveal="words"]).revealed{ opacity:1; transform:none }
+[data-reveal="up-sm"]{ transform:translateY(12px) }
+[data-reveal="up-xs"]{ transform:translateY(10px) }
+[data-reveal="up-md"]{ transform:translateY(14px) }
+[data-reveal="up-big"]{ transform:translateY(48px) }
+[data-reveal="fade"]{ transform:none }
+[data-reveal="card"]{ transform:translateY(16px) scale(.96) }
+[data-reveal="panel"]{ transform:translateY(40px) scale(.99) }
+[data-reveal="header"]{ transform:translateY(-14px); transition:transform .7s cubic-bezier(.22,1,.36,1),opacity .7s cubic-bezier(.22,1,.36,1); transition-delay:var(--rd,0ms) }
+[data-reveal="watermark"]{ transform:translateY(20px); transition:transform 1.2s cubic-bezier(.22,1,.36,1),opacity 1.2s cubic-bezier(.22,1,.36,1); transition-delay:var(--rd,0ms) }
+[data-reveal="watermark"].revealed{ opacity:.4; transform:none }
+.line{ display:block; overflow:hidden }
+.line-inner{ display:block; transform:translateY(100%); opacity:0; transition:transform .9s cubic-bezier(.215,.61,.355,1),opacity .9s cubic-bezier(.215,.61,.355,1) }
+.line-inner.revealed{ transform:none; opacity:1 }
+.word{ display:inline-block; transform:translateY(24px); opacity:0; transition:transform .7s cubic-bezier(.165,.84,.44,1),opacity .7s cubic-bezier(.165,.84,.44,1) }
+.word.revealed{ transform:none; opacity:1 }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div id="loader" class="loader" role="status" aria-label="Loading">
+  <div class="loader-center">
+    <div class="loader-brand">
+      <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+      Lumora
+    </div>
+    <p>Bold ideas, shipped with quiet precision.</p>
+  </div>
+  <div class="loader-progress">
+    <div class="loader-track"><div id="loaderFill" class="loader-fill"></div></div>
+    <div class="loader-meta">
+      <span>Loading</span>
+      <span id="loaderCount" class="loader-count">000</span>
+    </div>
+  </div>
+</div>
+
+<header id="siteHeader" class="header" data-reveal="header" data-ready-gate data-reveal-delay="150">
+  <div class="shell">
+    <button id="brandBtn" class="brand" type="button" aria-label="Lumora — back to top">
+      <span class="brand-spring">
+        <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+        Lumora
+      </span>
+    </button>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul>
+        <li><button class="nav-link" type="button" data-scroll="home" aria-current="page"><span class="nav-label">Home</span></button></li>
+        <li><button class="nav-link" type="button" data-scroll="works"><span class="nav-label">Work</span></button></li>
+        <li><button class="nav-link" type="button" data-scroll="services"><span class="nav-label">Services</span><span class="nav-caret" aria-hidden="true">▾</span></button></li>
+        <li><button class="nav-link" type="button" data-scroll="about"><span class="nav-label">Studio</span></button></li>
+        <li><button class="nav-link" type="button" data-scroll="careers"><span class="nav-label">Careers</span></button></li>
+        <li><button class="nav-link" type="button" data-modal="open"><span class="nav-label">Contact</span></button></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <div class="clock" aria-hidden="true">
+        <span class="clock-label">Local time</span>
+        <span id="clockTime" class="clock-time">9:41am</span>
+        <span class="clock-sep">•</span>
+        <span id="clockDate" class="clock-date">12 March, 2025</span>
+      </div>
+      <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu" aria-controls="navMenu" aria-expanded="false">
+        <span class="menu-btn-spring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+          <span class="menu-word">Menu</span>
+        </span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section id="home" class="hero">
+    <div id="liquid" class="liquid">
+      <img id="liquidBase" src="https://api.getlayers.ai/storage/v1/object/public/public/assets/lumora-e8b711fc68/hero/after.jpg" alt="Lumora studio — design and engineering showcase" />
+      <canvas id="liquidCanvas" aria-hidden="true"></canvas>
+    </div>
+    <div class="hero-vignette" aria-hidden="true"></div>
+    <div class="hero-watermark" data-reveal="watermark" data-ready-gate data-reveal-delay="300" aria-hidden="true">LUMORA</div>
+    <div class="shell hero-content">
+      <div class="hero-left">
+        <div class="eyebrow" data-reveal="up-xs" data-ready-gate data-reveal-delay="200">
+          <span class="dot" aria-hidden="true"></span>Independent Studio
+        </div>
+        <h1 class="hero-h1" data-reveal="lines" data-ready-gate data-reveal-delay="250" data-line-stagger="120">
+          <span class="line"><span class="line-inner">Bold ideas,</span></span>
+          <span class="line"><span class="line-inner">shipped with</span></span>
+          <span class="line"><span class="line-inner">quiet precision</span></span>
+        </h1>
+        <div class="hero-rating" data-reveal="up-sm" data-ready-gate data-reveal-delay="650">
+          <span class="stars" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.9l-5.8 3.05 1.1-6.46-4.69-4.58 6.49-.94L12 2.5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.9l-5.8 3.05 1.1-6.46-4.69-4.58 6.49-.94L12 2.5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.9l-5.8 3.05 1.1-6.46-4.69-4.58 6.49-.94L12 2.5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.9l-5.8 3.05 1.1-6.46-4.69-4.58 6.49-.94L12 2.5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.9l-5.8 3.05 1.1-6.46-4.69-4.58 6.49-.94L12 2.5z"/></svg>
+          </span>
+          <span class="hero-rating-text">200+ brands shipped</span>
+        </div>
+        <div class="hero-ctas" data-reveal="up-sm" data-ready-gate data-reveal-delay="750">
+          <button type="button" class="pill dark with-arrow" data-modal="open">
+            <span class="pill-spring">
+              <span class="pill-label">Let's Talk</span>
+              <span class="pill-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
+            </span>
+          </button>
+          <button type="button" class="pill outline" data-scroll="works">
+            <span class="pill-spring"><span class="pill-label">View Work</span></span>
+          </button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-card" data-reveal="card" data-ready-gate data-reveal-delay="400">
+          <div id="hcRow" class="hc-row" role="button" tabindex="0" aria-label="Project highlight — click for next">
+            <span class="hc-tile">
+              <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+            </span>
+            <span class="hc-panel">
+              <span class="hc-slot">
+                <span class="hc-item" id="hcA"><span class="hc-caption"></span><span class="hc-title"></span></span>
+                <span class="hc-item" id="hcB"><span class="hc-caption"></span><span class="hc-title"></span></span>
+              </span>
+              <span class="hc-controls">
+                <span class="hc-dots" id="hcDots" aria-hidden="true"><span class="hc-dot"></span><span class="hc-dot"></span><span class="hc-dot"></span></span>
+                <span class="hc-btns">
+                  <button id="hcPrev" class="hc-btn prev" type="button" aria-label="Previous highlight">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                  </button>
+                  <button id="hcNext" class="hc-btn next" type="button" aria-label="Next highlight">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                  </button>
+                </span>
+              </span>
+            </span>
+          </div>
+        </div>
+        <div class="hero-partners" data-reveal="up-md" data-ready-gate data-reveal-delay="550">
+          <p class="partners-label">Trusted by</p>
+          <ul class="partners-list">
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Kaido</span></li>
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Northpeak</span></li>
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Vellum</span></li>
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Orbit</span></li>
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Brightline</span></li>
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Cobalt</span></li>
+            <li><span class="partner-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg>Mesa</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="shell hero-status" data-reveal="fade" data-ready-gate data-reveal-delay="900">
+      <span>Working since 2014</span>
+      <span class="hero-status-mid">Remote-first, worldwide</span>
+      <span class="hero-status-right">Scroll to explore<span aria-hidden="true">↓</span></span>
+    </div>
+  </section>
+
+  <section id="about" class="about">
+    <div class="shell about-grid">
+      <div class="about-globe">
+        <svg class="globe-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.25"/><path d="M12 2.75c2.6 2.3 4 5.8 4 9.25s-1.4 6.95-4 9.25c-2.6-2.3-4-5.8-4-9.25s1.4-6.95 4-9.25z"/><path d="M2.75 12h18.5"/></svg>
+        <div class="eyebrow" data-reveal="up-sm"><span class="dot" aria-hidden="true"></span>The Studio</div>
+        <div class="about-globe-note" data-reveal="up-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.25"/><path d="M12 2.75c2.6 2.3 4 5.8 4 9.25s-1.4 6.95-4 9.25c-2.6-2.3-4-5.8-4-9.25s1.4-6.95 4-9.25z"/><path d="M2.75 12h18.5"/></svg>
+          <span>A distributed team building across every time zone.</span>
+        </div>
+      </div>
+      <div class="about-statement">
+        <h2 class="about-h2" data-reveal="words" data-word-stagger="35">We partner with ambitious teams to ship <span class="muted">digital products, brand systems, and the strategy that holds them together.</span></h2>
+        <div class="about-footer" data-reveal="up-sm" data-reveal-delay="200">
+          <div class="about-socials">
+            <div class="about-socials-label">Find us online</div>
+            <div class="about-socials-row">
+              <a class="social-chip x" href="#" aria-label="X / Twitter"><span class="social-spring"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span></a>
+              <a class="social-chip ghost" href="#" aria-label="Behance"><span class="social-spring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg></span></a>
+              <a class="social-chip ghost" href="#" aria-label="Dribbble"><span class="social-spring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/></svg></span></a>
+            </div>
+          </div>
+          <a class="pill outline with-arrow arrow-up" href="#about" data-scroll="about">
+            <span class="pill-spring">
+              <span class="pill-label">About Us</span>
+              <span class="pill-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="create-band">
+    <ul class="shell cb-list">
+      <li class="cb-li" data-reveal="up" data-reveal-delay="0"><span class="cb-tile light">We</span></li>
+      <li class="cb-li" data-reveal="up" data-reveal-delay="120"><span class="cb-tile accent">Build</span></li>
+      <li class="cb-li" data-reveal="up" data-reveal-delay="240"><span class="cb-tile dark"><svg class="cb-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></li>
+      <li class="cb-li" data-reveal="up" data-reveal-delay="360"><span class="cb-tile ghost">Better</span></li>
+    </ul>
+  </section>
+
+  <section id="works" class="works">
+    <div class="shell">
+      <div class="works-eyebrow-wrap">
+        <div class="eyebrow works-eyebrow" data-reveal="up-sm"><span class="dot" aria-hidden="true"></span>Portfolio</div>
+      </div>
+      <h2 class="works-h2" data-reveal="lines" data-reveal-delay="120">
+        <span class="line"><span class="line-inner">Selected Work</span></span>
+      </h2>
+      <ul class="works-grid">
+        <li class="works-card" data-reveal="up-big" data-reveal-delay="0">
+          <a href="#">
+            <article class="wc-article">
+              <div class="wc-meta">
+                <span>Branding — 2025</span>
+                <span class="wc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </div>
+              <div class="wc-wm" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="currentColor"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+                <span class="wc-reg">®</span>
+              </div>
+              <div class="wc-bottom">
+                <h3>Aster Labs</h3>
+                <p>A complete identity and go-to-market system for a fast-moving research startup.</p>
+                <div class="wc-tags">
+                  <span class="wc-tag">Branding</span>
+                  <span class="wc-tag">Strategy</span>
+                  <span class="wc-tag">Design</span>
+                </div>
+              </div>
+            </article>
+          </a>
+        </li>
+        <li class="works-card" data-reveal="up-big" data-reveal-delay="90">
+          <a href="#">
+            <article class="wc-article">
+              <div class="wc-meta">
+                <span>Product — 2024</span>
+                <span class="wc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </div>
+              <div class="wc-wm" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="currentColor"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+                <span class="wc-reg">®</span>
+              </div>
+              <div class="wc-bottom">
+                <h3>Nova Finance</h3>
+                <p>A finance platform reimagined — clear data, calm interfaces, and effortless flows.</p>
+                <div class="wc-tags">
+                  <span class="wc-tag">Product Design</span>
+                  <span class="wc-tag">Web App</span>
+                  <span class="wc-tag">QA</span>
+                </div>
+              </div>
+            </article>
+          </a>
+        </li>
+        <li class="works-card" data-reveal="up-big" data-reveal-delay="180">
+          <a href="#">
+            <article class="wc-article">
+              <div class="wc-meta">
+                <span>Identity — 2023</span>
+                <span class="wc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </div>
+              <div class="wc-wm" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="currentColor"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+                <span class="wc-reg">®</span>
+              </div>
+              <div class="wc-bottom">
+                <h3>Helio Studio</h3>
+                <p>A bold visual identity and art direction system built to scale across every surface.</p>
+                <div class="wc-tags">
+                  <span class="wc-tag">Brand Identity</span>
+                  <span class="wc-tag">Art Direction</span>
+                </div>
+              </div>
+            </article>
+          </a>
+        </li>
+        <li class="works-card" data-reveal="up-big" data-reveal-delay="270">
+          <a href="#">
+            <article class="wc-article">
+              <div class="wc-meta">
+                <span>Mobile — 2023</span>
+                <span class="wc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </div>
+              <div class="wc-wm" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="currentColor"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+                <span class="wc-reg">®</span>
+              </div>
+              <div class="wc-bottom">
+                <h3>Pulse Health</h3>
+                <p>A wellness app grounded in research, shipped end to end from concept to release.</p>
+                <div class="wc-tags">
+                  <span class="wc-tag">Mobile App</span>
+                  <span class="wc-tag">UX Research</span>
+                  <span class="wc-tag">Development</span>
+                </div>
+              </div>
+            </article>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="services" class="services">
+    <div class="shell">
+      <div class="eyebrow" data-reveal="up-sm"><span class="dot" aria-hidden="true"></span>Services</div>
+      <h2 class="services-h2" data-reveal="lines" data-reveal-delay="120">
+        <span class="line"><span class="line-inner">What we do best</span></span>
+      </h2>
+      <ul class="services-list">
+        <li class="service-li" data-reveal="up" data-reveal-delay="0">
+          <a class="service-row" href="#">
+            <span class="service-index">01</span>
+            <h3>Software Development</h3>
+            <p class="service-desc">Scalable web &amp; mobile products built to last.</p>
+            <span class="service-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li class="service-li" data-reveal="up" data-reveal-delay="80">
+          <a class="service-row" href="#">
+            <span class="service-index">02</span>
+            <h3>Product Design</h3>
+            <p class="service-desc">Interfaces that feel effortless and look sharp.</p>
+            <span class="service-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li class="service-li" data-reveal="up" data-reveal-delay="160">
+          <a class="service-row" href="#">
+            <span class="service-index">03</span>
+            <h3>Quality Assurance</h3>
+            <p class="service-desc">Rigorous testing for flawless, confident releases.</p>
+            <span class="service-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li class="service-li" data-reveal="up" data-reveal-delay="240">
+          <a class="service-row" href="#">
+            <span class="service-index">04</span>
+            <h3>Consulting</h3>
+            <p class="service-desc">Strategy and direction for ambitious teams.</p>
+            <span class="service-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Studio statistics">
+    <div class="shell">
+      <div class="stats-panel" data-reveal="panel">
+        <div class="eyebrow light" data-reveal="up-sm"><span class="dot" aria-hidden="true"></span>By the numbers</div>
+        <h2 class="stats-h2" data-reveal="lines" data-reveal-delay="120">
+          <span class="line"><span class="line-inner">Proof in the work, not the words.</span></span>
+        </h2>
+        <ul class="stats-grid">
+          <li class="stat" data-reveal="up-sm" data-reveal-delay="0">
+            <div class="stat-num"><span class="stat-value" data-target="150" data-suffix="+">0</span></div>
+            <div class="stat-label">Projects delivered</div>
+          </li>
+          <li class="stat" data-reveal="up-sm" data-reveal-delay="90">
+            <div class="stat-num"><span class="stat-value" data-target="98" data-suffix="%">0</span></div>
+            <div class="stat-label">Client retention</div>
+          </li>
+          <li class="stat" data-reveal="up-sm" data-reveal-delay="180">
+            <div class="stat-num"><span class="stat-value" data-target="12" data-suffix="">0</span></div>
+            <div class="stat-label">Years of craft</div>
+          </li>
+          <li class="stat" data-reveal="up-sm" data-reveal-delay="270">
+            <div class="stat-num"><span class="stat-value" data-target="40" data-suffix="+">0</span></div>
+            <div class="stat-label">Team members</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-cta">
+      <h2 class="footer-h2" data-reveal="lines" data-line-stagger="100">
+        <span class="line"><span class="line-inner">Have a project in mind?</span></span>
+        <span class="line"><span class="line-inner">Let's get to work.</span></span>
+      </h2>
+      <button type="button" class="pill light with-arrow arrow-up" data-modal="open">
+        <span class="pill-spring">
+          <span class="pill-label">Start a project</span>
+          <span class="pill-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+        </span>
+      </button>
+    </div>
+    <div class="footer-cols">
+      <div class="fcol">
+        <div class="fcol-brand">
+          <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+          Lumora
+        </div>
+        <p>An independent studio crafting brands, products, and the systems that connect them.</p>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a class="alink" href="#about" data-scroll="about"><span>About</span></a></li>
+          <li><a class="alink" href="#careers" data-scroll="careers"><span>Careers</span></a></li>
+          <li><a class="alink" href="#partners" data-scroll="partners"><span>Partners</span></a></li>
+          <li><a class="alink" href="#contact" data-scroll="contact"><span>Contact</span></a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Services</h4>
+        <ul>
+          <li><a class="alink" href="#development" data-scroll="development"><span>Development</span></a></li>
+          <li><a class="alink" href="#design" data-scroll="design"><span>Design</span></a></li>
+          <li><a class="alink" href="#qa" data-scroll="qa"><span>Quality Assurance</span></a></li>
+          <li><a class="alink" href="#consulting" data-scroll="consulting"><span>Consulting</span></a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Social</h4>
+        <ul>
+          <li><a class="alink" href="#"><span>X / Twitter</span></a></li>
+          <li><a class="alink" href="#"><span>Behance</span></a></li>
+          <li><a class="alink" href="#"><span>Dribbble</span></a></li>
+          <li><a class="alink" href="#"><span>LinkedIn</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-legal">
+      <span>© 2025 Lumora Studio. All rights reserved.</span>
+      <div class="legal-links">
+        <a class="alink legal" href="#privacy" data-scroll="privacy"><span>Privacy</span></a>
+        <a class="alink legal" href="#terms" data-scroll="terms"><span>Terms</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-wm" aria-hidden="true">LUMORA</div>
+</footer>
+
+<div id="navMenu" class="nav-menu" aria-hidden="true">
+  <div class="shell nm-top">
+    <div class="nm-brand">
+      <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+      Lumora
+    </div>
+    <button id="nmClose" class="nm-close" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l16 16"/><path d="M20 4 4 20"/></svg>
+      Close
+    </button>
+  </div>
+  <nav class="shell nm-nav" aria-label="Menu">
+    <ul>
+      <li><button class="nm-item" type="button" data-scroll="home"><span class="nm-index">01</span><span class="nm-label">Home</span></button></li>
+      <li><button class="nm-item" type="button" data-scroll="works"><span class="nm-index">02</span><span class="nm-label">Work</span></button></li>
+      <li><button class="nm-item" type="button" data-scroll="services"><span class="nm-index">03</span><span class="nm-label">Services</span></button></li>
+      <li><button class="nm-item" type="button" data-scroll="about"><span class="nm-index">04</span><span class="nm-label">Studio</span></button></li>
+      <li><button class="nm-item" type="button" data-scroll="careers"><span class="nm-index">05</span><span class="nm-label">Careers</span></button></li>
+      <li><button class="nm-item" type="button" data-action="modal"><span class="nm-index">06</span><span class="nm-label">Contact</span></button></li>
+    </ul>
+  </nav>
+  <div class="shell nm-bottom">
+    <span id="nmTime">Local time</span>
+    <button class="nm-cta" type="button" data-modal="open">Start a project <span aria-hidden="true">→</span></button>
+  </div>
+</div>
+
+<div id="modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Start a project" aria-hidden="true">
+  <div class="modal-panel">
+    <button id="modalClose" class="modal-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l16 16"/><path d="M20 4 4 20"/></svg>
+    </button>
+    <div id="modalFormSection">
+      <div class="modal-head">
+        <span class="modal-kicker"><span class="dot" aria-hidden="true"></span>Start a project</span>
+        <h2>Tell us what you're building.</h2>
+      </div>
+      <form id="requestForm" novalidate>
+        <label class="field">
+          <span class="field-caption">Name</span>
+          <input type="text" name="name" required placeholder="Your name" autocomplete="name" />
+        </label>
+        <label class="field">
+          <span class="field-caption">Email</span>
+          <input type="email" name="email" required placeholder="you@company.com" autocomplete="email" />
+        </label>
+        <label class="field">
+          <span class="field-caption">Project</span>
+          <textarea name="project" rows="4" required placeholder="A few words about your project, timeline, and budget."></textarea>
+        </label>
+        <div class="modal-actions">
+          <span class="modal-note">We reply within one business day.</span>
+          <button id="submitBtn" class="pill dark with-arrow arrow-up" type="submit">
+            <span class="pill-spring">
+              <span class="pill-label" id="submitLabel">Send request</span>
+              <span class="pill-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+    <div id="modalSuccess" class="modal-success" hidden>
+      <span class="ms-badge">
+        <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><path d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/></svg>
+      </span>
+      <h2>Request received</h2>
+      <p>Thanks for reaching out — we'll get back to you within one business day.</p>
+      <button id="successClose" class="pill dark" type="button">
+        <span class="pill-spring"><span class="pill-label">Close</span></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "lenis": "https://unpkg.com/lenis@1.3.23/dist/lenis.mjs" } }
+</script>
+<script type="module">
+import Lenis from 'lenis';
+
+const ASSET_BASE = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/lumora-e8b711fc68';
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+window.scrollTo(0, 0);
+const lenis = new Lenis({ smoothWheel: true });
+function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+requestAnimationFrame(raf);
+
+function stopScroll(){
+  lenis.stop();
+  const s = document.documentElement.style;
+  s.position = 'relative';
+  s.overflow = 'hidden';
+  s.height = '100%';
+}
+function startScroll(){
+  lenis.start();
+  const s = document.documentElement.style;
+  s.removeProperty('position');
+  s.removeProperty('overflow');
+  s.removeProperty('height');
+}
+
+function scrollTo(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  lenis.stop();
+  setTimeout(() => {
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset, behavior: 'smooth' });
+  }, 50);
+  setTimeout(() => lenis.start(), 100);
+}
+
+function runSpring({ tension, friction }, from, to, onUpdate, onDone){
+  const TICK = 1 / 60;
+  let x = from, v = 0, last = performance.now(), acc = 0;
+  function frame(t){
+    acc += Math.min((t - last) / 1000, 1 / 20);
+    last = t;
+    let guard = 0;
+    while(acc >= TICK && guard < 8){
+      acc -= TICK; guard++;
+      const a = tension * (to - x) - friction * v;
+      v += a * TICK;
+      x += v * TICK;
+    }
+    onUpdate(x);
+    if(Math.abs(to - x) < 0.001 && Math.abs(v) < 0.001){ onDone && onDone(); return; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function applyAdaptiveGrid(){
+  const FONT_BASE = 16, baseWidth = 1920, coef = 0.6666;
+  const w = window.innerWidth;
+  const widthReduction = ((baseWidth - w) / baseWidth) * 100;
+  const size = FONT_BASE - (FONT_BASE * (widthReduction * coef)) / 100;
+  if (size > FONT_BASE) document.documentElement.style.fontSize = size + 'px';
+  else document.documentElement.style.removeProperty('font-size');
+}
+applyAdaptiveGrid();
+addEventListener('resize', applyAdaptiveGrid);
+
+const clockTime = document.getElementById('clockTime');
+const clockDate = document.getElementById('clockDate');
+const nmTime = document.getElementById('nmTime');
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtTime(d){
+  let h = d.getHours();
+  const ampm = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return h + ':' + String(d.getMinutes()).padStart(2, '0') + ampm;
+}
+function fmtDate(d){ return d.getDate() + ' ' + months[d.getMonth()] + ', ' + d.getFullYear(); }
+function tickClock(){
+  const n = new Date();
+  const t = fmtTime(n);
+  clockTime.textContent = t;
+  clockDate.textContent = fmtDate(n);
+  nmTime.textContent = 'Local time — ' + t;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+const introReady = { value: false };
+let pendingGated = [];
+
+function wrapWords(el){
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const frag = document.createDocumentFragment();
+    node.textContent.split(/(\s+)/).forEach(part => {
+      if(!part) return;
+      if(/^\s+$/.test(part)) frag.appendChild(document.createTextNode(part));
+      else {
+        const w = document.createElement('span');
+        w.className = 'word';
+        w.textContent = part;
+        frag.appendChild(w);
+      }
+    });
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+
+function runReveal(el){
+  const type = el.dataset.reveal;
+  if(type === 'lines'){
+    const base = parseInt(el.dataset.revealDelay || '0', 10);
+    const stagger = parseInt(el.dataset.lineStagger || '0', 10);
+    el.querySelectorAll('.line-inner').forEach((inner, i) => {
+      inner.style.transitionDelay = (base + i * stagger) + 'ms';
+      inner.classList.add('revealed');
+    });
+  } else if(type === 'words'){
+    const base = parseInt(el.dataset.revealDelay || '0', 10);
+    const stagger = parseInt(el.dataset.wordStagger || '35', 10);
+    el.querySelectorAll('.word').forEach((w, i) => {
+      w.style.transitionDelay = (base + i * stagger) + 'ms';
+      w.classList.add('revealed');
+    });
+  } else {
+    el.classList.add('revealed');
+  }
+}
+
+const revealObserver = new IntersectionObserver(entries => {
+  for(const entry of entries){
+    if(!entry.isIntersecting) continue;
+    const el = entry.target;
+    if(el.dataset.readyGate && !introReady.value){
+      pendingGated.push(el);
+      revealObserver.unobserve(el);
+      continue;
+    }
+    runReveal(el);
+    revealObserver.unobserve(el);
+  }
+}, { threshold: 0.15 });
+
+function initReveals(){
+  document.querySelectorAll('[data-reveal]').forEach(el => {
+    const delay = parseInt(el.dataset.revealDelay || '0', 10);
+    el.style.setProperty('--rd', delay + 'ms');
+    if(el.dataset.reveal === 'words') wrapWords(el);
+    revealObserver.observe(el);
+  });
+}
+initReveals();
+
+function finishLoader(instant){
+  if(instant){
+    introReady.value = true;
+    startScroll();
+    loader.remove();
+    pendingGated.forEach(runReveal);
+    pendingGated = [];
+    return;
+  }
+  const center = document.querySelector('.loader-center');
+  runSpring({ tension: 260, friction: 26 }, 0, 1, p => {
+    center.style.opacity = (1 - p).toFixed(3);
+    center.style.transform = 'translateY(' + (-12 * p).toFixed(2) + 'px)';
+  });
+  runSpring({ tension: 220, friction: 30 }, 0, 1, p => {
+    loader.style.transform = 'translateY(' + (-100 * p).toFixed(4) + '%)';
+  }, () => {
+    introReady.value = true;
+    startScroll();
+    loader.remove();
+    pendingGated.forEach(runReveal);
+    pendingGated = [];
+  });
+}
+
+const loader = document.getElementById('loader');
+const loaderFill = document.getElementById('loaderFill');
+const loaderCount = document.getElementById('loaderCount');
+stopScroll();
+if(reducedMotion){
+  loaderFill.style.width = '100%';
+  loaderCount.textContent = '100';
+  finishLoader(true);
+} else {
+  const FILL_MS = 1300;
+  const easeInOutCubic = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const t0 = performance.now();
+  (function frame(t){
+    const k = Math.min((t - t0) / FILL_MS, 1);
+    const p = Math.round(easeInOutCubic(k) * 100);
+    loaderFill.style.width = p + '%';
+    loaderCount.textContent = String(p).padStart(3, '0');
+    if(k < 1) requestAnimationFrame(frame);
+    else finishLoader(false);
+  })(t0);
+}
+
+document.getElementById('brandBtn').addEventListener('click', () => scrollTo('home'));
+
+document.getElementById('menuBtn').addEventListener('click', () => { if(!navOpen) openNav(); });
+
+const navMenu = document.getElementById('navMenu');
+const navItems = [...navMenu.querySelectorAll('.nm-item')];
+let navOpen = false;
+
+function openNav(){
+  if(modalOpen) closeModal();
+  navOpen = true;
+  navMenu.classList.add('open');
+  navMenu.setAttribute('aria-hidden', 'false');
+  document.getElementById('menuBtn').setAttribute('aria-expanded', 'true');
+  stopScroll();
+  navItems.forEach((item, i) => {
+    item.style.transitionDelay = (i * 45 + 80) + 'ms';
+    item.classList.add('entered');
+  });
+}
+function closeNav(){
+  navOpen = false;
+  navMenu.classList.remove('open');
+  navMenu.setAttribute('aria-hidden', 'true');
+  document.getElementById('menuBtn').setAttribute('aria-expanded', 'false');
+  startScroll();
+  navItems.forEach(item => item.classList.remove('entered'));
+}
+
+document.getElementById('nmClose').addEventListener('click', closeNav);
+
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    closeNav();
+    if(btn.dataset.action === 'modal') openModal();
+    else scrollTo(btn.dataset.scroll);
+  });
+});
+
+const backdrop = document.getElementById('modal');
+const formSection = document.getElementById('modalFormSection');
+const successSection = document.getElementById('modalSuccess');
+const requestForm = document.getElementById('requestForm');
+const submitBtn = document.getElementById('submitBtn');
+const submitLabel = document.getElementById('submitLabel');
+let modalOpen = false;
+
+function openModal(){
+  if(navOpen) closeNav();
+  modalOpen = true;
+  backdrop.classList.remove('closing');
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden', 'false');
+  stopScroll();
+  setTimeout(() => {
+    const first = requestForm.querySelector('input');
+    if(first) first.focus();
+  }, 80);
+}
+function closeModal(){
+  modalOpen = false;
+  backdrop.classList.add('closing');
+  backdrop.classList.remove('open');
+  backdrop.setAttribute('aria-hidden', 'true');
+  startScroll();
+  setTimeout(resetForm, 300);
+}
+function resetForm(){
+  if(!modalOpen){
+    requestForm.reset();
+    submitLabel.textContent = 'Send request';
+    submitBtn.disabled = false;
+    formSection.hidden = false;
+    successSection.hidden = true;
+  }
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('successClose').addEventListener('click', closeModal);
+backdrop.addEventListener('click', e => { if(e.target === backdrop) closeModal(); });
+
+requestForm.addEventListener('submit', e => {
+  e.preventDefault();
+  if(submitBtn.disabled) return;
+  submitLabel.textContent = 'Sending…';
+  submitBtn.disabled = true;
+  setTimeout(() => {
+    formSection.hidden = true;
+    successSection.hidden = false;
+  }, 700);
+});
+
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(navOpen) closeNav();
+  else if(modalOpen) closeModal();
+});
+
+document.querySelectorAll('[data-scroll]').forEach(el => {
+  if(el.classList.contains('nm-item')) return;
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    scrollTo(el.dataset.scroll);
+  });
+});
+document.querySelectorAll('[data-modal]').forEach(el => {
+  if(el.classList.contains('nm-item')) return;
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    openModal();
+  });
+});
+document.querySelectorAll('a[href="#"]').forEach(a => {
+  a.addEventListener('click', e => e.preventDefault());
+});
+
+(function initLiquid(){
+  const wrap = document.getElementById('liquid');
+  const canvas = document.getElementById('liquidCanvas');
+  const ctx = canvas.getContext('2d');
+  if(reducedMotion) return;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const brushRadius = 143;
+  const decay = 0.016;
+  const after = new Image();
+  after.src = ASSET_BASE + '/hero/before.jpg';
+  let W = 0, H = 0, cover = null, brush = null, radius = 0;
+  let points = [], last = null, idle = 0, drawing = false, rafId = null;
+
+  function setup(){
+    const rect = wrap.getBoundingClientRect();
+    W = Math.max(1, Math.round(rect.width * dpr));
+    H = Math.max(1, Math.round(rect.height * dpr));
+    canvas.width = W;
+    canvas.height = H;
+    radius = brushRadius * dpr;
+    cover = document.createElement('canvas');
+    cover.width = W;
+    cover.height = H;
+    if(after.complete && after.naturalWidth) drawCover();
+    brush = document.createElement('canvas');
+    const diam = Math.ceil(radius * 2);
+    brush.width = diam;
+    brush.height = diam;
+    ctx.clearRect(0, 0, W, H);
+    points = [];
+    last = null;
+    idle = 0;
+    drawing = false;
+  }
+
+  function drawCover(){
+    const cctx = cover.getContext('2d');
+    const iw = after.naturalWidth, ih = after.naturalHeight;
+    if(!iw || !ih) return;
+    const scale = Math.max(W / iw, H / ih);
+    const dw = iw * scale, dh = ih * scale;
+    cctx.drawImage(after, (W - dw) / 2, (H - dh) / 2, dw, dh);
+  }
+
+  window.addEventListener('pointermove', e => {
+    if(!cover || !cover.width) return;
+    const rect = wrap.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * dpr;
+    const py = (e.clientY - rect.top) * dpr;
+    if(px < -radius || px > W + radius || py < -radius || py > H + radius){ last = null; return; }
+    if(last){
+      const dist = Math.hypot(px - last.x, py - last.y);
+      const step = Math.max(radius * 0.3, 1);
+      const n = Math.min(Math.ceil(dist / step), 60);
+      for(let i = 1; i <= n; i++){
+        points.push({ x: last.x + (px - last.x) * i / n, y: last.y + (py - last.y) * i / n });
+      }
+    } else {
+      points.push({ x: px, y: py });
+    }
+    last = { x: px, y: py };
+    if(rafId == null) rafId = requestAnimationFrame(tick);
+  });
+
+  function tick(){
+    rafId = null;
+    if(points.length){ idle = 0; drawing = true; }
+    else { idle++; drawing = false; }
+    const fade = drawing ? decay : Math.min(decay + idle * 0.004, 0.5);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0,0,0,' + fade + ')';
+    ctx.fillRect(0, 0, W, H);
+    if(points.length){
+      for(const pt of points) stamp(pt.x, pt.y);
+      points = [];
+    }
+    if(idle >= 120){
+      ctx.clearRect(0, 0, W, H);
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function stamp(x, y){
+    const c = radius;
+    const diam = Math.ceil(radius * 2);
+    const bctx = brush.getContext('2d');
+    bctx.globalCompositeOperation = 'source-over';
+    bctx.clearRect(0, 0, diam, diam);
+    const g = bctx.createRadialGradient(c, c, 0, c, c, radius);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.55, 'rgba(255,255,255,0.82)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    bctx.fillStyle = g;
+    bctx.fillRect(0, 0, diam, diam);
+    bctx.globalCompositeOperation = 'source-in';
+    bctx.drawImage(cover, Math.round(x - c), Math.round(y - c), diam, diam, 0, 0, diam, diam);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(brush, Math.round(x - c), Math.round(y - c));
+  }
+
+  const ro = new ResizeObserver(() => setup());
+  ro.observe(wrap);
+  after.onload = () => { if(cover && cover.width) drawCover(); };
+  setup();
+})();
+
+const cardItems = [
+  { caption: 'Conversion design', title: 'Crafted to convert.' },
+  { caption: 'Engineering', title: 'Built to scale.' },
+  { caption: 'Brand systems', title: 'Designed to last.' }
+];
+const hcA = document.getElementById('hcA');
+const hcB = document.getElementById('hcB');
+const hcDots = document.getElementById('hcDots');
+const hcRow = document.getElementById('hcRow');
+const hcPrev = document.getElementById('hcPrev');
+const hcNext = document.getElementById('hcNext');
+let hcIndex = 0, hcBusy = false, hcActive = hcA;
+
+function renderItem(el, item){
+  el.querySelector('.hc-caption').textContent = item.caption;
+  el.querySelector('.hc-title').textContent = item.title;
+}
+
+function updateDots(){
+  [...hcDots.children].forEach((d, i) => d.classList.toggle('active', i === hcIndex));
+}
+
+function hcGo(dir){
+  if(hcBusy) return;
+  hcBusy = true;
+  const out = hcActive;
+  const inn = hcActive === hcA ? hcB : hcA;
+  const next = cardItems[(hcIndex + dir + cardItems.length) % cardItems.length];
+  renderItem(inn, next);
+  const outEnd = -dir * 14;
+  const innStart = dir * 14;
+  inn.style.opacity = '0';
+  inn.style.transform = 'translateY(' + innStart + 'px)';
+  runSpring({ tension: 300, friction: 28 }, 0, 1, p => {
+    out.style.opacity = (1 - p).toFixed(3);
+    out.style.transform = 'translateY(' + (outEnd * p).toFixed(2) + 'px)';
+    inn.style.opacity = p.toFixed(3);
+    inn.style.transform = 'translateY(' + (innStart * (1 - p)).toFixed(2) + 'px)';
+  }, () => {
+    hcIndex = (hcIndex + dir + cardItems.length) % cardItems.length;
+    renderItem(out, cardItems[hcIndex]);
+    out.style.opacity = '1';
+    out.style.transform = 'translateY(0)';
+    inn.style.opacity = '0';
+    inn.style.transform = 'translateY(' + innStart + 'px)';
+    hcActive = out;
+    hcBusy = false;
+    updateDots();
+  });
+}
+
+renderItem(hcA, cardItems[0]);
+hcA.style.opacity = '1';
+hcA.style.transform = 'translateY(0)';
+hcB.style.opacity = '0';
+hcB.style.transform = 'translateY(14px)';
+updateDots();
+
+hcPrev.addEventListener('click', e => { e.stopPropagation(); hcGo(-1); });
+hcNext.addEventListener('click', e => { e.stopPropagation(); hcGo(1); });
+hcRow.addEventListener('click', e => {
+  if(e.target.closest('button')) return;
+  hcGo(1);
+});
+hcRow.addEventListener('keydown', e => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); hcGo(1); }
+});
+
+const statEls = [...document.querySelectorAll('.stat-value')].map(el => ({
+  el,
+  target: parseInt(el.dataset.target, 10),
+  suffix: el.dataset.suffix || '',
+  done: false
+}));
+function updateStats(){
+  const vh = window.innerHeight, vc = vh / 2;
+  for(const s of statEls){
+    if(s.done) continue;
+    const r = s.el.getBoundingClientRect();
+    const denom = vh - vc + r.height / 2;
+    if(denom <= 0){ s.el.textContent = s.target + s.suffix; s.done = true; continue; }
+    let p = (vh - r.top) / denom;
+    p = Math.max(0, Math.min(1, p));
+    s.el.textContent = Math.round(p * s.target) + s.suffix;
+    if(p >= 1) s.done = true;
+  }
+}
+let lastStat = 0;
+addEventListener('scroll', () => {
+  const now = performance.now();
+  if(now - lastStat < 30) return;
+  lastStat = now;
+  updateStats();
+}, { passive: true });
+updateStats();
+</script>
+</body>
+</html>
