@@ -65,6 +65,30 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
+
+  /* ============================================
+     Tokens shadcn/ui (alignés sur le thème sombre & or)
+     ============================================ */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-foreground);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-foreground);
+  --primary: var(--color-gold);
+  --primary-foreground: #1A1206;
+  --secondary: var(--color-surface-2);
+  --secondary-foreground: var(--color-foreground);
+  --muted: var(--color-surface-2);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-surface-3);
+  --accent-foreground: var(--color-gold-light);
+  --destructive: var(--color-terracotta);
+  --destructive-foreground: #1A1206;
+  --border: var(--color-border);
+  --input: var(--color-border-strong);
+  --ring: var(--color-gold);
+  --radius: 0.75rem;
 }
 
 /* Reset & Base */

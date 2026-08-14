@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
-import { ButtonLink } from '@/components/ui/button';
+import { ButtonLink } from '@/components/ui/button-jadarise';
 import { PageHero } from '@/components/page-hero';
 import { IconArrowRight, IconClock, IconTag, IconMail } from '@/components/icons';
 import { getAllPosts, formatPostDate } from '@/lib/blog';

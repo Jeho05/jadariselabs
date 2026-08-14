@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
-import { ButtonLink } from '@/components/ui/button';
+import { ButtonLink } from '@/components/ui/button-jadarise';
 import { Badge } from '@/components/ui/badge';
 import {
   IconRocket,

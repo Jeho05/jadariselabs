@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
-import { ButtonLink } from '@/components/ui/button';
+import { ButtonLink } from '@/components/ui/button-jadarise';
 import { IconArrowRight, IconGlobe, IconSearch, IconMail } from '@/components/icons';
 
 export default function NotFound() {
