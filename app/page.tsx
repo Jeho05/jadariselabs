@@ -1,10 +1,7 @@
-import Image from 'next/image';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import SplitText from '@/components/SplitText';
-import Aurora from '@/components/Aurora';
 import CountUp from '@/components/CountUp';
-import TiltedCard from '@/components/TiltedCard';
 import SpotlightCard from '@/components/SpotlightCard';
 import Magnet from '@/components/Magnet';
 import StarBorder from '@/components/StarBorder';
@@ -15,6 +12,7 @@ import GradientText from '@/components/GradientText';
 import AnimatedContent from '@/components/AnimatedContent';
 import FadeContent from '@/components/FadeContent';
 import ScrollVelocity from '@/components/ScrollVelocity';
+import { ImageStreamHero } from '@/components/ui/image-stream-hero';
 import {
   IconPalette,
   IconChat,
@@ -26,14 +24,31 @@ import {
   IconSparkle,
   IconStar,
   IconCheck,
-  IconZap,
   IconCrown,
   IconUsers,
   IconArrowRight,
   IconPlay,
   IconMail,
   IconHelpCircle,
+  IconChevronDown,
 } from '@/components/icons';
+
+const U = 'https://images.unsplash.com';
+
+const HERO_IMAGES = [
+  { src: `${U}/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80`, alt: 'Portrait masculin à la lumière chaude' },
+  { src: `${U}/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80`, alt: 'Circuit imprimé électronique' },
+  { src: `${U}/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80`, alt: 'Portrait féminin souriant' },
+  { src: `${U}/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=900&q=80`, alt: 'Main robotique d’intelligence artificielle' },
+  { src: `${U}/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80`, alt: 'Portrait masculin posant' },
+  { src: `${U}/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80`, alt: 'Abstraction visuelle générée par IA' },
+  { src: `${U}/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=80`, alt: 'Portrait féminin élégant' },
+  { src: `${U}/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=900&q=80`, alt: 'Cybersécurité et réseaux lumineux' },
+  { src: `${U}/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80`, alt: 'Portrait féminin en noir et blanc' },
+  { src: `${U}/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80`, alt: 'Réseau mondial technologique' },
+  { src: `${U}/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80`, alt: 'Portrait féminin studio' },
+  { src: `${U}/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=900&q=80`, alt: 'Rendu 3D abstrait organique' },
+];
 
 export default function Home() {
   const modules = [
@@ -196,161 +211,131 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] overflow-x-hidden bg-grain">
-      {/* ===================== HERO ===================== */}
-      <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-16 lg:pt-28">
-        {/* Aurora — aurore dorée animée */}
-        <div className="absolute inset-0 z-0">
-          <Aurora colorStops={['#8B5E34', '#D4AF37', '#C4573C']} amplitude={0.75} blend={0.55} />
-        </div>
-        {/* Voile pour la lisibilité */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-[var(--color-background)]/60 via-transparent to-[var(--color-background)] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[var(--color-background)] to-transparent pointer-events-none z-[1]" />
+      {/* ===================== HEADER ===================== */}
+      <SiteHeader />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16 w-full">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-12 xl:gap-20 items-center">
-            {/* Gauche — contenu */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 glass-dark rounded-full px-5 py-2 mb-8">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-gold)] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[var(--color-gold)]"></span>
-                </span>
-                <ShinyText
-                  text="Laboratoire IA Tout-en-1 pour l'Afrique"
-                  speed={3}
-                  color="#B3A692"
-                  shineColor="#E8CD80"
-                  className="text-sm font-semibold tracking-wide uppercase"
-                />
-              </div>
+      {/* ===================== HERO — CORRIDOR IMAGE STREAM ===================== */}
+      <section className="relative flex min-h-screen items-center overflow-hidden">
+        <ImageStreamHero
+          images={HERO_IMAGES}
+          cards={10}
+          speed={22}
+          axis={58}
+          className="absolute inset-0 z-0"
+        >
+          {/* Voiles de lisibilité */}
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_75%_60%_at_50%_45%,transparent_0%,rgba(14,11,9,0.6)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-[var(--color-background)]/75 via-transparent to-[var(--color-background)]" />
 
-              {/* Headline animée */}
-              <SplitText
-                text="L'IA premium, accessible à tous."
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.5rem] font-bold leading-[1.08] tracking-tight text-[var(--color-text-primary)]"
-                delay={40}
-                duration={0.9}
-                splitType="words"
-                tag="h1"
-                textAlign="left"
+          {/* Contenu */}
+          <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 pt-24 pb-20 text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 glass-dark rounded-full px-5 py-2 mb-8">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-gold)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[var(--color-gold)]"></span>
+              </span>
+              <ShinyText
+                text="Laboratoire IA Tout-en-1 pour l'Afrique"
+                speed={3}
+                color="#B3A692"
+                shineColor="#E8CD80"
+                className="text-sm font-semibold tracking-wide uppercase"
               />
+            </div>
 
-              {/* Accent doré animé */}
-              <div className="mt-4">
-                <GradientText
-                  colors={['#D4AF37', '#E8CD80', '#C08552', '#D4AF37']}
-                  animationSpeed={7}
-                  className="text-2xl md:text-3xl font-bold"
+            {/* Headline animée */}
+            <SplitText
+              text="L'IA premium, accessible à tous."
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-[var(--color-text-primary)] drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
+              delay={40}
+              duration={0.9}
+              splitType="words"
+              tag="h1"
+              textAlign="center"
+            />
+
+            {/* Accent doré animé */}
+            <div className="mt-5">
+              <GradientText
+                colors={['#D4AF37', '#E8CD80', '#C08552', '#D4AF37']}
+                animationSpeed={7}
+                className="text-2xl md:text-3xl font-bold"
+              >
+                La puissance de l&apos;IA, à portée de main.
+              </GradientText>
+            </div>
+
+            {/* Rotating capabilities */}
+            <div className="flex items-center justify-center gap-3 mt-5">
+              <span className="text-lg md:text-xl text-[var(--color-text-secondary)] font-medium">Créez</span>
+              <RotatingText
+                texts={['des images HD', 'des vidéos IA', "de l'audio", 'du code', 'sans limites']}
+                mainClassName="inline-flex overflow-hidden"
+                splitLevelClassName="overflow-hidden"
+                elementLevelClassName="text-[var(--color-gold-light)] font-bold text-lg md:text-xl"
+                rotationInterval={2600}
+                splitBy="characters"
+              />
+            </div>
+
+            {/* Sous-titre */}
+            <p className="text-lg md:text-xl text-[var(--color-text-secondary)] mt-6 leading-relaxed max-w-xl font-medium">
+              Infrastructure multimodale zéro-budget associant Groq, DeepSeek et FLUX.{' '}
+              <span className="text-[var(--color-gold-light)]">Conçu pour la qualité maximale en Afrique.</span>
+            </p>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row items-center gap-5 mt-10 w-full sm:w-auto">
+              <Magnet magnetStrength={2} padding={40} wrapperClassName="inline-flex" innerClassName="inline-flex">
+                <a
+                  href="/signup"
+                  className="btn-primary text-base px-8 py-4 group relative overflow-hidden"
                 >
-                  La puissance de l&apos;IA, à portée de main.
-                </GradientText>
-              </div>
+                  <span className="relative z-10">Commencer gratuitement</span>
+                  <IconArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </Magnet>
+              <Magnet magnetStrength={1.2} padding={40} wrapperClassName="inline-flex" innerClassName="inline-flex">
+                <a href="#modules" className="btn-secondary text-base px-8 py-4 flex items-center gap-2">
+                  <IconPlay size={18} />
+                  Voir les modules
+                </a>
+              </Magnet>
+            </div>
 
-              {/* Rotating capabilities */}
-              <div className="flex items-center justify-center lg:justify-start gap-3 mt-5">
-                <span className="text-lg md:text-xl text-[var(--color-text-secondary)] font-medium">Créez</span>
-                <RotatingText
-                  texts={['des images HD', 'des vidéos IA', "de l'audio", 'du code', 'sans limites']}
-                  mainClassName="inline-flex overflow-hidden"
-                  splitLevelClassName="overflow-hidden"
-                  elementLevelClassName="text-[var(--color-gold-light)] font-bold text-lg md:text-xl"
-                  rotationInterval={2600}
-                  splitBy="characters"
-                />
-              </div>
-
-              {/* Sous-titre */}
-              <p className="text-lg md:text-xl text-[var(--color-text-secondary)] mt-6 leading-relaxed max-w-xl font-medium">
-                Infrastructure multimodale zéro-budget associant Groq, DeepSeek et FLUX.{' '}
-                <span className="text-[var(--color-gold-light)]">Conçu pour la qualité maximale en Afrique.</span>
-              </p>
-
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row items-center gap-5 mt-10 w-full sm:w-auto">
-                <Magnet magnetStrength={2} padding={40} wrapperClassName="inline-flex" innerClassName="inline-flex">
-                  <a
-                    href="/signup"
-                    className="btn-primary text-base px-8 py-4 group relative overflow-hidden"
-                  >
-                    <span className="relative z-10">Commencer gratuitement</span>
-                    <IconArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </Magnet>
-                <Magnet magnetStrength={1.2} padding={40} wrapperClassName="inline-flex" innerClassName="inline-flex">
-                  <a href="#modules" className="btn-secondary text-base px-8 py-4 flex items-center gap-2">
-                    <IconPlay size={18} />
-                    Voir les modules
-                  </a>
-                </Magnet>
-              </div>
-
-              {/* Confiance */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mt-10">
-                <div className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-gold)]/15 flex items-center justify-center text-[var(--color-gold)]">
-                    <IconCheck size={12} />
-                  </div>
-                  50 crédits offerts
+            {/* Confiance */}
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
+              <div className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
+                <div className="w-5 h-5 rounded-full bg-[var(--color-gold)]/15 flex items-center justify-center text-[var(--color-gold)]">
+                  <IconCheck size={12} />
                 </div>
-                <div className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-gold)]/15 flex items-center justify-center text-[var(--color-gold)]">
-                    <IconCheck size={12} />
-                  </div>
-                  Aucune carte requise
+                50 crédits offerts
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
+                <div className="w-5 h-5 rounded-full bg-[var(--color-gold)]/15 flex items-center justify-center text-[var(--color-gold)]">
+                  <IconCheck size={12} />
                 </div>
-                <div className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-gold)]/15 flex items-center justify-center text-[var(--color-gold)]">
-                    <IconCheck size={12} />
-                  </div>
-                  Payez en Mobile Money
+                Aucune carte requise
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
+                <div className="w-5 h-5 rounded-full bg-[var(--color-gold)]/15 flex items-center justify-center text-[var(--color-gold)]">
+                  <IconCheck size={12} />
                 </div>
+                Payez en Mobile Money
               </div>
             </div>
 
-            {/* Droite — carte 3D */}
-            <div className="relative w-full max-w-[560px] mx-auto">
-              <TiltedCard
-                imageSrc="/hero-jadariselabs.png"
-                altText="JadaRiseLabs - Premium Multimodal AI interface"
-                captionText="JadaRiseLabs Studio"
-                containerHeight="560px"
-                containerWidth="100%"
-                imageHeight="560px"
-                imageWidth="100%"
-                rotateAmplitude={10}
-                scaleOnHover={1.03}
-                showMobileWarning={false}
-                showTooltip={true}
-                displayOverlayContent={true}
-                overlayContent={
-                  <div className="w-full h-full relative">
-                    {/* Carte flottante vitesse */}
-                    <div className="absolute -left-4 md:-left-10 -bottom-6 glass-dark rounded-2xl px-5 py-4 flex items-center gap-3 animate-float shadow-2xl">
-                      <div className="w-12 h-12 rounded-xl bg-[var(--color-savanna)]/15 flex items-center justify-center">
-                        <IconZap size={24} className="text-[var(--color-savanna-light)]" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Vitesse Groq</p>
-                        <p className="text-base font-bold text-[var(--color-text-primary)]">300+ Tokens/sec</p>
-                      </div>
-                    </div>
-                    {/* Carte flottante qualité */}
-                    <div className="absolute top-10 -right-4 md:-right-10 glass-dark rounded-2xl px-5 py-4 flex items-center gap-3 animate-float-delayed shadow-2xl">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] flex items-center justify-center">
-                        <IconStar size={20} className="text-white" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Qualité Multimodale</p>
-                        <p className="text-base font-bold text-[var(--color-text-primary)]">FLUX & Hailuo</p>
-                      </div>
-                    </div>
-                  </div>
-                }
-              />
-            </div>
+            {/* Indicateur de scroll */}
+            <a
+              href="#modules"
+              aria-label="Défiler vers les modules"
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-gold-light)] transition-colors"
+            >
+              <IconChevronDown size={26} className="animate-bounce" />
+            </a>
           </div>
-        </div>
+        </ImageStreamHero>
       </section>
 
       {/* ===================== MARQUEE ===================== */}
@@ -460,7 +445,7 @@ export default function Home() {
       </section>
 
       {/* ===================== MODULES ===================== */}
-      <section id="modules" className="relative z-10 px-6 md:px-12 lg:px-16 py-20 lg:py-28">
+      <section id="modules" className="relative z-10 scroll-mt-24 px-6 md:px-12 lg:px-16 py-20 lg:py-28">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 rounded-full px-5 py-2 mb-6">
@@ -579,7 +564,7 @@ export default function Home() {
       </section>
 
       {/* ===================== TARIFS ===================== */}
-      <section id="pricing" className="relative z-10 px-6 md:px-12 lg:px-16 py-20 lg:py-28 bg-[var(--color-background-2)]/50 border-y border-[var(--color-border)]">
+      <section id="pricing" className="relative z-10 scroll-mt-24 px-6 md:px-12 lg:px-16 py-20 lg:py-28 bg-[var(--color-background-2)]/50 border-y border-[var(--color-border)]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 glass-dark rounded-full px-5 py-2 mb-6">
