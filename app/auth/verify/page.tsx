@@ -44,7 +44,7 @@ function VerifyContent() {
     };
 
     return (
-        <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background Pattern */}
             <div
                 className="fixed inset-0 pointer-events-none opacity-20"
@@ -86,7 +86,7 @@ function VerifyContent() {
                     </p>
 
                     {email && (
-                        <p className="font-semibold text-[var(--color-earth)] mb-6 break-all bg-[var(--color-cream)] px-4 py-2 rounded-lg">
+                        <p className="font-semibold text-[var(--color-gold-light)] mb-6 break-all bg-[var(--color-surface-2)] border border-[var(--color-gold)]/25 px-4 py-2 rounded-lg">
                             {email}
                         </p>
                     )}
@@ -99,7 +99,7 @@ function VerifyContent() {
                             style={{ animation: 'fadeInDown 0.3s ease-out' }}
                         >
                             <IconCheck size={20} className="text-[var(--color-savanna)] flex-shrink-0" />
-                            <p className="text-sm text-[var(--color-savanna-dark)] font-medium text-left">
+                            <p className="text-sm text-[var(--color-savanna-light)] font-medium text-left">
                                 Si le compte existe, vous recevrez le lien dans quelques minutes.
                             </p>
                         </div>
@@ -111,7 +111,7 @@ function VerifyContent() {
                             role="alert"
                             className="w-full mb-6 flex items-center gap-3 p-3 bg-[var(--color-terracotta)]/10 border border-[var(--color-terracotta)]/25 rounded-lg"
                         >
-                            <p className="text-sm text-[var(--color-terracotta-dark)] font-medium text-left">
+                            <p className="text-sm text-[var(--color-terracotta-light)] font-medium text-left">
                                 {resendError}
                             </p>
                         </div>
@@ -127,8 +127,8 @@ function VerifyContent() {
                             <IconClock size={20} className="text-[var(--color-terracotta)] flex-shrink-0 mt-0.5" />
                             <p className="text-sm text-left">Le lien expire dans 24 heures.</p>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-[var(--color-earth)]/5 rounded-lg">
-                            <svg className="w-5 h-5 text-[var(--color-earth)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-start gap-3 p-3 bg-[var(--color-gold)]/5 rounded-lg">
+                            <svg className="w-5 h-5 text-[var(--color-gold-light)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             <p className="text-sm text-left">Vérifiez aussi vos spams si vous ne trouvez pas l&apos;email.</p>
@@ -140,7 +140,7 @@ function VerifyContent() {
                         <button
                             onClick={handleResend}
                             disabled={resending}
-                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-[var(--color-earth)]/20 text-[var(--color-earth)] font-semibold text-sm hover:bg-[var(--color-earth)]/5 hover:border-[var(--color-earth)]/40 transition-all disabled:opacity-50"
+                            className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-[var(--color-gold)]/30 text-[var(--color-gold-light)] font-semibold text-sm hover:bg-[var(--color-gold)]/[0.1] hover:border-[var(--color-gold)]/50 transition-all disabled:opacity-50"
                         >
                             {resending ? (
                                 <>
@@ -159,7 +159,7 @@ function VerifyContent() {
                     {/* Back Link */}
                     <Link
                         href="/login"
-                        className="text-sm text-[var(--color-earth)] hover:text-[var(--color-earth-light)] transition-colors font-medium"
+                        className="text-sm text-[var(--color-gold-light)] hover:text-[var(--color-gold)] transition-colors font-medium"
                     >
                         ← Retour à la connexion
                     </Link>
@@ -172,7 +172,7 @@ function VerifyContent() {
 export default function VerifyPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center p-4">
+            <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-4">
                 <div className="skeleton w-[400px] h-[400px] rounded-xl" />
             </div>
         }>

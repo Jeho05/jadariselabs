@@ -143,9 +143,9 @@ function SignupForm() {
     ];
 
     return (
-        <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+        <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
             {/* Left Panel — Visual */}
-            <div className="split-screen-visual relative overflow-hidden bg-gradient-to-br from-[var(--color-terracotta)] via-[var(--color-earth)] to-[var(--color-gold)]">
+            <div className="split-screen-visual relative overflow-hidden bg-gradient-to-br from-[#2A1F17] via-[#1B1510] to-[#3A2E1F]">
                 {/* Animated Pattern Background */}
                 <div 
                     className="absolute inset-0 opacity-[0.03]"
@@ -219,7 +219,7 @@ function SignupForm() {
                     {/* Testimonials */}
                     <div className="mt-12 pt-8 border-t border-white/10 space-y-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                         {testimonials.map((testimonial, index) => (
-                            <div key={index} className="glass-card-premium !rounded-xl !p-4 !bg-white/5">
+                            <div key={index} className="glass-card-premium !rounded-xl !p-4 !bg-[var(--color-surface-2)]/70 !border-[var(--color-gold)]/20">
                                 <p className="text-white/80 text-sm italic mb-2">&ldquo;{testimonial.text}&rdquo;</p>
                                 <div className="flex items-center gap-2">
                                     <div className="w-8 h-8 rounded-full bg-[var(--color-earth-dark)] flex items-center justify-center text-white text-xs font-bold">
@@ -262,8 +262,8 @@ function SignupForm() {
                                 <div className={`flex items-center gap-2 ${index <= currentStep ? 'opacity-100' : 'opacity-40'} transition-opacity`}>
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                                         step.completed ? 'bg-[var(--color-savanna)] text-white' 
-                                            : index === currentStep ? 'bg-gradient-to-br from-[var(--color-earth)] to-[var(--color-gold)] text-white'
-                                                : 'bg-[var(--color-cream-dark)] text-[var(--color-text-muted)]'
+                                            : index === currentStep ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-md shadow-[var(--color-gold)]/30'
+                                                : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)]'
                                     }`}>
                                         {step.completed ? <IconCheck size={18} /> : <step.icon size={18} />}
                                     </div>
@@ -330,7 +330,7 @@ function SignupForm() {
                                     Pseudo
                                 </label>
                                 <div className="input-wrapper group">
-                                    <svg className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-earth)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-gold-light)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -367,7 +367,7 @@ function SignupForm() {
                                     Email
                                 </label>
                                 <div className="input-wrapper group">
-                                    <svg className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-earth)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-gold-light)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -448,8 +448,8 @@ function SignupForm() {
                                         disabled={loading}
                                         className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all ${
                                             preferredLang === 'fr' 
-                                                ? 'border-[var(--color-earth)] bg-[var(--color-earth)]/5 text-[var(--color-earth)]' 
-                                                : 'border-[var(--color-border)] hover:border-[var(--color-earth)]/50 text-[var(--color-text-secondary)]'
+                                                ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold-light)]' 
+                                                : 'border-[var(--color-border)] hover:border-[var(--color-gold)]/40 text-[var(--color-text-secondary)]'
                                         }`}
                                     >
                                         <span>🇫🇷</span>
@@ -461,8 +461,8 @@ function SignupForm() {
                                         disabled={loading}
                                         className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all ${
                                             preferredLang === 'en' 
-                                                ? 'border-[var(--color-earth)] bg-[var(--color-earth)]/5 text-[var(--color-earth)]' 
-                                                : 'border-[var(--color-border)] hover:border-[var(--color-earth)]/50 text-[var(--color-text-secondary)]'
+                                                ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold-light)]' 
+                                                : 'border-[var(--color-border)] hover:border-[var(--color-gold)]/40 text-[var(--color-text-secondary)]'
                                         }`}
                                     >
                                         <span>🇺🇸</span>
@@ -493,7 +493,7 @@ function SignupForm() {
                                     J&apos;accepte les{' '}
                                     <Link
                                         href="/legal/terms"
-                                        className="text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors underline"
+                                        className="text-[var(--color-gold-light)] hover:text-[var(--color-gold)] transition-colors underline"
                                         target="_blank"
                                     >
                                         conditions d&apos;utilisation
@@ -501,7 +501,7 @@ function SignupForm() {
                                     et la{' '}
                                     <Link
                                         href="/legal/privacy"
-                                        className="text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors underline"
+                                        className="text-[var(--color-gold-light)] hover:text-[var(--color-gold)] transition-colors underline"
                                         target="_blank"
                                     >
                                         politique de confidentialité
@@ -548,7 +548,7 @@ function SignupForm() {
                     <div className="mt-6 text-center">
                         <p className="text-[var(--color-text-secondary)]">
                             Déjà un compte ?{' '}
-                            <Link href="/login" className="text-[var(--color-earth)] font-semibold hover:text-[var(--color-gold)] transition-colors">
+                            <Link href="/login" className="text-[var(--color-gold-light)] font-semibold hover:text-[var(--color-gold)] transition-colors">
                                 Se connecter
                             </Link>
                         </p>
@@ -563,14 +563,14 @@ export default function SignupPage() {
     return (
         <Suspense
             fallback={
-                <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+                <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
                     <div className="split-screen-visual" />
                     <div className="flex-1 flex items-center justify-center p-6">
                         <div className="glass-card-premium rounded-2xl p-8 w-full max-w-md">
                             <div className="animate-pulse space-y-4">
-                                <div className="h-8 bg-[var(--color-cream-dark)] rounded-lg w-3/4 mx-auto" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
+                                <div className="h-8 bg-[var(--color-surface-2)] rounded-lg w-3/4 mx-auto" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
                             </div>
                         </div>
                     </div>

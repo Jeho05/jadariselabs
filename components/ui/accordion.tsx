@@ -15,19 +15,19 @@ export function AccordionItem({ question, children, defaultOpen = false }: Accor
     const buttonId = `${panelId}-button`;
 
     return (
-        <div className="bg-white rounded-2xl border border-[var(--color-border)] shadow-card overflow-hidden">
+        <div className="glass-dark rounded-2xl overflow-hidden gold-border-hover">
             <button
                 type="button"
                 id={buttonId}
                 aria-expanded={open}
                 aria-controls={panelId}
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-[var(--color-cream)]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] focus-visible:ring-offset-2"
+                className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-[var(--color-surface-2)]/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
             >
                 <span className="font-semibold text-[var(--color-text-primary)] text-sm sm:text-base">{question}</span>
                 <span
                     className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        open ? 'bg-[var(--color-earth)] text-white rotate-180' : 'bg-[var(--color-cream-dark)] text-[var(--color-text-secondary)]'
+                        open ? 'bg-[var(--color-gold)] text-[#1A1206] rotate-180' : 'bg-[var(--color-gold)]/10 text-[var(--color-gold-light)] border border-[var(--color-gold)]/25'
                     }`}
                 >
                     <IconChevronDown size={16} />

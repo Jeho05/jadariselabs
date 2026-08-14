@@ -68,7 +68,7 @@ export default function PricingPage() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
       <SiteHeader />
 
       <main className="flex-1 pt-28 md:pt-32">
@@ -77,7 +77,7 @@ export default function PricingPage() {
           <div className="max-w-3xl mx-auto">
             <Badge tone="gold">Paiement Mobile Money accepté</Badge>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-6 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-              Des tarifs <span className="text-gradient-animated">simples et accessibles</span>
+              Des tarifs <span className="gold-gradient-text">simples et accessibles</span>
             </h1>
             <p className="text-[var(--color-text-secondary)] text-lg">
               Commencez gratuitement, évoluez quand vous voulez. Sans engagement,
@@ -87,7 +87,7 @@ export default function PricingPage() {
 
           {/* Billing frequency toggle */}
           <div
-            className="mt-10 inline-flex items-center gap-1 rounded-full bg-white border border-[var(--color-border)] p-1.5 shadow-sm"
+            className="mt-10 inline-flex items-center gap-1 rounded-full glass-dark border border-[var(--color-border)] p-1.5"
             role="group"
             aria-label="Fréquence de facturation"
           >
@@ -97,8 +97,8 @@ export default function PricingPage() {
               aria-pressed={!annual}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
                 !annual
-                  ? 'bg-[var(--color-earth)] text-white shadow-sm'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)]'
+                  ? 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-md shadow-[var(--color-gold)]/30'
+                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-gold-light)]'
               }`}
             >
               Mensuel
@@ -109,12 +109,12 @@ export default function PricingPage() {
               aria-pressed={annual}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all inline-flex items-center gap-2 ${
                 annual
-                  ? 'bg-[var(--color-earth)] text-white shadow-sm'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)]'
+                  ? 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-md shadow-[var(--color-gold)]/30'
+                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-gold-light)]'
               }`}
             >
               Annuel
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${annual ? 'bg-white/20' : 'bg-[var(--color-cream-dark)] text-[var(--color-earth)]'}`}>
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${annual ? 'bg-[#1A1206]/25 text-[#1A1206]' : 'bg-[var(--color-gold)]/15 text-[var(--color-gold-light)]'}`}>
                 -20%
               </span>
             </button>
@@ -137,18 +137,18 @@ export default function PricingPage() {
                   key={plan.key}
                   className={`relative gradient-border-card ${plan.popular ? 'md:-mt-4 md:mb-4' : ''}`}
                 >
-                  <div className={`bg-white rounded-[calc(1.25rem-2px)] p-8 h-full flex flex-col ${plan.popular ? 'shadow-xl' : ''}`}>
+                  <div className={`bg-[var(--color-surface)] rounded-[calc(1.25rem-2px)] p-8 h-full flex flex-col ${plan.popular ? 'shadow-xl shadow-[var(--color-gold)]/10' : ''}`}>
                     {plan.popular && (
                       <div className="absolute -top-0 left-1/2 -translate-x-1/2 translate-y-[-2px]">
-                        <span className="inline-flex items-center gap-1 px-4 py-1.5 rounded-b-xl text-xs font-bold text-white bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-terracotta)] shadow-lg">
+                        <span className="inline-flex items-center gap-1 px-4 py-1.5 rounded-b-xl text-xs font-bold text-[#1A1206] bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] shadow-lg shadow-[var(--color-gold)]/30">
                           <IconSparkle size={12} /> POPULAIRE
                         </span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${plan.popular ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)]' : 'bg-[var(--color-cream-dark)]'}`}>
-                        <plan.icon size={22} className={plan.popular ? 'text-white' : 'text-[var(--color-earth)]'} />
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${plan.popular ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-dark)]' : 'bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25'}`}>
+                        <plan.icon size={22} className={plan.popular ? 'text-[#1A1206]' : 'text-[var(--color-gold-light)]'} />
                       </div>
                       <h2 className="text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
                         {plan.name}
@@ -178,7 +178,7 @@ export default function PricingPage() {
                     <ul className="space-y-3 mb-8 flex-1">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-3 text-sm text-[var(--color-text-primary)]">
-                          <IconCheck size={18} className="text-[var(--color-earth)] flex-shrink-0 mt-0.5" />
+                          <IconCheck size={18} className="text-[var(--color-gold)] flex-shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -200,9 +200,9 @@ export default function PricingPage() {
 
           {/* Security + refund */}
           <div className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-                <IconShield size={22} className="text-green-600" />
+            <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[var(--color-savanna)]/12 flex items-center justify-center flex-shrink-0">
+                <IconShield size={22} className="text-[var(--color-savanna-light)]" />
               </div>
               <div>
                 <h3 className="font-bold text-sm mb-1">Paiement 100% sécurisé</h3>
@@ -212,9 +212,9 @@ export default function PricingPage() {
                 </p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[var(--color-cream-dark)] flex items-center justify-center flex-shrink-0">
-                <IconRepeat size={22} className="text-[var(--color-earth)]" />
+            <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[var(--color-gold)]/10 flex items-center justify-center flex-shrink-0">
+                <IconRepeat size={22} className="text-[var(--color-gold-light)]" />
               </div>
               <div>
                 <h3 className="font-bold text-sm mb-1">Satisfait ou remboursé</h3>
@@ -224,9 +224,9 @@ export default function PricingPage() {
                 </p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[var(--color-cream-dark)] flex items-center justify-center flex-shrink-0">
-                <IconRocket size={22} className="text-[var(--color-earth)]" />
+            <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[var(--color-gold)]/10 flex items-center justify-center flex-shrink-0">
+                <IconRocket size={22} className="text-[var(--color-gold-light)]" />
               </div>
               <div>
                 <h3 className="font-bold text-sm mb-1">Essai gratuit inclus</h3>

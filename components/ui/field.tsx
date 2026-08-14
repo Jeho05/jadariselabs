@@ -17,7 +17,7 @@ export function Field({ label, id, error, hint, icon, className = '', ...props }
             </label>
             <div className="input-wrapper group">
                 {icon && (
-                    <span className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-earth)] transition-colors flex-shrink-0">
+                    <span className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-gold-light)] transition-colors flex-shrink-0">
                         {icon}
                     </span>
                 )}

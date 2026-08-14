@@ -5,15 +5,15 @@ type Variant = 'primary' | 'secondary' | 'gold' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
 const baseClasses =
-    'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-cream)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none whitespace-nowrap';
+    'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none whitespace-nowrap';
 
 const variantClasses: Record<Variant, string> = {
     primary:
-        'bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-dark)] text-white shadow-md shadow-[var(--color-earth)]/20 hover:shadow-lg hover:shadow-[var(--color-earth)]/25 hover:-translate-y-0.5',
+        'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-md shadow-[var(--color-gold)]/25 hover:shadow-lg hover:shadow-[var(--color-gold)]/45 hover:-translate-y-0.5',
     secondary:
-        'bg-transparent text-[var(--color-earth)] border-2 border-[var(--color-earth)] hover:bg-[var(--color-earth)] hover:text-white',
-    gold: 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)] text-[var(--color-earth-dark)] shadow-md shadow-[var(--color-gold)]/25 hover:shadow-lg hover:-translate-y-0.5',
-    ghost: 'bg-black/[0.04] text-[var(--color-text-secondary)] hover:bg-black/[0.08] hover:text-[var(--color-text-primary)]',
+        'bg-transparent text-[var(--color-gold-light)] border border-[var(--color-gold)]/40 hover:bg-[var(--color-gold)]/[0.12] hover:border-[var(--color-gold)]',
+    gold: 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-md shadow-[var(--color-gold)]/25 hover:shadow-lg hover:-translate-y-0.5',
+    ghost: 'bg-[var(--color-gold)]/[0.06] text-[var(--color-text-secondary)] hover:bg-[var(--color-gold)]/[0.12] hover:text-[var(--color-gold-light)]',
     danger: 'bg-[var(--color-terracotta)] text-white hover:bg-[var(--color-terracotta-dark)] shadow-md shadow-[var(--color-terracotta)]/20',
 };
 

@@ -67,9 +67,9 @@ function LoginForm() {
     ];
 
     return (
-        <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+        <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
             {/* Left Panel — Visual */}
-            <div className="split-screen-visual relative overflow-hidden bg-[var(--color-earth)]">
+            <div className="split-screen-visual relative overflow-hidden bg-[var(--color-surface)]">
                 {/* Animated Pattern Background */}
                 <div 
                     className="absolute inset-0 opacity-[0.03]"
@@ -152,7 +152,7 @@ function LoginForm() {
                         </div>
 
                         {/* Testimonial */}
-                        <div className="glass-card-premium !rounded-xl !p-4 !bg-white/5">
+                        <div className="glass-card-premium !rounded-xl !p-4 !bg-[var(--color-surface-2)]/70 !border-[var(--color-gold)]/20">
                             <p className="text-white/80 text-sm italic mb-2">
                                 &ldquo;Je crée les visuels de mes clients en quelques minutes. Un vrai game changer pour mon activité.&rdquo;
                             </p>
@@ -199,7 +199,7 @@ function LoginForm() {
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-full px-4 py-2 mb-4">
                             <div className="w-2 h-2 rounded-full bg-[var(--color-savanna)] animate-pulse" />
-                            <span className="text-[var(--color-savanna-dark)] text-sm font-medium">
+                            <span className="text-[var(--color-savanna-light)] text-sm font-medium">
                                 Connexion sécurisée
                             </span>
                         </div>
@@ -221,7 +221,7 @@ function LoginForm() {
                                 style={{ animation: 'slideDown 0.3s ease-out' }}
                             >
                                 <IconCheck size={18} className="text-[var(--color-savanna)] flex-shrink-0" />
-                                <p className="text-sm text-[var(--color-savanna-dark)] font-medium">
+                                <p className="text-sm text-[var(--color-savanna-light)] font-medium">
                                     {successMessages[callbackMessage]}
                                 </p>
                             </div>
@@ -249,7 +249,7 @@ function LoginForm() {
                                     Email
                                 </label>
                                 <div className="input-wrapper group">
-                                    <svg className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-earth)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-gold-light)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -280,7 +280,7 @@ function LoginForm() {
                                     </label>
                                     <button
                                         type="button"
-                                        className="text-xs text-[var(--color-earth)] hover:text-[var(--color-gold)] transition-colors font-medium"
+                                        className="text-xs text-[var(--color-gold-light)] hover:text-[var(--color-gold)] transition-colors font-medium"
                                         onClick={() => router.push('/auth/forgot-password')}
                                     >
                                         Mot de passe oublié ?
@@ -322,7 +322,7 @@ function LoginForm() {
                     <div className="mt-8 text-center">
                         <p className="text-[var(--color-text-secondary)]">
                             Pas encore de compte ?{' '}
-                            <Link href="/signup" className="text-[var(--color-earth)] font-semibold hover:text-[var(--color-gold)] transition-colors">
+                            <Link href="/signup" className="text-[var(--color-gold-light)] font-semibold hover:text-[var(--color-gold)] transition-colors">
                                 Créer un compte gratuitement
                             </Link>
                         </p>
@@ -337,15 +337,15 @@ export default function LoginPage() {
     return (
         <Suspense
             fallback={
-                <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+                <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
                     <div className="split-screen-visual" />
                     <div className="flex-1 flex items-center justify-center p-6">
                         <div className="glass-card-premium rounded-2xl p-8 w-full max-w-md">
                             <div className="animate-pulse space-y-4">
-                                <div className="h-8 bg-[var(--color-cream-dark)] rounded-lg w-3/4 mx-auto" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
+                                <div className="h-8 bg-[var(--color-surface-2)] rounded-lg w-3/4 mx-auto" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
                             </div>
                         </div>
                     </div>

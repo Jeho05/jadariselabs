@@ -56,6 +56,8 @@ module.exports = {
         'spin-slow': 'spin-slow 3s linear infinite',
         'float-3d': 'float-3d 6s ease-in-out infinite',
         'parallax': 'parallax-float 8s ease-in-out infinite',
+        'star-movement-bottom': 'star-movement-bottom linear infinite alternate',
+        'star-movement-top': 'star-movement-top linear infinite alternate',
       },
       keyframes: {
         fadeIn: {
@@ -121,6 +123,14 @@ module.exports = {
         'parallax-float': {
           '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
           '50%': { transform: 'translate3d(10px, -15px, 0)' },
+        },
+        'star-movement-bottom': {
+          '0%': { transform: 'translate(0%, 0%)', opacity: '1' },
+          '100%': { transform: 'translate(-100%, 0%)', opacity: '0' },
+        },
+        'star-movement-top': {
+          '0%': { transform: 'translate(0%, 0%)', opacity: '1' },
+          '100%': { transform: 'translate(100%, 0%)', opacity: '0' },
         },
       },
       backgroundImage: {

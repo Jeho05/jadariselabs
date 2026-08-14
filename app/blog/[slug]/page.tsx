@@ -29,7 +29,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     const related = getRelatedPosts(post);
 
     return (
-        <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+        <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
             <SiteHeader />
 
             <main className="flex-1 pt-28 md:pt-32">
@@ -37,9 +37,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                     <div className="max-w-3xl mx-auto">
                         {/* Breadcrumb */}
                         <nav aria-label="Fil d'Ariane" className="mb-6 text-sm text-[var(--color-text-muted)]">
-                            <Link href="/" className="hover:text-[var(--color-earth)]">Accueil</Link>
+                            <Link href="/" className="hover:text-[var(--color-gold-light)]">Accueil</Link>
                             <span className="mx-2">/</span>
-                            <Link href="/blog" className="hover:text-[var(--color-earth)]">Blog</Link>
+                            <Link href="/blog" className="hover:text-[var(--color-gold-light)]">Blog</Link>
                         </nav>
 
                         {/* Title */}
@@ -48,7 +48,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 <Link
                                     key={tag}
                                     href="/blog"
-                                    className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-earth)] bg-[var(--color-cream-dark)]/60 px-3 py-1 rounded-full hover:bg-[var(--color-cream-dark)] transition-colors"
+                                    className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-gold-light)] bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 px-3 py-1 rounded-full hover:bg-[var(--color-gold)]/[0.18] transition-colors"
                                 >
                                     <IconTag size={11} />
                                     {tag}
@@ -116,7 +116,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://jadariselabs.vercel.app/blog/${post.slug}`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-cream-dark)]/60 hover:bg-[var(--color-cream-dark)] transition-colors"
+                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.18] transition-colors"
                             >
                                 X / Twitter
                             </a>
@@ -124,7 +124,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://jadariselabs.vercel.app/blog/${post.slug}`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-cream-dark)]/60 hover:bg-[var(--color-cream-dark)] transition-colors"
+                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.18] transition-colors"
                             >
                                 Facebook
                             </a>
@@ -132,7 +132,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://jadariselabs.vercel.app/blog/${post.slug}`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-cream-dark)]/60 hover:bg-[var(--color-cream-dark)] transition-colors"
+                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.18] transition-colors"
                             >
                                 LinkedIn
                             </a>
@@ -140,7 +140,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 href={`https://wa.me/?text=${encodeURIComponent(`${post.title} — https://jadariselabs.vercel.app/blog/${post.slug}`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-cream-dark)]/60 hover:bg-[var(--color-cream-dark)] transition-colors"
+                                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.18] transition-colors"
                             >
                                 WhatsApp
                             </a>
@@ -151,16 +151,17 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                 {/* Lead conversion */}
                 <section className="relative z-10 px-6 py-12 md:px-12 lg:px-16">
                     <div className="max-w-3xl mx-auto">
-                        <div className="relative bg-[var(--color-earth-dark)] rounded-3xl p-8 md:p-10 text-center overflow-hidden shadow-xl">
-                            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundSize: '150px' }} />
+                        <div className="relative glass-dark rounded-3xl p-8 md:p-10 text-center overflow-hidden gold-border-hover">
+                            <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundSize: '150px' }} />
+                            <div className="gold-orb w-[280px] h-[280px] -top-20 -right-20 opacity-50" />
                             <div className="relative z-10">
-                                <h2 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
+                                <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
                                     Passez à la pratique
                                 </h2>
-                                <p className="text-white/80 mb-6">
+                                <p className="text-[var(--color-text-secondary)] mb-6">
                                     50 crédits offerts pour créer vos premières images, vidéos et voix avec l&apos;IA.
                                 </p>
-                                <a href="/signup" className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold bg-[var(--color-gold)] text-[var(--color-earth-dark)] hover:bg-[var(--color-gold-dark)] transition-all">
+                                <a href="/signup" className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-md shadow-[var(--color-gold)]/30 hover:shadow-lg hover:shadow-[var(--color-gold)]/50 hover:-translate-y-0.5 transition-all">
                                     Créer un compte gratuit
                                     <IconArrowRight size={18} />
                                 </a>
@@ -181,7 +182,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                     <Link
                                         key={article.slug}
                                         href={`/blog/${article.slug}`}
-                                        className="group bg-white rounded-2xl border border-[var(--color-border)] shadow-sm hover:shadow-lg transition-all overflow-hidden flex flex-col"
+                                        className="group glass-dark rounded-2xl overflow-hidden gold-border-hover flex flex-col"
                                     >
                                         <div className="relative aspect-[16/8]">
                                             {article.thumbnail ? (
@@ -197,7 +198,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                             )}
                                         </div>
                                         <div className="p-6">
-                                            <h3 className="font-bold mb-2 group-hover:text-[var(--color-earth)] transition-colors">
+                                            <h3 className="font-bold mb-2 group-hover:text-[var(--color-gold-light)] transition-colors">
                                                 {article.title}
                                             </h3>
                                             <p className="text-sm text-[var(--color-text-muted)]">

@@ -40,9 +40,9 @@ function ForgotPasswordForm() {
     };
 
     return (
-        <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+        <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
             {/* Left Panel — Visual */}
-            <div className="split-screen-visual relative overflow-hidden bg-[var(--color-earth)]">
+            <div className="split-screen-visual relative overflow-hidden bg-[var(--color-surface)]">
                 <div
                     className="absolute inset-0 opacity-[0.03]"
                     style={{
@@ -102,7 +102,7 @@ function ForgotPasswordForm() {
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-full px-4 py-2 mb-4">
                             <div className="w-2 h-2 rounded-full bg-[var(--color-savanna)] animate-pulse" />
-                            <span className="text-[var(--color-savanna-dark)] text-sm font-medium">
+                            <span className="text-[var(--color-savanna-light)] text-sm font-medium">
                                 Récupération sécurisée
                             </span>
                         </div>
@@ -124,7 +124,7 @@ function ForgotPasswordForm() {
                                     Email envoyé !
                                 </h2>
                                 <p className="text-[var(--color-text-secondary)] mb-2">
-                                    Si un compte existe pour <strong className="text-[var(--color-earth)]">{email.trim()}</strong>, vous recevrez un lien de réinitialisation.
+                                    Si un compte existe pour <strong className="text-[var(--color-gold-light)]">{email.trim()}</strong>, vous recevrez un lien de réinitialisation.
                                 </p>
                                 <p className="text-xs text-[var(--color-text-muted)] mb-6">
                                     Le lien expire dans 1 heure. Pensez à vérifier vos spams.
@@ -148,7 +148,7 @@ function ForgotPasswordForm() {
                                             Email
                                         </label>
                                         <div className="input-wrapper group">
-                                            <IconMail size={20} className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-earth)] transition-colors" />
+                                            <IconMail size={20} className="input-icon w-5 h-5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-gold-light)] transition-colors" />
                                             <input
                                                 id="email"
                                                 name="email"
@@ -189,7 +189,7 @@ function ForgotPasswordForm() {
                     <div className="mt-8 text-center">
                         <p className="text-[var(--color-text-secondary)]">
                             Vous vous souvenez de votre mot de passe ?{' '}
-                            <Link href="/login" className="text-[var(--color-earth)] font-semibold hover:text-[var(--color-gold)] transition-colors">
+                            <Link href="/login" className="text-[var(--color-gold-light)] font-semibold hover:text-[var(--color-gold)] transition-colors">
                                 Se connecter
                             </Link>
                         </p>
@@ -204,14 +204,14 @@ export default function ForgotPasswordPage() {
     return (
         <Suspense
             fallback={
-                <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+                <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
                     <div className="split-screen-visual" />
                     <div className="flex-1 flex items-center justify-center p-6">
                         <div className="glass-card-premium rounded-2xl p-8 w-full max-w-md">
                             <div className="animate-pulse space-y-4">
-                                <div className="h-8 bg-[var(--color-cream-dark)] rounded-lg w-3/4 mx-auto" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
+                                <div className="h-8 bg-[var(--color-surface-2)] rounded-lg w-3/4 mx-auto" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
                             </div>
                         </div>
                     </div>

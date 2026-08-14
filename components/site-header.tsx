@@ -42,8 +42,8 @@ export function SiteHeader() {
             <header
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
                     scrolled || menuOpen
-                        ? 'bg-white/85 backdrop-blur-2xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)] border-b border-black/[0.04]'
-                        : 'bg-white/40 backdrop-blur-md'
+                        ? 'glass-dark !rounded-none border-b border-[var(--color-border)] shadow-[0_8px_32px_rgba(0,0,0,0.5)]'
+                        : 'bg-transparent border-b border-transparent'
                 }`}
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,7 +55,7 @@ export function SiteHeader() {
                                 alt="JadaRiseLabs"
                                 width={240}
                                 height={160}
-                                className="object-contain h-12 sm:h-14 w-auto drop-shadow-sm"
+                                className="object-contain h-12 sm:h-14 w-auto drop-shadow-[0_0_12px_rgba(212,175,55,0.25)]"
                                 priority
                             />
                         </Link>
@@ -68,8 +68,8 @@ export function SiteHeader() {
                                     href={link.href}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                                         isActive(link.href)
-                                            ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/[0.06]'
-                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-black/[0.03]'
+                                            ? 'text-[var(--color-gold-light)] bg-[var(--color-gold)]/[0.12] border border-[var(--color-gold)]/20'
+                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.06]'
                                     }`}
                                 >
                                     {link.label}
@@ -81,13 +81,13 @@ export function SiteHeader() {
                         <div className="flex items-center gap-2 sm:gap-3">
                             <Link
                                 href="/login"
-                                className="hidden sm:inline-flex px-4 py-2 rounded-xl font-medium text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-black/[0.03] transition-all"
+                                className="hidden sm:inline-flex px-4 py-2 rounded-xl font-medium text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.06] transition-all"
                             >
                                 Connexion
                             </Link>
                             <Link
                                 href="/signup"
-                                className="hidden sm:inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-dark)] text-white shadow-md shadow-[var(--color-earth)]/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                                className="hidden sm:inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-lg shadow-[var(--color-gold)]/25 hover:shadow-[var(--color-gold)]/45 hover:-translate-y-0.5 transition-all duration-200"
                             >
                                 Commencer gratuitement
                                 <IconArrowRight size={14} />
@@ -97,7 +97,7 @@ export function SiteHeader() {
                             <button
                                 type="button"
                                 onClick={() => setMenuOpen(!menuOpen)}
-                                className="md:hidden p-2 rounded-xl text-[var(--color-text-primary)] hover:bg-black/[0.04] transition-all"
+                                className="md:hidden p-2 rounded-xl text-[var(--color-text-primary)] hover:bg-[var(--color-gold)]/[0.08] transition-all"
                                 aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
                                 aria-expanded={menuOpen}
                             >
@@ -112,12 +112,12 @@ export function SiteHeader() {
             {menuOpen && (
                 <>
                     <div
-                        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"
+                        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
                         onClick={() => setMenuOpen(false)}
                         style={{ animation: 'fadeIn 0.2s ease-out' }}
                     />
                     <div
-                        className="fixed top-16 sm:top-20 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-xl border-b border-black/[0.06] shadow-xl shadow-black/5 max-h-[calc(100vh-4rem)] overflow-y-auto"
+                        className="fixed top-16 sm:top-20 left-0 right-0 z-50 md:hidden bg-[#14100C]/95 backdrop-blur-xl border-b border-[var(--color-border)] shadow-2xl shadow-black/50 max-h-[calc(100vh-4rem)] overflow-y-auto"
                         style={{ animation: 'slideDown 0.25s ease-out' }}
                     >
                         <div className="px-5 py-6 space-y-1">
@@ -127,24 +127,24 @@ export function SiteHeader() {
                                     href={link.href}
                                     className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-all ${
                                         isActive(link.href)
-                                            ? 'text-[var(--color-earth)] bg-[var(--color-earth)]/[0.06]'
-                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-earth)] hover:bg-[var(--color-cream)]/60'
+                                            ? 'text-[var(--color-gold-light)] bg-[var(--color-gold)]/[0.12]'
+                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.06]'
                                     }`}
                                 >
                                     {link.label}
                                     <IconArrowRight size={16} className="opacity-40" />
                                 </Link>
                             ))}
-                            <div className="pt-4 mt-2 border-t border-black/[0.06] space-y-2">
+                            <div className="pt-4 mt-2 border-t border-[var(--color-border)] space-y-2">
                                 <Link
                                     href="/login"
-                                    className="w-full flex items-center justify-center px-4 py-3 rounded-xl font-semibold text-sm border-2 border-[var(--color-earth)] text-[var(--color-earth)] hover:bg-[var(--color-earth)] hover:text-white transition-all"
+                                    className="w-full flex items-center justify-center px-4 py-3 rounded-xl font-semibold text-sm border border-[var(--color-gold)]/35 text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.1] transition-all"
                                 >
                                     Connexion
                                 </Link>
                                 <Link
                                     href="/signup"
-                                    className="w-full flex items-center justify-center px-4 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-[var(--color-earth)] to-[var(--color-earth-dark)] text-white shadow-md transition-all"
+                                    className="w-full flex items-center justify-center px-4 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] shadow-lg shadow-[var(--color-gold)]/25 transition-all"
                                 >
                                     Commencer gratuitement
                                 </Link>

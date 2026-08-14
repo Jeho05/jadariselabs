@@ -3,11 +3,11 @@ import type { HTMLAttributes, ReactNode } from 'react';
 type Tone = 'earth' | 'gold' | 'savanna' | 'terracotta' | 'neutral';
 
 const toneClasses: Record<Tone, string> = {
-    earth: 'bg-[var(--color-earth)]/10 text-[var(--color-earth-dark)] border-[var(--color-earth)]/20',
-    gold: 'bg-[var(--color-gold)]/10 text-[var(--color-gold-dark)] border-[var(--color-gold)]/25',
-    savanna: 'bg-[var(--color-savanna)]/10 text-[var(--color-savanna-dark)] border-[var(--color-savanna)]/20',
-    terracotta: 'bg-[var(--color-terracotta)]/10 text-[var(--color-terracotta-dark)] border-[var(--color-terracotta)]/25',
-    neutral: 'bg-gray-100 text-gray-600 border-gray-200',
+    earth: 'bg-[var(--color-earth)]/12 text-[var(--color-earth-light)] border-[var(--color-earth)]/25',
+    gold: 'bg-[var(--color-gold)]/12 text-[var(--color-gold-light)] border-[var(--color-gold)]/30',
+    savanna: 'bg-[var(--color-savanna)]/12 text-[var(--color-savanna-light)] border-[var(--color-savanna)]/25',
+    terracotta: 'bg-[var(--color-terracotta)]/12 text-[var(--color-terracotta-light)] border-[var(--color-terracotta)]/30',
+    neutral: 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] border-[var(--color-border)]',
 };
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {

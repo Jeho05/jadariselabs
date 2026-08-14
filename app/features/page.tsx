@@ -118,7 +118,7 @@ const COLOR_GRADIENT: Record<string, string> = {
 
 export default function FeaturesPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
       <SiteHeader />
 
       <main className="flex-1 pt-28 md:pt-32">
@@ -127,7 +127,7 @@ export default function FeaturesPage() {
           <div className="max-w-3xl mx-auto">
             <Badge tone="gold">6 modules IA · 1 plateforme</Badge>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-6 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-              Tout ce qu&apos;il faut pour <span className="text-gradient-animated">créer sans limites</span>
+              Tout ce qu&apos;il faut pour <span className="gold-gradient-text">créer sans limites</span>
             </h1>
             <p className="text-[var(--color-text-secondary)] text-lg">
               De l&apos;idée au produit fini : images, vidéos, code, documents et voix —
@@ -165,7 +165,7 @@ export default function FeaturesPage() {
                     {/* Visual */}
                     <div className="relative [direction:ltr]">
                       <div className="gradient-border-card group">
-                        <div className="bg-white rounded-[calc(1.25rem-2px)] p-3">
+                        <div className="bg-[var(--color-surface)] rounded-[calc(1.25rem-2px)] p-3">
                           <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
                             {feature.image ? (
                               <Image
@@ -179,8 +179,8 @@ export default function FeaturesPage() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${COLOR_GRADIENT[group.color]} opacity-20`} />
                             )}
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="w-16 h-16 rounded-2xl bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center">
-                                <feature.icon size={32} className="text-[var(--color-earth)]" />
+                              <div className="w-16 h-16 rounded-2xl bg-[var(--color-surface-2)]/95 backdrop-blur-sm shadow-lg flex items-center justify-center border border-[var(--color-gold)]/25">
+                                <feature.icon size={32} className="text-[var(--color-gold-light)]" />
                               </div>
                             </div>
                           </div>
@@ -201,7 +201,7 @@ export default function FeaturesPage() {
                       <p className="text-[var(--color-text-secondary)] leading-relaxed mb-4">
                         {feature.description}
                       </p>
-                      <p className="flex items-start gap-2 text-sm font-semibold text-[var(--color-earth)] bg-[var(--color-cream-dark)]/50 rounded-xl px-4 py-3 mb-6">
+                      <p className="flex items-start gap-2 text-sm font-semibold text-[var(--color-gold-light)] bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 rounded-xl px-4 py-3 mb-6">
                         <IconCheck size={18} className="flex-shrink-0 mt-0.5" />
                         {feature.benefit}
                       </p>
@@ -234,22 +234,23 @@ export default function FeaturesPage() {
         {/* Inline CTA */}
         <section className="relative z-10 px-6 py-16 md:px-12 lg:px-16">
           <div className="max-w-5xl mx-auto">
-            <div className="relative bg-[var(--color-earth-dark)] rounded-[2rem] p-10 md:p-16 text-center overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundSize: '150px' }} />
+            <div className="relative glass-dark rounded-[2rem] p-10 md:p-16 text-center overflow-hidden gold-border-hover">
+              <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url(/pattern-african.svg)', backgroundSize: '150px' }} />
+              <div className="gold-orb w-[400px] h-[400px] -top-32 -right-32 opacity-60" />
               <div className="relative z-10 max-w-2xl mx-auto">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
                   Prêt à tester ces modules ?
                 </h2>
-                <p className="text-white/80 text-lg mb-8 leading-relaxed font-medium">
+                <p className="text-[var(--color-text-secondary)] text-lg mb-8 leading-relaxed font-medium">
                   Créez votre compte gratuitement et recevez 50 crédits pour essayer
                   tous les modèles premium.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <a href="/signup" className="btn-primary !bg-[var(--color-gold)] !text-[var(--color-earth-dark)] px-10 py-4 group">
+                  <a href="/signup" className="btn-primary !bg-[var(--color-gold)] !text-[#1A1206] px-10 py-4 group">
                     <span>Créer un compte gratuit</span>
                     <IconArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </a>
-                  <a href="/pricing" className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold border-2 border-white/30 text-white hover:bg-white/10 transition-all">
+                  <a href="/pricing" className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold border border-[var(--color-gold)]/40 text-[var(--color-gold-light)] hover:bg-[var(--color-gold)]/[0.12] transition-all">
                     Comparer les plans
                   </a>
                 </div>

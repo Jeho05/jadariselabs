@@ -11,10 +11,10 @@ interface SectionHeadingProps {
 }
 
 const eyebrowTones = {
-    savanna: 'bg-[var(--color-savanna)]/10 border-[var(--color-savanna)]/20 text-[var(--color-savanna-dark)]',
-    gold: 'bg-[var(--color-gold)]/10 border-[var(--color-gold)]/25 text-[var(--color-gold-dark)]',
-    terracotta: 'bg-[var(--color-terracotta)]/10 border-[var(--color-terracotta)]/25 text-[var(--color-terracotta-dark)]',
-    earth: 'bg-[var(--color-earth)]/10 border-[var(--color-earth)]/20 text-[var(--color-earth-dark)]',
+    savanna: 'bg-[var(--color-savanna)]/12 border-[var(--color-savanna)]/25 text-[var(--color-savanna-light)]',
+    gold: 'bg-[var(--color-gold)]/12 border-[var(--color-gold)]/30 text-[var(--color-gold-light)]',
+    terracotta: 'bg-[var(--color-terracotta)]/12 border-[var(--color-terracotta)]/30 text-[var(--color-terracotta-light)]',
+    earth: 'bg-[var(--color-earth)]/12 border-[var(--color-earth)]/25 text-[var(--color-earth-light)]',
 };
 
 export function SectionHeading({

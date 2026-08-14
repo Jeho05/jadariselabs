@@ -69,7 +69,7 @@ function ResetPasswordForm() {
 
     if (!token || !email) {
         return (
-            <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-6">
                 <div className="glass-card-premium rounded-2xl p-8 w-full max-w-md text-center">
                     <div className="w-16 h-16 rounded-full bg-[var(--color-terracotta)]/10 flex items-center justify-center mx-auto mb-4">
                         <IconLock size={28} className="text-[var(--color-terracotta)]" />
@@ -89,9 +89,9 @@ function ResetPasswordForm() {
     }
 
     return (
-        <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+        <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
             {/* Left Panel — Visual */}
-            <div className="split-screen-visual relative overflow-hidden bg-[var(--color-earth)]">
+            <div className="split-screen-visual relative overflow-hidden bg-[var(--color-surface)]">
                 <div
                     className="absolute inset-0 opacity-[0.03]"
                     style={{
@@ -151,7 +151,7 @@ function ResetPasswordForm() {
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/20 rounded-full px-4 py-2 mb-4">
                             <div className="w-2 h-2 rounded-full bg-[var(--color-savanna)] animate-pulse" />
-                            <span className="text-[var(--color-savanna-dark)] text-sm font-medium">
+                            <span className="text-[var(--color-savanna-light)] text-sm font-medium">
                                 Sécurité du compte
                             </span>
                         </div>
@@ -159,7 +159,7 @@ function ResetPasswordForm() {
                             Nouveau mot de passe
                         </h1>
                         <p className="text-[var(--color-text-secondary)] break-all">
-                            Pour <strong className="text-[var(--color-earth)]">{email}</strong>
+                            Pour <strong className="text-[var(--color-gold-light)]">{email}</strong>
                         </p>
                     </div>
 
@@ -246,7 +246,7 @@ function ResetPasswordForm() {
 
                     <div className="mt-8 text-center">
                         <p className="text-[var(--color-text-secondary)]">
-                            <Link href="/login" className="text-[var(--color-earth)] font-semibold hover:text-[var(--color-gold)] transition-colors">
+                            <Link href="/login" className="text-[var(--color-gold-light)] font-semibold hover:text-[var(--color-gold)] transition-colors">
                                 Retour à la connexion
                             </Link>
                         </p>
@@ -261,14 +261,14 @@ export default function ResetPasswordPage() {
     return (
         <Suspense
             fallback={
-                <div className="split-screen-auth min-h-screen bg-[var(--color-cream)]">
+                <div className="split-screen-auth min-h-screen bg-[var(--color-background)]">
                     <div className="split-screen-visual" />
                     <div className="flex-1 flex items-center justify-center p-6">
                         <div className="glass-card-premium rounded-2xl p-8 w-full max-w-md">
                             <div className="animate-pulse space-y-4">
-                                <div className="h-8 bg-[var(--color-cream-dark)] rounded-lg w-3/4 mx-auto" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
-                                <div className="h-12 bg-[var(--color-cream-dark)] rounded-xl" />
+                                <div className="h-8 bg-[var(--color-surface-2)] rounded-lg w-3/4 mx-auto" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
+                                <div className="h-12 bg-[var(--color-surface-2)] rounded-xl" />
                             </div>
                         </div>
                     </div>

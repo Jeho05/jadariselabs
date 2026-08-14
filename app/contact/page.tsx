@@ -91,7 +91,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
       <SiteHeader />
 
       <main className="flex-1 pt-28 md:pt-32">
@@ -100,7 +100,7 @@ export default function ContactPage() {
           <div className="max-w-3xl mx-auto">
             <Badge tone="gold">On vous répond en 24h</Badge>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-6 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-              Parlons de votre <span className="text-gradient-animated">prochain projet</span>
+              Parlons de votre <span className="gold-gradient-text">prochain projet</span>
             </h1>
             <p className="text-[var(--color-text-secondary)] text-lg">
               Une question, une idée, un retour ? Notre équipe est à votre écoute —
@@ -114,18 +114,18 @@ export default function ContactPage() {
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Form */}
             <div className="lg:col-span-3 gradient-border-card">
-              <div className="bg-white rounded-[calc(1.25rem-2px)] p-8 md:p-10 h-full">
+              <div className="bg-[var(--color-surface)] rounded-[calc(1.25rem-2px)] p-8 md:p-10 h-full">
                 <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
                   Envoyez-nous un message
                 </h2>
 
                 {status === 'success' ? (
-                  <div className="bg-green-50 border border-green-200 text-green-700 rounded-2xl p-8 text-center">
-                    <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                  <div className="bg-[var(--color-savanna)]/10 border border-[var(--color-savanna)]/25 text-[var(--color-savanna-light)] rounded-2xl p-8 text-center">
+                    <div className="w-14 h-14 rounded-full bg-[var(--color-savanna)]/15 flex items-center justify-center mx-auto mb-4">
                       <IconCheck size={28} />
                     </div>
                     <h3 className="font-bold text-lg mb-2">Message bien reçu !</h3>
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-[var(--color-savanna-light)]/90">
                       Merci pour votre message. Nous vous répondrons sous 24h ouvrées
                       à l&apos;adresse indiquée.
                     </p>
@@ -144,7 +144,7 @@ export default function ContactPage() {
                           value={form.name}
                           onChange={(e) => setForm({ ...form, name: e.target.value })}
                           placeholder="Ex : Awa Diop"
-                          className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-cream)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all"
                         />
                       </div>
                       <div>
@@ -158,7 +158,7 @@ export default function ContactPage() {
                           value={form.email}
                           onChange={(e) => setForm({ ...form, email: e.target.value })}
                           placeholder="vous@exemple.com"
-                          className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-cream)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all"
                         />
                       </div>
                     </div>
@@ -171,7 +171,7 @@ export default function ContactPage() {
                         id="subject"
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-cream)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all"
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all"
                       >
                         {SUBJECT_OPTIONS.map((option) => (
                           <option key={option.value} value={option.value}>
@@ -192,12 +192,12 @@ export default function ContactPage() {
                         value={form.message}
                         onChange={(e) => setForm({ ...form, message: e.target.value })}
                         placeholder="Dites-nous tout (10 caractères minimum)…"
-                        className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-cream)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all resize-y"
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)] transition-all resize-y"
                       />
                     </div>
 
                     {status === 'error' && (
-                      <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
+                      <div className="flex items-start gap-3 bg-[var(--color-terracotta)]/10 border border-[var(--color-terracotta)]/30 text-[var(--color-terracotta-light)] rounded-xl px-4 py-3 text-sm">
                         <IconAlertCircle size={18} className="flex-shrink-0 mt-0.5" />
                         <span>{errorMessage}</span>
                       </div>
@@ -206,7 +206,7 @@ export default function ContactPage() {
                     <button
                       type="submit"
                       disabled={status === 'sending'}
-                      className="w-full py-3.5 rounded-xl font-semibold bg-[var(--color-earth)] text-white hover:bg-[var(--color-earth-dark)] transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-xl font-semibold bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] text-[#1A1206] hover:-translate-y-0.5 transition-all shadow-md shadow-[var(--color-gold)]/30 hover:shadow-lg hover:shadow-[var(--color-gold)]/50 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:transform-none flex items-center justify-center gap-2"
                     >
                       {status === 'sending' ? (
                         <>
@@ -228,17 +228,17 @@ export default function ContactPage() {
             {/* Channels */}
             <div className="lg:col-span-2 space-y-4">
               {CONTACT_CHANNELS.map((channel) => (
-                <div key={channel.title} className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm">
+                <div key={channel.title} className="glass-dark rounded-2xl p-6 gold-border-hover">
                   <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-[var(--color-cream-dark)] flex items-center justify-center flex-shrink-0">
-                      <channel.icon size={22} className="text-[var(--color-earth)]" />
+                    <div className="w-11 h-11 rounded-xl bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 flex items-center justify-center flex-shrink-0">
+                      <channel.icon size={22} className="text-[var(--color-gold-light)]" />
                     </div>
                     <div>
                       <h3 className="font-bold mb-1">{channel.title}</h3>
                       <p className="text-sm text-[var(--color-text-secondary)] mb-2">{channel.description}</p>
                       <a
                         href={`mailto:${channel.email}?subject=${encodeURIComponent(channel.title)}`}
-                        className="text-sm font-semibold text-[var(--color-earth)] hover:text-[var(--color-earth-dark)] underline underline-offset-2"
+                        className="text-sm font-semibold text-[var(--color-gold-light)] hover:text-[var(--color-gold)] underline underline-offset-2"
                       >
                         {channel.label}
                       </a>
@@ -248,7 +248,7 @@ export default function ContactPage() {
               ))}
 
               {/* Social */}
-              <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm">
+              <div className="glass-dark rounded-2xl p-6 gold-border-hover">
                 <h3 className="font-bold mb-4">Suivez-nous</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {SOCIALS.map((social) => (
@@ -257,9 +257,9 @@ export default function ContactPage() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--color-cream-dark)]/50 hover:bg-[var(--color-cream-dark)] transition-colors font-semibold text-sm"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-gold)]/40 hover:bg-[var(--color-gold)]/[0.08] transition-colors font-semibold text-sm"
                     >
-                      <social.icon size={18} className="text-[var(--color-earth)]" />
+                      <social.icon size={18} className="text-[var(--color-gold-light)]" />
                       {social.label}
                     </a>
                   ))}
@@ -267,10 +267,10 @@ export default function ContactPage() {
               </div>
 
               {/* Location */}
-              <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 shadow-sm">
+              <div className="glass-dark rounded-2xl p-6 gold-border-hover">
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-[var(--color-cream-dark)] flex items-center justify-center flex-shrink-0">
-                    <IconMapPin size={22} className="text-[var(--color-earth)]" />
+                  <div className="w-11 h-11 rounded-xl bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/25 flex items-center justify-center flex-shrink-0">
+                    <IconMapPin size={22} className="text-[var(--color-gold-light)]" />
                   </div>
                   <div>
                     <h3 className="font-bold mb-1">Basés en Afrique de l&apos;Ouest</h3>

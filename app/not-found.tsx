@@ -7,7 +7,7 @@ import { IconArrowRight, IconGlobe, IconSearch, IconMail } from '@/components/ic
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
       <SiteHeader />
 
       <main className="flex-1 flex items-center justify-center px-6 py-24 md:py-32">
@@ -29,13 +29,13 @@ export default function NotFound() {
           {/* Illustration */}
           <div className="relative inline-flex items-center justify-center mb-8" aria-hidden="true">
             <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-terracotta)] opacity-20 blur-2xl absolute" />
-            <div className="relative w-24 h-24 rounded-3xl bg-white border border-[var(--color-border)] shadow-lg flex items-center justify-center rotate-3">
+            <div className="relative w-24 h-24 rounded-3xl glass-dark border border-[var(--color-gold)]/30 shadow-lg flex items-center justify-center rotate-3">
               <span className="text-4xl font-bold text-gradient-animated" style={{ fontFamily: 'var(--font-heading)' }}>
                 404
               </span>
             </div>
-            <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-[var(--color-earth)] flex items-center justify-center">
-              <IconSearch size={18} className="text-white" />
+            <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-dark)] flex items-center justify-center">
+              <IconSearch size={18} className="text-[#1A1206]" />
             </div>
           </div>
 
@@ -63,7 +63,7 @@ export default function NotFound() {
           </div>
 
           {/* Suggested pages */}
-          <div className="bg-white rounded-2xl border border-[var(--color-border)] shadow-sm p-6">
+          <div className="glass-dark rounded-2xl p-6 gold-border-hover">
             <h2 className="font-bold text-[var(--color-text-primary)] mb-4">
               Pages populaires
             </h2>
@@ -79,7 +79,7 @@ export default function NotFound() {
                 <Link
                   key={page.href}
                   href={page.href}
-                  className="px-4 py-3 rounded-xl text-sm font-semibold text-[var(--color-earth)] bg-[var(--color-cream-dark)]/50 hover:bg-[var(--color-cream-dark)] transition-colors"
+                  className="px-4 py-3 rounded-xl text-sm font-semibold text-[var(--color-gold-light)] bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-gold)]/40 hover:bg-[var(--color-gold)]/[0.08] transition-colors"
                 >
                   {page.label}
                 </Link>
@@ -88,7 +88,7 @@ export default function NotFound() {
             <p className="text-sm text-[var(--color-text-muted)] mt-5 flex items-center justify-center gap-2">
               <IconMail size={14} />
               Un problème ? Écrivez-nous à{' '}
-              <a href="mailto:contact@jadariselabs.com" className="text-[var(--color-earth)] underline underline-offset-2 hover:text-[var(--color-earth-dark)]">
+              <a href="mailto:contact@jadariselabs.com" className="text-[var(--color-gold-light)] underline underline-offset-2 hover:text-[var(--color-gold)]">
                 contact@jadariselabs.com
               </a>
             </p>

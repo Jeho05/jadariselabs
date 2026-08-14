@@ -1,6 +1,6 @@
-import { IconFile } from '@/components/icons';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { PageHero } from '@/components/page-hero';
 
 export const metadata = {
     title: 'Conditions Générales d\'Utilisation — JadaRiseLabs',
@@ -8,28 +8,22 @@ export const metadata = {
 
 export default function TermsPage() {
     return (
-        <div className="min-h-screen flex flex-col bg-[var(--color-cream)]">
+        <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
             <SiteHeader />
+            <PageHero
+                badge="Légal"
+                title="Conditions Générales d'Utilisation"
+            />
 
-            <main className="relative z-10 flex-1 max-w-4xl mx-auto px-6 pt-28 md:pt-32 pb-16 w-full">
-                {/* Main Card */}
-                <div className="module-card-premium flex-col p-8">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="module-icon-premium savanna">
-                            <IconFile size={24} />
-                        </div>
-                        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-                            Conditions Générales d&apos;Utilisation
-                        </h1>
-                    </div>
-
-                    <p className="text-sm text-[var(--color-text-muted)] mb-6">
+            <main className="relative z-10 flex-1 max-w-4xl mx-auto px-6 pb-20 w-full">
+                <div className="glass-dark rounded-3xl p-8 md:p-12">
+                    <p className="text-sm text-[var(--color-text-muted)] mb-8">
                         Dernière mise à jour : 13 août 2026
                     </p>
 
                     {/* Plain-language summary */}
-                    <div className="bg-[var(--color-cream)] rounded-2xl border border-[var(--color-border)] p-6 mb-8">
-                        <h2 className="text-base font-bold text-[var(--color-text-primary)] mb-3">
+                    <div className="bg-[var(--color-surface-2)]/70 rounded-2xl border border-[var(--color-gold)]/15 p-6 mb-10">
+                        <h2 className="text-base font-bold text-[var(--color-gold-light)] mb-3">
                             En résumé
                         </h2>
                         <ul className="space-y-2 text-sm text-[var(--color-text-secondary)]">
@@ -41,7 +35,7 @@ export default function TermsPage() {
                         </ul>
                     </div>
 
-                    <div className="prose prose-sm max-w-none text-[var(--color-text-secondary)] space-y-4">
+                    <div className="prose prose-sm max-w-none text-[var(--color-text-secondary)] space-y-8">
                         <section>
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">1. Acceptation des conditions</h2>
                             <p>
@@ -122,7 +116,7 @@ export default function TermsPage() {
                             <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">9. Contact</h2>
                             <p>
                                 Pour toute question relative à ces conditions ou à un litige :
-                                <span className="text-[var(--color-earth)] font-medium"> contact@jadariselabs.com</span>
+                                <span className="text-[var(--color-gold-light)] font-medium"> contact@jadariselabs.com</span>
                             </p>
                         </section>
 
